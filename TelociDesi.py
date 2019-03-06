@@ -11,11 +11,11 @@ def rectime(str_=""):
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
-THICKNESS = 4
+THICKNESS = TKINTER_SCALING*4
 
 FONT_FAMILY = "Helvetica"
 FONT_SIZE = 20
@@ -1090,55 +1090,73 @@ def canMove_output(sx,sy,dx,dy,selection):
 
 def remove(id):
     if id[0]=='g' and id in gates:
-        gate = gates[id]
-        # removing the gate mark from the input and output nodes, otherwise they wouldn't be removed
-        nodes[gate["input_a"]]["parent"] = None
-        if "input_b" in gate: nodes[gate["input_b"]]["parent"] = None
-        nodes[gate["output"]]["parent"] = None
-        # removing the input and output nodes
-        remove(gate["input_a"])
-        if "input_b" in gate: remove(gate["input_b"])
-        remove(gate["output"])
-        # removes the gate from the list of gates
-        del gates[id]
+        remove_gate(id)
     elif id[0]=='n' and id in nodes and not nodes[id]["parent"]:
-        node = nodes[id]
-        # removes every wire connected to this node
-        for wire in node["wires"]:
-            if not wire in wires: continue # to solve a bug with w_ghost
-            wire = wires[wire]
-            # removes the node from the wire before removing the wire, otherwise remove would be called recursively infinitely
-            if wire["node_a"]==id: wire["node_a"]=None
-            if wire["node_b"]==id: wire["node_b"]=None
-                # remove the wire
-            remove(wire["id"])
-        # remove the node from the list of nodes
-        del nodes[id]
+        remove_node(id)
     elif id[0]=='w' and id in wires:
-        wire = wires[id]
-        if wire["node_a"]!=None:
-            nodes[wire["node_a"]]["wires"].remove(id)
-            if len(nodes[wire["node_a"]]["wires"])==0: remove(wire["node_a"])
-        if wire["node_b"]!=None:
-            nodes[wire["node_b"]]["wires"].remove(id)
-            if len(nodes[wire["node_b"]]["wires"])==0: remove(wire["node_b"])
-        del wires[id]
+        remove_wire(id)
     elif id[0]=='i' and id in inputs:
-        input = inputs[id]
-        nodes[input["node"]]["parent"] = None
-        remove(input["node"])
-        del inputs[id]
+        remove_input(id)
     elif id[0]=='p' and id in probes:
-        probe = probes[id]
-        nodes[probe["node"]]["parent"] = None
-        remove(probe["node"])
-        del probes[id]
+        remove_probe(id)
     elif id[0]=='o' and id in outputs:
-        output = outputs[id]
-        nodes[output["node"]]["parent"] = None
-        remove(output["node"])
-        del outputs[id]
+        remove_output(id)
     canvas.delete(id)
+
+def remove_gate(gate_id):
+    gate = gates[gate_id]
+    # removing the gate mark from the input and output nodes, otherwise they wouldn't be removed
+    nodes[gate["input_a"]]["parent"] = None
+    if "input_b" in gate: nodes[gate["input_b"]]["parent"] = None
+    nodes[gate["output"]]["parent"] = None
+    # removing the input and output nodes
+    remove(gate["input_a"])
+    if "input_b" in gate: remove(gate["input_b"])
+    remove(gate["output"])
+    # removes the gate from the list of gates
+    del gates[gate_id]
+
+def remove_node(node_id):
+    node = nodes[node_id]
+    # removes every wire connected to this node
+    for wire in node["wires"]:
+        if not wire in wires: continue # to solve a bug with w_ghost
+        wire = wires[wire]
+        # removes the node from the wire before removing the wire, otherwise remove would be called recursively infinitely
+        if wire["node_a"]==node_id: wire["node_a"]=None
+        if wire["node_b"]==node_id: wire["node_b"]=None
+            # remove the wire
+        remove(wire["id"])
+    # remove the node from the list of nodes
+    del nodes[node_id]
+
+def remove_wire(wire_id):
+    wire = wires[wire_id]
+    if wire["node_a"]!=None:
+        nodes[wire["node_a"]]["wires"].remove(wire_id)
+        if len(nodes[wire["node_a"]]["wires"])==0: remove(wire["node_a"])
+    if wire["node_b"]!=None:
+        nodes[wire["node_b"]]["wires"].remove(wire_id)
+        if len(nodes[wire["node_b"]]["wires"])==0: remove(wire["node_b"])
+    del wires[wire_id]
+
+def remove_input(input_id):
+    input = inputs[input_id]
+    nodes[input["node"]]["parent"] = None
+    remove(input["node"])
+    del inputs[input_id]
+
+def remove_probe(probe_id):
+    probe = probes[probe_id]
+    nodes[probe["node"]]["parent"] = None
+    remove(probe["node"])
+    del probes[probe_id]
+
+def remove_output(output_id):
+    output = outputs[output_id]
+    nodes[output["node"]]["parent"] = None
+    remove(output["node"])
+    del outputs[output_id]
 
 def removeSelection():
     for id in selection: remove(id)

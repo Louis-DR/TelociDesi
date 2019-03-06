@@ -5,8 +5,15 @@
     ],
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,
-<<<<<<< HEAD
-    "python.pythonPath": "C:\\Users\\louis\\AppData\\Local\\Programs\\Python\\Python37\\python.exe",
-=======
->>>>>>> parent of 801e919... salut cets clement
+    "python.pythonPath": "C:\\Users\\Louis\\AppData\\Local\\Programs\\Python\\Python36\\python.exe",
+    "coloredRegions.namedColors": {
+        "cyan": "rgba(26, 188, 156,0.1)",
+        "green": "rgba(46, 204, 113,0.1)",
+        "blue": "rgba(52, 152, 219,0.1)",
+        "purple": "rgba(155, 89, 182,0.1)",
+        "yellow": "rgba(241, 196, 15,0.1)",
+        "orange": "rgba(230, 126, 34,0.1)",
+        "red": "rgba(231, 76, 60,0.1)",
+        "white": "rgba(236, 240, 241,0.1)"
+    },
 }
