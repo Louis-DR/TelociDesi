@@ -2,6 +2,7 @@
 from tkinter import *
 import json
 #Vous êtes des malaaaaaaaaaaaaaaaaaaaaaaaaaaaaades
+#completement malaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaades
 import time
 lasttime = time.time()
 def rectime(str_=""):
