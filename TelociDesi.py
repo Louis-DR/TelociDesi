@@ -387,7 +387,7 @@ thickness = THICKNESS
 
 root = Tk()
 root.title('Truite')
-root.tk.call('tk', 'scaling', 1.0)
+root.tk.call('tk', 'scaling', TKINTER_SCALING)
 
 canvas_width = grid_width*grid_unit
 canvas_height = grid_height*grid_unit
