@@ -11,6 +11,7 @@ def rectime(str_=""):
     lasttime = time.time()
 
 
+
 #region [red] CONFIGURATION
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
