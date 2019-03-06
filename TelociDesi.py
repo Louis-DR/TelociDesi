@@ -1,3 +1,5 @@
+#coucouc
+
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
 import json
