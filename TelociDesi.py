@@ -11,6 +11,7 @@ def rectime(str_=""):
     lasttime = time.time()
 
 
+
 #region [red] CONFIGURATION
 
 TKINTER_SCALING = 0.5
