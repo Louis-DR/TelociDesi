@@ -1002,6 +1002,7 @@ def zoom(dz):
     updateScreen()
     drawGrid()
     drawAll()
+    drawSelection()
 
 def canCreateGate(sx,sy):
     for xxx in range(sx-3, sx+5):
@@ -1172,6 +1173,12 @@ def select(id=None, add=False):
     if id!=None:
         if id[0]=='n' and nodes[id]["parent"]: id = nodes[id]["parent"]
         if not id in selection: selection.append(id)
+        drawSelection()
+    else: selection = []
+
+def drawSelection():
+    canvas.delete("selection")
+    for id in selection:
         if id[0]=='g':
             sx = gates[id]["x"] - view_x
             sy = gates[id]["y"] - view_y
@@ -1192,7 +1199,6 @@ def select(id=None, add=False):
             sx = outputs[id]["x"] - view_x
             sy = outputs[id]["y"] - view_y
             canvas.create_rectangle((sx-1)*grid_unit , sy*grid_unit , (sx+1)*grid_unit , (sy+1)*grid_unit , width=0 , fill="#00F" , stipple="gray12" , tags="selection")
-    else: selection = []
 
 def addTag(sx,sy):
     global tags
