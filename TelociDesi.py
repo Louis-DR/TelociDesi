@@ -10,7 +10,7 @@ def rectime(str_=""):
     print(1000*(time.time()-lasttime))
     lasttime = time.time()
 
-
+#teststgzvhujzdcvhjebshfvbivfbfvebhjzbvhehevbhefvbhyubiu
 #region [red] CONFIGURATION
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
