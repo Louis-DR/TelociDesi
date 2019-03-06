@@ -11,6 +11,7 @@ def rectime(str_=""):
     lasttime = time.time()
 
 
+#edgteucbriznbvrfzrvkinefznoz n grnhjb knb nhjbthnjebgtth'uy
 
 #region [red] CONFIGURATION
 
