@@ -1,6 +1,7 @@
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
 import json
+
 import time
 lasttime = time.time()
 def rectime(str_=""):
@@ -749,7 +750,8 @@ def drawOutput(output):
 
 def drawTags():
     canvas.delete("tag")
-    for tag,parent_id in tags.items(): drawTag(tag,parent_id)
+    for tag,parent_id in tags.items():
+        drawTag(tag,parent_id)
 
 def drawTag(tag,parent_id):
     parent = None
@@ -1438,6 +1440,8 @@ def saveCircuit():
     file.write('\n')
     file.write(json.dumps(outputs))
     file.write('\n')
+    file.write(json.dumps(tags))
+    file.write('\n')
     idgens = {
         "gate_idgen": gate_idgen,
         "node_idgen": node_idgen,
@@ -1445,6 +1449,7 @@ def saveCircuit():
         "input_idgen": input_idgen,
         "probe_idgen": probe_idgen,
         "output_idgen": output_idgen,
+        "tag_idgen": tag_idgen,
         "view_x": view_x,
         "view_y": view_y
     }
@@ -1458,12 +1463,14 @@ def loadCircuit():
     global inputs
     global probes
     global outputs
+    global tags
     global gate_idgen
     global node_idgen
     global wire_idgen
     global input_idgen
     global probe_idgen
     global output_idgen
+    global tag_idgen
     global view_x
     global view_y
     file = open(FILE_DIRECTORY+FILE_NAME+".tlc", 'r')
@@ -1473,6 +1480,7 @@ def loadCircuit():
     inputs = json.loads(file.readline())
     probes = json.loads(file.readline())
     outputs = json.loads(file.readline())
+    tags = json.loads(file.readline())
     idgens = json.loads(file.readline())
     gate_idgen = idgens["gate_idgen"]
     node_idgen = idgens["node_idgen"]
@@ -1480,6 +1488,7 @@ def loadCircuit():
     input_idgen = idgens["input_idgen"]
     probe_idgen = idgens["probe_idgen"]
     output_idgen = idgens["output_idgen"]
+    tag_idgen = idgens["tag_idgen"]
     view_x = idgens["view_x"]
     view_y = idgens["view_y"]
     print(gate_idgen)
@@ -1556,4 +1565,5 @@ root.mainloop()
 
 
 # OVERHAULS :
-# Simulation : separate the simulation from the creation of gates (canvas, screen, etc) : only a list of inputs, outputs, probes, gates without ids and connections (plus transmission times ?)
+# Simulation : separate the simulation from the creation of gates (canvas, screen, etc) : only a list of inputs, outputs, probes, gates without ids and connections (plus transmission times ?), needs delay gate ?
+# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save file
