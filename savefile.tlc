@@ -1,0 +1,1 @@
+{"g_0": {"id": "g_0", "gate": "AND", "x": 14, "y": 10, "clockCycle": 0, "input_a": "n_0", "input_b": "n_1", "output": "n_2"}, "g_1": {"id": "g_1", "gate": "AND", "x": 27, "y": 17, "clockCycle": 0, "input_a": "n_3", "input_b": "n_4", "output": "n_5"}, "g_2": {"id": "g_2", "gate": "AND", "x": 14, "y": 24, "clockCycle": 0, "input_a": "n_6", "input_b": "n_7", "output": "n_8"}}
