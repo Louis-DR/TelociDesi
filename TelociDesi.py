@@ -10,9 +10,6 @@ def rectime(str_=""):
     print(1000*(time.time()-lasttime))
     lasttime = time.time()
 
-
-#edgteucbriznbvrfzrvkinefznoz n grnhjb knb nhjbthnjebgtth'uy
-
 #region [red] CONFIGURATION
 
 TKINTER_SCALING = 0.5
@@ -1097,11 +1094,11 @@ def remove(id):
         gate = gates[id]
         # removing the gate mark from the input and output nodes, otherwise they wouldn't be removed
         nodes[gate["input_a"]]["parent"] = None
-        nodes[gate["input_b"]]["parent"] = None
+        if "input_b" in gate: nodes[gate["input_b"]]["parent"] = None
         nodes[gate["output"]]["parent"] = None
         # removing the input and output nodes
         remove(gate["input_a"])
-        remove(gate["input_b"])
+        if "input_b" in gate: remove(gate["input_b"])
         remove(gate["output"])
         # removes the gate from the list of gates
         del gates[id]
