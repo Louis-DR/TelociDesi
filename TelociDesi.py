@@ -10,7 +10,6 @@ def rectime(str_=""):
     print(1000*(time.time()-lasttime))
     lasttime = time.time()
 
-
 #region [red] CONFIGURATION
 
 TKINTER_SCALING = 0.5
