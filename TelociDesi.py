@@ -12,7 +12,7 @@ def rectime(str_=""):
 
 
 #region [red] CONFIGURATION
-
+#perte de temps
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = 40
