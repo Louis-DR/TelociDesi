@@ -11,11 +11,13 @@ def rectime(str_=""):
     lasttime = time.time()
 
 
+
 #region [red] CONFIGURATION
 
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
-GRID_UNIT = 40
+GRID_UNIT = TKINTER_SCALING*40
 THICKNESS = 4
 
 FONT_FAMILY = "Helvetica"
@@ -24,7 +26,12 @@ FONT_SIZE = 20
 FILE_DIRECTORY = ""
 FILE_NAME = "testcircuit"
 
-CHRONOGRAM_WIDTH = 800
+BUTTON_WIDTH = 6
+TOOL_PANEL_WIDTH = TKINTER_SCALING*100
+
+CHRONOGRAM_WIDTH = TKINTER_SCALING*800
+CHRONOGRAM_MARGIN_VERTICAL = TKINTER_SCALING*40
+CHRONOGRAM_MARGIN_HORIZONTAL = 40
 
 SHIFT_MOVE_PERCENTAGE = 0.5
 
@@ -381,7 +388,7 @@ thickness = THICKNESS
 
 root = Tk()
 root.title('Truite')
-root.tk.call('tk', 'scaling', 1.0)
+root.tk.call('tk', 'scaling', TKINTER_SCALING)
 
 canvas_width = grid_width*grid_unit
 canvas_height = grid_height*grid_unit
@@ -1299,31 +1306,31 @@ canvas.bind("<Control-o>", lambda event: loadCircuit())
 #region [yellow] INTERFACE
 
 buttonFrame = Frame(root)
-label_tools = Label(buttonFrame, text="Tools", height=1 , width=6 , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=0, column=0)
-button_wire = Button(buttonFrame, text="Wire", height=1 , width=6 , command=lambda: selectTool("w") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=1, column=0)
-button_input = Button(buttonFrame, text="Input", height=1 , width=6 , command=lambda: selectTool("i") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=2, column=0)
-button_probe = Button(buttonFrame, text="Probe", height=1 , width=6 , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=3, column=0)
-button_output = Button(buttonFrame, text="Output", height=1 , width=6 , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
-button_tag = Button(buttonFrame, text="Tag", height=1 , width=6 , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
-label_gates = Label(buttonFrame, text="Gates", height=1 , width=6 , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=6, column=0)
-button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=6 , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=7, column=0)
-button_NOT = Button(buttonFrame, text="NOT", height=1 , width=6 , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=8, column=0)
-button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=6 , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
-button_ABS = Button(buttonFrame, text="ABS", height=1 , width=6 , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
-button_INC = Button(buttonFrame, text="INC", height=1 , width=6 , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
-button_DEC = Button(buttonFrame, text="DEC", height=1 , width=6 , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
-button_RTU = Button(buttonFrame, text="RTU", height=1 , width=6 , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
-button_RTD = Button(buttonFrame, text="RTD", height=1 , width=6 , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
-button_CLU = Button(buttonFrame, text="CLU", height=1 , width=6 , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
-button_CLD = Button(buttonFrame, text="CLD", height=1 , width=6 , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
-label_gap1 = Label(buttonFrame, text=" ", height=1 , width=6 , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=17, column=0)
-button_AND = Button(buttonFrame, text="AND", height=1 , width=6 , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=18, column=0)
-button_OR = Button(buttonFrame, text="OR", height=1 , width=6 , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=19, column=0)
-button_CONS = Button(buttonFrame, text="CONS", height=1 , width=6 , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
-button_ANY = Button(buttonFrame, text="ANY", height=1 , width=6 , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
-button_MUL = Button(buttonFrame, text="MUL", height=1 , width=6 , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
-button_SUM = Button(buttonFrame, text="SUM", height=1 , width=6 , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
-buttonFrame.columnconfigure(index=0,minsize=100)
+label_tools = Label(buttonFrame, text="Tools", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=0, column=0)
+button_wire = Button(buttonFrame, text="Wire", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("w") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=1, column=0)
+button_input = Button(buttonFrame, text="Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=2, column=0)
+button_probe = Button(buttonFrame, text="Probe", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=3, column=0)
+button_output = Button(buttonFrame, text="Output", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
+button_tag = Button(buttonFrame, text="Tag", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
+label_gates = Label(buttonFrame, text="Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=6, column=0)
+button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=7, column=0)
+button_NOT = Button(buttonFrame, text="NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=8, column=0)
+button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
+button_ABS = Button(buttonFrame, text="ABS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
+button_INC = Button(buttonFrame, text="INC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
+button_DEC = Button(buttonFrame, text="DEC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
+button_RTU = Button(buttonFrame, text="RTU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
+button_RTD = Button(buttonFrame, text="RTD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
+button_CLU = Button(buttonFrame, text="CLU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
+button_CLD = Button(buttonFrame, text="CLD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=17, column=0)
+button_AND = Button(buttonFrame, text="AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=18, column=0)
+button_OR = Button(buttonFrame, text="OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=19, column=0)
+button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
+button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
+button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
+button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
+buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
 
 bottomFrame = Frame(root)
 viewPositionLabelText = StringVar()
@@ -1334,14 +1341,15 @@ toolLabelText.set(selectedTool)
 label_tool = Label(bottomFrame , width=5 , textvariable=toolLabelText , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=0, column=1)
 bottomFrame.rowconfigure(index=0,minsize=20)
 
+chronogram_height = canvas_height
 simulationPanel = Frame(root)
-chronogram = Canvas(root, width=CHRONOGRAM_WIDTH, height=canvas_height)
+chronogram = Canvas(root, width=CHRONOGRAM_WIDTH, height=chronogram_height)
 
 def drawChronogram():
     chronogram.delete("all")
     drawChronogram_grid()
     if len(recording)>0:
-        gap = min(80, (canvas_height-120-(len(recording)-1)*20)/len(recording))
+        gap = min(2*CHRONOGRAM_MARGIN_HORIZONTAL, (chronogram_height-40-2*CHRONOGRAM_MARGIN_VERTICAL-(len(recording)-1)*20)/len(recording))
         kkk=0
         for stream_id, stream in recording.items():
             yyy = 20 + (20+gap)*kkk
@@ -1351,18 +1359,18 @@ def drawChronogram():
 
 def drawChronogram_axis():
     chronogram.delete("axis")
-    chronogram.create_rectangle(40,40 , 40,canvas_height-40, fill="#777", outline="#777", width=2, tags="axis")
-    chronogram.create_rectangle(40,canvas_height-40 , CHRONOGRAM_WIDTH-40,canvas_height-40, fill="#777", outline="#777", width=2, tags="axis")
+    chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL,CHRONOGRAM_MARGIN_VERTICAL , CHRONOGRAM_MARGIN_HORIZONTAL,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL, fill="#777", outline="#777", width=2, tags="axis")
+    chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL , CHRONOGRAM_WIDTH-CHRONOGRAM_MARGIN_HORIZONTAL,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL, fill="#777", outline="#777", width=2, tags="axis")
 
 def drawChronogram_grid():
     chronogram.delete("grid")
     if clockCycle==0: return
     for kkk in range(clockCycle):
-        xxx = 40+(1+kkk)*(CHRONOGRAM_WIDTH-80)/clockCycle
-        chronogram.create_rectangle(xxx,40 , xxx,canvas_height-40, fill="#DDD", width=0, tags="grid")        
+        xxx = CHRONOGRAM_MARGIN_HORIZONTAL+(1+kkk)*(CHRONOGRAM_WIDTH-2*CHRONOGRAM_MARGIN_HORIZONTAL)/clockCycle
+        chronogram.create_rectangle(xxx,CHRONOGRAM_MARGIN_VERTICAL , xxx,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL, fill="#DDD", width=0, tags="grid")        
 
 def drawChronogram_stream(y,h,stream_id,stream):
-    textCenter = canvas_height-40-y-h/2
+    textCenter = chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-h/2
     textID = chronogram.create_text(10,textCenter , text=stream_id, font=(FONT_FAMILY, FONT_SIZE), fill="black", angle=90, anchor="n")
     background = None
     line = None
@@ -1375,13 +1383,13 @@ def drawChronogram_stream(y,h,stream_id,stream):
     elif stream_id[0]=='o':
         background = "#FDD"
         line = "#F88"
-    chronogram.create_rectangle(40,canvas_height-40-y , CHRONOGRAM_WIDTH-40,canvas_height-40-y-h, fill=background, width=0, tags="content")
-    gap = (CHRONOGRAM_WIDTH-80)/len(stream)
+    chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y , CHRONOGRAM_WIDTH-CHRONOGRAM_MARGIN_HORIZONTAL,chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-h, fill=background, width=0, tags="content")
+    gap = (CHRONOGRAM_WIDTH-2*CHRONOGRAM_MARGIN_HORIZONTAL)/len(stream)
     for kkk in range(len(stream)):
-        yyy = canvas_height-40-y-0.5*h*stream[kkk]-1
-        chronogram.create_rectangle(40+gap*kkk , yyy , 40+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
+        yyy = chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk]-1
+        chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
         if kkk<len(stream)-1:
-            chronogram.create_rectangle(40+gap*(kkk+1) , yyy , 40+gap*(kkk+1) , canvas_height-40-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -1405,12 +1413,15 @@ def saveCircuit():
     file.write('\n')
     file.write(json.dumps(probes))
     file.write('\n')
+    file.write(json.dumps(outputs))
+    file.write('\n')
     idgens = {
         "gate_idgen": gate_idgen,
         "node_idgen": node_idgen,
         "wire_idgen": wire_idgen,
         "input_idgen": input_idgen,
         "probe_idgen": probe_idgen,
+        "output_idgen": output_idgen,
         "view_x": view_x,
         "view_y": view_y
     }
@@ -1423,11 +1434,13 @@ def loadCircuit():
     global wires
     global inputs
     global probes
+    global outputs
     global gate_idgen
     global node_idgen
     global wire_idgen
     global input_idgen
     global probe_idgen
+    global output_idgen
     global view_x
     global view_y
     file = open(FILE_DIRECTORY+FILE_NAME+".tlc", 'r')
@@ -1436,12 +1449,14 @@ def loadCircuit():
     wires = json.loads(file.readline())
     inputs = json.loads(file.readline())
     probes = json.loads(file.readline())
+    outputs = json.loads(file.readline())
     idgens = json.loads(file.readline())
     gate_idgen = idgens["gate_idgen"]
     node_idgen = idgens["node_idgen"]
     wire_idgen = idgens["wire_idgen"]
     input_idgen = idgens["input_idgen"]
     probe_idgen = idgens["probe_idgen"]
+    output_idgen = idgens["output_idgen"]
     view_x = idgens["view_x"]
     view_y = idgens["view_y"]
     print(gate_idgen)
