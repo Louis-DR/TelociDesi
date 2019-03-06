@@ -5,5 +5,8 @@
     ],
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,
+<<<<<<< HEAD
     "python.pythonPath": "C:\\Users\\louis\\AppData\\Local\\Programs\\Python\\Python37\\python.exe",
+=======
+>>>>>>> parent of 801e919... salut cets clement
 }
