@@ -11,7 +11,6 @@ def rectime(str_=""):
     lasttime = time.time()
 
 
-
 #region [red] CONFIGURATION
 
 TKINTER_SCALING = 0.5
@@ -388,7 +387,7 @@ thickness = THICKNESS
 
 root = Tk()
 root.title('Truite')
-root.tk.call('tk', 'scaling', 1.0)
+root.tk.call('tk', 'scaling', TKINTER_SCALING)
 
 canvas_width = grid_width*grid_unit
 canvas_height = grid_height*grid_unit
@@ -1096,11 +1095,11 @@ def remove(id):
         gate = gates[id]
         # removing the gate mark from the input and output nodes, otherwise they wouldn't be removed
         nodes[gate["input_a"]]["parent"] = None
-        nodes[gate["input_b"]]["parent"] = None
+        if "input_b" in gate: nodes[gate["input_b"]]["parent"] = None
         nodes[gate["output"]]["parent"] = None
         # removing the input and output nodes
         remove(gate["input_a"])
-        remove(gate["input_b"])
+        if "input_b" in gate: remove(gate["input_b"])
         remove(gate["output"])
         # removes the gate from the list of gates
         del gates[id]
