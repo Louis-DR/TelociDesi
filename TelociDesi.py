@@ -413,6 +413,7 @@ def drawAll():
     for key, output in outputs.items():
         drawOutput(output)
     drawTags()
+    drawSelection()
 
 def drawGate_AND(sx,sy,id,ghost=False):
     tags="content "+id
@@ -1513,6 +1514,7 @@ root.mainloop()
 # TODO
 # Bugs :
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
+#   - tags and deleting outputs and inputs does not wrk well
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
