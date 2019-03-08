@@ -14,7 +14,7 @@ def rectime(str_=""):
 #testusername
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.5
+TKINTER_SCALING = 1.0
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -1239,7 +1239,7 @@ def hover(event):
     if selectedTool==None: return
     if selectedTool[0]=='g':
         canvas.create_rectangle(grid_unit*(sx-3+0.5) , grid_unit*(sy-2+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+2+0.5) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
-    if selectedTool[0]=='w':
+    elif selectedTool[0]=='w':
         canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy) , grid_unit*(sx+1) , grid_unit*(sy+1) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
         if temp_node != None:
             ghost_node = {
@@ -1257,6 +1257,12 @@ def hover(event):
                 "node_b": temp_node
             }
             drawWire(ghost_wire)
+    elif selectedTool[0]=='i':
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy) , grid_unit*(sx+2) , grid_unit*(sy+1) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
+    elif selectedTool[0]=='p':
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy) , grid_unit*(sx+1) , grid_unit*(sy+2) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
+    elif selectedTool[0]=='o':
+        canvas.create_rectangle(grid_unit*(sx-1) , grid_unit*(sy) , grid_unit*(sx+1) , grid_unit*(sy+1) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
 
 def leftClick(event, shift=False):
     global selection
