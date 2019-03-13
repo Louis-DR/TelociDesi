@@ -14,7 +14,7 @@ def rectime(str_=""):
 #testusername
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -25,6 +25,7 @@ FONT_SIZE = 20
 
 FILE_DIRECTORY = ""
 FILE_NAME = "testcircuit"
+PROGRAM_NAME = "testprog"
 
 BUTTON_WIDTH = 6
 TOOL_PANEL_WIDTH = TKINTER_SCALING*100
@@ -129,13 +130,25 @@ def sortRecording(): #should be useless
 
 def simulation_update():
     global clockCycle
+    print(tags)
     if not checkRecordingKeys(): resetRecording()
     clockCycle +=1
     print(clockCycle)
+    readProgram()
     for input in inputs:
         update_input(input)
     print(recording)
     drawChronogram()
+
+def readProgram():
+    global inputs
+    print("    reading program")
+    for tag,id in tags.items():
+        if id in inputs and tag in program:
+            if clockCycle<=len(program[tag]):
+                inputs[id]["value"] = program[tag][clockCycle-1]
+            else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
+        else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
 
 def update_gate(gate_id):
     print("    updating gate")
@@ -1434,7 +1447,7 @@ canvas.pack(side="right")
 #region [orange] SAVING & LOADING
 
 def saveCircuit():
-    file = open(FILE_DIRECTORY+FILE_NAME+".tlc", 'w')
+    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'w')
     file.write(json.dumps(gates))
     file.write('\n')
     file.write(json.dumps(nodes))
@@ -1480,7 +1493,7 @@ def loadCircuit():
     global tag_idgen
     global view_x
     global view_y
-    file = open(FILE_DIRECTORY+FILE_NAME+".tlc", 'r')
+    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'r')
     gates = json.loads(file.readline())
     nodes = json.loads(file.readline())
     wires = json.loads(file.readline())
@@ -1503,6 +1516,12 @@ def loadCircuit():
     updateScreen()
     drawAll()
     resetSimulation()
+    loadProgram()
+
+def loadProgram():
+    global program
+    file = open(FILE_DIRECTORY+PROGRAM_NAME+".truitep", 'r')
+    program = json.loads(file.readline())
 
 #endregion
 
