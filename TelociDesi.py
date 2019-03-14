@@ -1548,6 +1548,7 @@ root.mainloop()
 #   - ability to mirror gates
 #   - negate output
 #   - finish other unary gates
+#   - basic gates with more than two inputs
 # Inputs :
 # Outputs :
 # Abstraction :
