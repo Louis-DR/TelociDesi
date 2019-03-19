@@ -87,6 +87,23 @@ tags = {}
 program = {}
 recording = {}
 
+def buildModel():
+    model_inputs = {}
+    modelBuild_queue = []
+    stateVectorCoordinate = 0
+    for input_id, input in inputs.items():
+        model_inputs[input_id] = stateVectorCoordinate
+        stateVectorCoordinate +=1
+        modelBuild_queue.append(input["node"])
+    while queue:
+        currentElement = queue.pop()
+        if currentElement==None: print("NONE ELEMENT WTF !")
+        if currentElement[0]=='n':
+            newNet = []
+            netDigger_queue = [currentElement]
+
+
+
 def resetSimulation():
     for key, node in nodes.items():
         node["clockCycle"]=0
@@ -1516,7 +1533,7 @@ def loadCircuit():
     drawAll()
     resetSimulation()
     loadProgram()
-
+x   
 def loadProgram():
     global program
     file = open(FILE_DIRECTORY+PROGRAM_NAME+".truitep", 'r')
