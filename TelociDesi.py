@@ -1,5 +1,6 @@
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
+from collections import deque
 import json
 
 import time
@@ -13,7 +14,7 @@ def rectime(str_=""):
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -88,21 +89,42 @@ program = {}
 recording = {}
 
 def buildModel():
-    model_inputs = {}
-    modelBuild_queue = []
-    stateVectorCoordinate = 0
-    for input_id, input in inputs.items():
-        model_inputs[input_id] = stateVectorCoordinate
-        stateVectorCoordinate +=1
-        modelBuild_queue.append(input["node"])
-    while queue:
-        currentElement = queue.pop()
-        if currentElement==None: print("NONE ELEMENT WTF !")
-        if currentElement[0]=='n':
-            newNet = []
-            netDigger_queue = [currentElement]
+    net_idgen = 0
+    net2ids = {}
+    id2net = {}
+    tag2net = {}
 
+    nodesQueue = deque(nodes.keys())
 
+    while nodesQueue:
+        currentElement = nodesQueue.popleft()
+        if currentElement not in id2net:
+            newNet_id = net_idgen
+            net_idgen +=1
+            net2ids[newNet_id] = []
+            netQueue = deque([currentElement])
+            while netQueue:
+                netQueueElement = netQueue.popleft()
+                if netQueueElement not in id2net:
+                    id2net[netQueueElement] = newNet_id
+                    net2ids[newNet_id].append(netQueueElement)
+                    netQueueElementNode = nodes[netQueueElement]
+                    for wire_id in netQueueElementNode["wires"]:
+                        wire = wires[wire_id]
+                        if wire["node_a"] not in net2ids[newNet_id]: netQueue.append(wire["node_a"])
+                        if wire["node_b"] not in net2ids[newNet_id]: netQueue.append(wire["node_b"])
+
+    for tag_name, tag_id in tags.items():
+        if tag_id[0]=='i': tag2net[tag_name] = id2net[inputs[tag_id]["node"]]
+        if tag_id[0]=='o': tag2net[tag_name] = id2net[outputs[tag_id]["node"]]
+    for input_id,input in inputs.items():
+        if input_id not in tags.values():
+            print("Untagged input {}".format(input_id))
+            tag2net[input_id] = id2net[input["node"]]
+    for output_id,output in outputs.items():
+        if output_id not in tags.values():
+            print("Untagged output {}".format(output_id))
+            tag2net[output_id] = id2net[output["node"]]
 
 def resetSimulation():
     for key, node in nodes.items():
@@ -1361,6 +1383,8 @@ canvas.bind("<*>", lambda event: zoom(-1))
 canvas.bind("<Control-s>", lambda event: saveCircuit())
 canvas.bind("<Control-o>", lambda event: loadCircuit())
 
+canvas.bind("<Control-m>", lambda event: buildModel())
+
 #endregion
 
 
@@ -1532,8 +1556,8 @@ def loadCircuit():
     updateScreen()
     drawAll()
     resetSimulation()
-    loadProgram()
-x   
+    # loadProgram()
+
 def loadProgram():
     global program
     file = open(FILE_DIRECTORY+PROGRAM_NAME+".truitep", 'r')
