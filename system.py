@@ -45,13 +45,12 @@ class System:
             system = equation.system
             if type(system) is System:
                 if VERBOSE : print("Complex system")
-                arguments = [self.state[i] for i in equation.arguments]
+                arguments = {tag:self.state[self.tag2state[tag]] for tag in equation.arguments}
                 system.load(arguments)
                 system.update()
-                results = system.retrieve(len(equation.destinations))
-                for i in range(len(results)):
-                    destination = equation.destinations[i]
-                    next_state[destination] = results[i]
+                results = system.retrieve()
+                for tag,value in results.items():
+                    next_state[self.tag2state[tag]] = value
             else:
                 if VERBOSE : print("Microgate : "+equation.system)
                 if len(equation.arguments)==1:
@@ -75,16 +74,16 @@ class System:
 # class NonAlgebraicSystem:
 
 
-S1 = System(4,[
+S1 = System(4,{"inputA":0 , "inputB":1 , "output":3},[
     Equation("NAND", [0, 1], [2]),
     Equation("NOT", [2], [3])
 ])
-S2 = System(4,[
+S2 = System(4,{"inputA":0 , "inputB":1 , "output":3},[
     Equation("NAND", [0, 1], [2]),
     Equation("NOT", [2], [3])
 ])
 
-S3 = System(6,[
+S3 = System(6,{"A":0 , "B":1 , "C":2},[
     Equation(S1, [0, 1], [3]),
     Equation(S2, [3, 2], [4]),
     Equation("NOT", [4], [5])
@@ -92,7 +91,7 @@ S3 = System(6,[
 
 print("\n\n")
 
-S3.load([1,1,1]) ; S3.update() ; S3.printState()
+S3.load({"A":1 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
 S3.load([1,1,1]) ; S3.update() ; S3.printState()
 S3.load([1,1,1]) ; S3.update() ; S3.printState()
 S3.load([2,1,1]) ; S3.update() ; S3.printState()

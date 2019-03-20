@@ -125,6 +125,7 @@ def buildModel():
         if output_id not in tags.values():
             print("Untagged output {}".format(output_id))
             tag2net[output_id] = id2net[output["node"]]
+    print("nothing")
 
 def resetSimulation():
     for key, node in nodes.items():
