@@ -1,5 +1,3 @@
-from microgates import MICROGATES
-
 VERBOSE = False
 
 class Equation:
@@ -8,12 +6,38 @@ class Equation:
         self.arguments = arguments
         self.destinations = destinations
 
+
+# Microgate = few inputs, 1 output, 1 equation
+MICROGATES = {
+    "NOT": [2,1,0],
+    "NCONS": [[2,1,1],
+              [1,1,1],
+              [1,1,0]],
+    "NANY": [[2,2,1],
+             [2,1,0],
+             [1,0,0]],
+    "NAND": [[2,2,2],
+             [2,1,1],
+             [2,1,0]],
+    "NOR": [[2,1,0],
+            [1,1,0],
+            [0,0,0]]
+}
+
+# Microsystem = few inputs, 1 output, many equations
+# class MicroSystem:
+
+# System = many inputs, many outpus, many equations
 class System:
-    def __init__(self, nbrstate, equations):
+    def __init__(self, nbrstate, tag2state, equations):
         self.state = [1 for k in range(nbrstate)]
+        self.tag2state = tag2state
         self.equations = equations
+
     def load(self, arguments):
-        self.state[:len(arguments)] = arguments
+        for tag, value in arguments.items():
+            self.state[self.tag2state[tag]] = value
+
     def update(self):
         next_state = self.state.copy()
         if VERBOSE : print("Début update : next_state = {}  ;  state = {}".format(next_state, self.state))
@@ -24,10 +48,10 @@ class System:
                 arguments = [self.state[i] for i in equation.arguments]
                 system.load(arguments)
                 system.update()
-                retrieved = system.retrieve(len(equation.destinations))
-                for i in range(len(retrieved)):
+                results = system.retrieve(len(equation.destinations))
+                for i in range(len(results)):
                     destination = equation.destinations[i]
-                    next_state[destination] = retrieved[i]
+                    next_state[destination] = results[i]
             else:
                 if VERBOSE : print("Microgate : "+equation.system)
                 if len(equation.arguments)==1:
@@ -39,11 +63,17 @@ class System:
                 if VERBOSE : print("Current next_state = {}".format(next_state))
         self.state = next_state
         if VERBOSE : print("Fin update : next_state = {}  ;  state = {}".format(next_state, self.state))
+    
+    def retrieve(self):
+        return {tag:self.state[tag] for tag in self.tag2state}
+
     def printState(self):
         print(self.state)
         if VERBOSE : print("\n\n")
-    def retrieve(self, nbrreturns):
-        return self.state[-nbrreturns:]
+
+# NonAlgebraicSystem = many inputs, many outpus, transfer function
+# class NonAlgebraicSystem:
+
 
 S1 = System(4,[
     Equation("NAND", [0, 1], [2]),
