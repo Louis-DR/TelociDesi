@@ -1,6 +1,7 @@
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
 from collections import deque
+from system import *
 import json
 
 import time
@@ -89,13 +90,11 @@ program = {}
 recording = {}
 
 def buildModel():
+    # build the net list
     net_idgen = 0
     net2ids = {}
     id2net = {}
-    tag2net = {}
-
     nodesQueue = deque(nodes.keys())
-
     while nodesQueue:
         currentElement = nodesQueue.popleft()
         if currentElement not in id2net:
@@ -113,7 +112,10 @@ def buildModel():
                         wire = wires[wire_id]
                         if wire["node_a"] not in net2ids[newNet_id]: netQueue.append(wire["node_a"])
                         if wire["node_b"] not in net2ids[newNet_id]: netQueue.append(wire["node_b"])
+    nbrNet = net_idgen
 
+    # build the input output to net dictionary
+    tag2net = {}
     for tag_name, tag_id in tags.items():
         if tag_id[0]=='i': tag2net[tag_name] = id2net[inputs[tag_id]["node"]]
         if tag_id[0]=='o': tag2net[tag_name] = id2net[outputs[tag_id]["node"]]
@@ -126,6 +128,18 @@ def buildModel():
             print("Untagged output {}".format(output_id))
             tag2net[output_id] = id2net[output["node"]]
     print("nothing")
+
+    # build the list of equations
+    equations = []
+    for gate in gates.values():
+        if gate["gate"] in MICROGATES:
+            if "input_b" in gate:
+                equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+            else:
+                equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]]] , [id2net[gate["output"]]]))
+        elif gate["gate"] in microSystemGateNbrstates:
+            equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+    print(equations)
 
 def resetSimulation():
     for key, node in nodes.items():
