@@ -5,7 +5,11 @@
     ],
     "python.linting.enabled": false,
     "C_Cpp.dimInactiveRegions": true,
+<<<<<<< HEAD
     "python.pythonPath": "C:\\Users\\Louis\\AppData\\Local\\Programs\\Python\\Python36\\python.exe",
+=======
+    "python.pythonPath": "C:\\Users\\Utilisateur\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe",
+>>>>>>> 54fde4d849413f892755879fe11a1e389ebff5d6
     "coloredRegions.namedColors": {
         "cyan": "rgba(26, 188, 156,0.1)",
         "green": "rgba(46, 204, 113,0.1)",
