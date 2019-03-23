@@ -6,4 +6,5 @@
 {"p_0": {"id": "p_0", "x": 29, "y": 23, "clockCycle": 0, "value": 1, "node": "n_5"}}
 {"o_0": {"id": "o_0", "x": 43, "y": 27, "clockCycle": 0, "value": 1, "node": "n_6"}, "o_1": {"id": "o_1", "x": 23, "y": 32, "clockCycle": 0, "value": 1, "node": "n_10"}}
 {"A": "i_0", "input B": "i_1", "R": "o_0"}
-{"gate_idgen": 4, "system_idgen": 0, "node_idgen": 21, "wire_idgen": 17, "input_idgen": 3, "probe_idgen": 1, "output_idgen": 2, "tag_idgen": 3, "view_x": 0, "view_y": 0}
+{}
+{"gate_idgen": 4, "system_idgen": 0, "node_idgen": 21, "wire_idgen": 17, "input_idgen": 3, "probe_idgen": 1, "output_idgen": 2, "tag_idgen": 3, "loadedSystem_idgen": 0, "view_x": 0, "view_y": 0}

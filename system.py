@@ -151,17 +151,18 @@ class MicroSystem:
 
 # System = many inputs, many outpus, many equations, generated & loaded
 class System:
-    def __init__(self, nbrstate, nbrinput, nbroutput, tag2state, equations, name="unnamed_system"):
+    def __init__(self, nbrstate, nbrinput, nbroutput, tag2input, tag2output, equations, name="unnamed_system"):
         self.state = [1 for k in range(nbrstate)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
-        self.tag2state = tag2state
+        self.tag2input = tag2input
+        self.tag2output = tag2output
         self.equations = equations
         self.name = name
 
     def load(self, arguments):
         for tag, value in arguments.items():
-            self.state[self.tag2state[tag]] = value
+            self.state[self.tag2input[tag]] = value
 
     def update(self):
         next_state = self.state.copy()
@@ -188,7 +189,7 @@ class System:
         self.state = next_state
     
     def retrieve(self):
-        return {tag:self.state[self.tag2state[tag]] for tag in self.tag2state}
+        return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
 
     def printState(self):
         print(self.state)

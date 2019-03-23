@@ -27,7 +27,7 @@ FONT_FAMILY = "Helvetica"
 FONT_SIZE = 20
 
 FILE_DIRECTORY = ""
-FILE_NAME = "testcircuit"
+FILE_NAME = "testcircuit2"
 PROGRAM_NAME = "testprog"
 
 BUTTON_WIDTH = 6
@@ -121,19 +121,17 @@ def buildSystem():
     nbrNet = net_idgen
 
     # build the input output to net dictionary
-    tag2net = {}
+    tag2inputnet = {}
+    tag2outputnet = {}
     for tag_name, tag_id in tags.items():
-        if tag_id[0]=='i': tag2net[tag_name] = id2net[inputs[tag_id]["node"]]
-        if tag_id[0]=='o': tag2net[tag_name] = id2net[outputs[tag_id]["node"]]
+        if tag_id[0]=='i': tag2inputnet[tag_name] = id2net[inputs[tag_id]["node"]]
+        if tag_id[0]=='o': tag2outputnet[tag_name] = id2net[outputs[tag_id]["node"]]
     for input_id,input in inputs.items():
         if input_id not in tags.values():
-            print("Untagged input {}".format(input_id))
-            tag2net[input_id] = id2net[input["node"]]
+            tag2inputnet[input_id] = id2net[input["node"]]
     for output_id,output in outputs.items():
         if output_id not in tags.values():
-            print("Untagged output {}".format(output_id))
-            tag2net[output_id] = id2net[output["node"]]
-    print("nothing")
+            tag2outputnet[output_id] = id2net[output["node"]]
 
     # build the list of equations
     equations = []
@@ -145,11 +143,13 @@ def buildSystem():
                 equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]]] , [id2net[gate["output"]]]))
         elif gate["gate"] in MICROSYSTEMS:
             equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
-    # for system in systems.values():
+    for system in systems.values():
+        t_loadedSystem = loadedSystems[system["system"]]
+        t_args = {inputtag:id2net[inputnode_id] for inputtag, inputnode_id in system["inputs"].items()}
+        t_dest = {outputtag:id2net[outputnode_id] for outputtag, outputnode_id in system["outputs"].items()}
+        equations.append(Equation(t_loadedSystem, t_args, t_dest))
 
-
-
-    sys = System(nbrNet, len(inputs), len(outputs), tag2net, equations, FILE_NAME)
+    sys = System(nbrNet, len(inputs), len(outputs), tag2inputnet, tag2outputnet, equations, FILE_NAME)
     return sys
 
 def loadSystem(systemFileName):
@@ -366,13 +366,12 @@ def createSystem(sx, sy):
         "clockCycle": 0
     }
     system_idgen +=1
-    loadedSystems[new_system["id"]] = t_loadedSystem
     for xxx in range(sx-1, sx+6):
         for yyy in range(sy, sy+t_height):
             screen[xxx][yyy] = new_system["id"]
     t_displacement = int(abs(t_loadedSystem.nbrinput-t_loadedSystem.nbroutput)/2)
-    new_system["inputs"] = [ createNode(sx-1,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput<t_loadedSystem.nbroutput) else 0), new_system["id"]) for k in range(t_loadedSystem.nbrinput)]
-    new_system["outputs"] = [ createNode(sx+5,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput>t_loadedSystem.nbroutput) else 0), new_system["id"]) for k in range(t_loadedSystem.nbroutput)]
+    new_system["inputs"] = { inputtag : createNode(sx-1,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput<t_loadedSystem.nbroutput) else 0), new_system["id"]) for k,inputtag in zip(range(t_loadedSystem.nbrinput),t_loadedSystem.tag2input.keys())}
+    new_system["outputs"] = { outputtag : createNode(sx+5,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput>t_loadedSystem.nbroutput) else 0), new_system["id"]) for k,outputtag in zip(range(t_loadedSystem.nbroutput),t_loadedSystem.tag2output.keys())}
     systems[new_system["id"]] = new_system
     drawSystem(new_system)
     canvas.delete("ghost")
@@ -816,11 +815,11 @@ def drawSystem(system):
     sy = system["y"] - view_y
     tags="content "+system["id"]
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+system["height"]-1+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-    for inputNode in system["inputs"]:
+    for inputNode in system["inputs"].values():
         nsx = nodes[inputNode]["x"] - view_x
         nsy = nodes[inputNode]["y"] - view_y
         canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx+1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-    for outputNode in system["outputs"]:
+    for outputNode in system["outputs"].values():
         nsx = nodes[outputNode]["x"] - view_x
         nsy = nodes[outputNode]["y"] - view_y
         canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
@@ -946,7 +945,16 @@ toolNames = {
     'o': "Output",
     't': "Tag",
     'w': "Wire",
+    'g_PNOT': "PNOT",
     'g_NOT': "NOT",
+    'g_NNOT': "NNOT",
+    'g_ABS': "ABS",
+    'g_INC': "INC",
+    'g_DEC': "DEC",
+    'g_RTU': "RTU",
+    'g_RTD': "RTD",
+    'g_CLU': "CLU",
+    'g_CLD': "CLD",
     'g_AND': "AND",
     'g_CONS': "CONS",
     'g_MUL': "MUL",
@@ -970,7 +978,6 @@ def selectTool(tool):
         canvas.delete("n_ghost")
         remove("n_ghost")
         updateScreen()
-    print(selectedTool)
     if selectedTool: toolLabelText.set(toolNames[selectedTool])
     else: toolLabelText.set("Select")
 
@@ -1006,7 +1013,7 @@ def updateScreen():
         updateScreen_probe(probe)
     for output in outputs.values():
         updateScreen_output(output)
-    debug_screenMap()
+    # debug_screenMap()
 
 def updateScreen_gate(gate):
     sx = gate["x"] - view_x
@@ -1082,9 +1089,9 @@ def moveBy_system(system_id,dx,dy):
     canvas.move(system_id, dx*grid_unit, dy*grid_unit)
     system["x"]+=dx
     system["y"]+=dy
-    for input_id in system["inputs"]:
+    for input_id in system["inputs"].values():
         moveBy_node(input_id, dx,dy)
-    for output_id in system["outputs"]:
+    for output_id in system["outputs"].values():
         moveBy_node(output_id, dx,dy)
 
 def moveBy_node(id,dx,dy):
@@ -1220,8 +1227,8 @@ def canMove_gate(sx,sy,dx,dy,selection):
 
 def canMove_system(system_id,dx,dy,selection):
     system = systems[system_id]
-    sx = system["x"] + view_x
-    sy = system["y"] + view_y
+    sx = system["x"] - view_x
+    sy = system["y"] - view_y
     s_height = system["height"]
     if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-s_height+1-dy)): return False
     if dx==+1:
@@ -1332,10 +1339,10 @@ def remove_gate(gate_id):
 
 def remove_system(system_id):
     system = systems[system_id]
-    for input_id in system["inputs"]:
+    for input_id in system["inputs"].values():
         nodes[input_id]["parent"] = None
         remove(input_id)
-    for output_id in system["outputs"]:
+    for output_id in system["outputs"].values():
         nodes[output_id]["parent"] = None
         remove(output_id)
     del systems[system_id]
@@ -1383,7 +1390,9 @@ def remove_output(output_id):
     del outputs[output_id]
 
 def removeSelection():
+    global selection
     for id in selection: remove(id)
+    selection = []
     updateScreen()
 
 def select(id=None, add=False):
@@ -1490,7 +1499,6 @@ def leftClick(event, shift=False):
     global loadedSystemToBePlaced_id
     sx = int(event.x/grid_unit)
     sy = int(event.y/grid_unit)
-    print(screen[sx][sy])
     if selectedTool!=None:    
         if selectedTool[0]=='g':
             if canPlace_gate(sx,sy) and sx in range(3,grid_width-3) and sy in range(2,grid_height-2):
@@ -1682,25 +1690,6 @@ def clean():
 
 def saveCircuit():
     cleanLoadedSystem()
-    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'w')
-    file.write(json.dumps(gates))
-    file.write('\n')
-    file.write(json.dumps(systems))
-    file.write('\n')
-    file.write(json.dumps(nodes))
-    file.write('\n')
-    file.write(json.dumps(wires))
-    file.write('\n')
-    file.write(json.dumps(inputs))
-    file.write('\n')
-    file.write(json.dumps(probes))
-    file.write('\n')
-    file.write(json.dumps(outputs))
-    file.write('\n')
-    file.write(json.dumps(tags))
-    file.write('\n')
-    file.write(json.dumps(loadedSystems))
-    file.write('\n')
     idgens = {
         "gate_idgen": gate_idgen,
         "system_idgen": system_idgen,
@@ -1714,8 +1703,21 @@ def saveCircuit():
         "view_x": view_x,
         "view_y": view_y
     }
-    file.write(json.dumps(idgens))    
-    file.close()
+    save = {
+        "gates": gates,
+        "systems": systems,
+        "nodes": nodes,
+        "wires": wires,
+        "inputs": inputs,
+        "probes": probes,
+        "outputs": outputs,
+        "tags": tags,
+        "loadedSystems": loadedSystems,
+        "idgens": idgens
+    }
+    f = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'wb')
+    pickle.dump(save,f)
+    f.close()
 
 def loadCircuit():
     global gates
@@ -1738,17 +1740,21 @@ def loadCircuit():
     global loadedSystem_idgen
     global view_x
     global view_y
-    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'r')
-    gates = json.loads(file.readline())
-    systems = json.loads(file.readline())
-    nodes = json.loads(file.readline())
-    wires = json.loads(file.readline())
-    inputs = json.loads(file.readline())
-    probes = json.loads(file.readline())
-    outputs = json.loads(file.readline())
-    tags = json.loads(file.readline())
-    loadedSystems = json.loads(file.readline())
-    idgens = json.loads(file.readline())
+    circuitFileName = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+    if circuitFileName[-8:]!='.truitec': return
+    f = open(circuitFileName,'rb')
+    save = pickle.load(f)
+    f.close()
+    gates = save["gates"]
+    systems = save["systems"]
+    nodes = save["nodes"]
+    wires = save["wires"]
+    inputs = save["inputs"]
+    probes = save["probes"]
+    outputs = save["outputs"]
+    tags = save["tags"]
+    loadedSystems = save["loadedSystems"]
+    idgens = save["idgens"]
     gate_idgen = idgens["gate_idgen"]
     system_idgen = idgens["system_idgen"]
     node_idgen = idgens["node_idgen"]
@@ -1757,11 +1763,9 @@ def loadCircuit():
     probe_idgen = idgens["probe_idgen"]
     output_idgen = idgens["output_idgen"]
     tag_idgen = idgens["tag_idgen"]
-    loadedSystems_idgen = idgens["loadedSystems_idgen"]
+    loadedSystem_idgen = idgens["loadedSystem_idgen"]
     view_x = idgens["view_x"]
     view_y = idgens["view_y"]
-    print(gate_idgen)
-    file.close
     clean()
     # loadProgram()
 
@@ -1773,11 +1777,9 @@ def exportSystem():
 
 def importSystem():
     global loadedSystemToBePlaced_id
-    modelFileName = askopenfilename() # show an "Open" dialog box and return the path to the selected file
-    print(modelFileName)
-    print(modelFileName[-8:])
-    if modelFileName[-8:]!='.truites': return
-    loadedSystemToBePlaced_id = loadSystem(modelFileName)
+    systemFileName = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+    if systemFileName[-8:]!='.truites': return
+    loadedSystemToBePlaced_id = loadSystem(systemFileName)
     selectTool('s')
 
 def loadProgram():
