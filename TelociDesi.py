@@ -9,12 +9,14 @@ import json
 
 import time
 lasttime = time.time()
-def rectime(str_=""):
+def rectime():
     global lasttime
-    print("Time elapsed for "+str_)
-    print(1000*(time.time()-lasttime))
+    rt = 1000*(time.time()-lasttime)
     lasttime = time.time()
+    return rt
 
+from log import Log
+import random
 
 #region [red] CONFIGURATION
 
@@ -39,6 +41,8 @@ CHRONOGRAM_MARGIN_VERTICAL = TKINTER_SCALING*40
 CHRONOGRAM_MARGIN_HORIZONTAL = 40
 
 SHIFT_MOVE_PERCENTAGE = 0.5
+
+DT_PER_CC = 20
 
 #endregion
 
@@ -99,7 +103,10 @@ program = {}
 recording = {}
 
 def buildSystem():
+    # log0=Log("building the system") #LOGGING
+
     # build the net list
+    # log1=Log("building the net list") #LOGGING
     net_idgen = 0
     net2ids = {}
     id2net = {}
@@ -122,8 +129,10 @@ def buildSystem():
                         if wire["node_a"] not in net2ids[newNet_id]: netQueue.append(wire["node_a"])
                         if wire["node_b"] not in net2ids[newNet_id]: netQueue.append(wire["node_b"])
     nbrNet = net_idgen
+    # log1.stop() #LOGGING
 
     # build the input output to net dictionary
+    # log2 = Log("building the input output to net dictionary") #LOGGING
     tag2inputnet = {}
     tag2outputnet = {}
     for tag_name, tag_id in tags.items():
@@ -135,8 +144,10 @@ def buildSystem():
     for output_id,output in outputs.items():
         if output_id not in tags.values():
             tag2outputnet[output_id] = id2net[output["node"]]
+    # log2.stop() #LOGGING
 
     # build the list of equations
+    # log3 = Log("building the list of equations") #LOGGING
     equations = []
     for gate in gates.values():
         if gate["gate"] in MICROGATES:
@@ -151,8 +162,13 @@ def buildSystem():
         t_args = {inputtag:id2net[inputnode_id] for inputtag, inputnode_id in system["inputs"].items()}
         t_dest = {outputtag:id2net[outputnode_id] for outputtag, outputnode_id in system["outputs"].items()}
         equations.append(Equation(t_loadedSystem, t_args, t_dest))
+    # log3.stop() #LOGGING
 
+    # log4 = Log("creating the system") #LOGGING
     sys = System(nbrNet, len(inputs), len(outputs), tag2inputnet, tag2outputnet, equations, FILE_NAME)
+    # log4.stop() #LOGGING
+
+    # log0.stop() #LOGGING
     return sys
 
 def loadSystem(systemFileName):
@@ -172,12 +188,27 @@ def cleanLoadedSystem():
         del loadedSystems[loadedSystemToBePlaced_id]
         loadedSystemToBePlaced_id = None
 
-def simulatePropagation():
+def simulateCc():
     global circuitSystem
-    global recording
+    # log0 = Log("simulating a clock cycle") #LOGGING
+
+    # log1 = Log("checking if the circuit has been modified") #LOGGING
     if circuitModified or circuitSystem==None:
         circuitSystem=buildSystem()
         resetRecording()
+    # log1.stop() #LOGGING
+
+    for dt in range(DT_PER_CC):
+        simulateDt()
+    drawChronogram() #ISSUE HERE
+    
+    # log0.stop() #LOGGING
+
+def simulateDt():
+    global recording
+    # log0 = Log("simulating a delta t") #LOGGING
+
+    # log1 = Log("creating and passing the arguments") #LOGGING
     t_args = {}
     for input_id,input in inputs.items():
         if input_id in tags.values():
@@ -185,25 +216,32 @@ def simulatePropagation():
                 if id == input_id:
                     t_args[tag] = input["value"]
         else: t_args[input_id] = input["value"]
-    print('Inputs')
-    print(t_args)
     circuitSystem.load(t_args)
+    # log1.stop() #LOGGING
+
+    # log2 = Log("simulating the system") #LOGGING
     circuitSystem.update()
+    # log2.stop() #LOGGING
+
+    # log3 = Log("retrieving the results and updating the recordings") #LOGGING
     results = circuitSystem.retrieve()
-    print('Inputs')
-    print(results)
     for tag,value in results.items():
         if tag in tags.keys():
             outputs[tags[tag]]["value"] = value
         else:
             outputs[tag]["value"] = value
-    for output in outputs.values():
-        drawOutput(output)
     for input_id,input in inputs.items():
         recording[input_id].append(input["value"])
     for output_id,output in outputs.items():
         recording[output_id].append(output["value"])
-    drawChronogram()
+    # log3.stop() #LOGGING
+
+    # log4 = Log("drawing the outputs") #LOGGING
+    for output in outputs.values(): #ISSUE HERE
+        drawOutput(output) #ISSUE HERE
+    # log4.stop() #LOGGING
+    
+    # log0.stop() #LOGGING
 
 def resetSimulation():
     for key, node in nodes.items():
@@ -229,14 +267,20 @@ def resetRecording():
     for key in outputs:
         recording[key] = []
 
-# def checkRecordingKeys():
-#     for key in inputs:
-#         if not key in recording: return False
-#     for key in probes:
-#         if not key in recording: return False
-#     for key in outputs:
-#         if not key in recording: return False
-#     return True
+def randomProgram():
+    for input in inputs.values():
+        input["value"] = random.randint(0,2)
+        # drawInput(input) #ISSUE HERE
+    simulateCc()
+
+def randomPrograms(nbr):
+    for k in range(nbr):
+        randomProgram()
+    # for input in inputs.values():
+    #     drawInput(input)
+    # for output in outputs.values():
+    #     drawOutput(output)
+    # drawChronogram()
 
 # def sortRecording(): #should be useless
 #     global recording
@@ -266,77 +310,6 @@ def resetRecording():
 #                 inputs[id]["value"] = program[tag][clockCycle-1]
 #             else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
 #         else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
-
-# def update_gate(gate_id):
-#     print("    updating gate")
-#     gate = gates[gate_id]
-#     output = nodes[gate["output"]]
-#     outputValue = None
-#     gate_type = gate["gate"]
-#     if gate_type in UGATES:
-#         input = nodes[gate["input_a"]]
-#         outputValue = UGATES[gate_type] [input["value"]]
-#     else:
-#         input_a = nodes[gate["input_a"]]
-#         input_b = nodes[gate["input_b"]]
-#         if min(input_a["clockCycle"] , input_b["clockCycle"]) < clockCycle : return
-#         if gate_type in NGATES:
-#             outputValue = UGATES["NOT"] [ GATES[gate_type] [input_a["value"]] [input_b["value"]] ]
-#         else:
-#             outputValue = GATES[gate_type] [input_a["value"]] [input_b["value"]]
-#     update_node(output["id"] , outputValue)
-
-# def update_system(system_id):
-#     return
-
-# def update_node(node_id, value):
-#     print("    updating node")
-#     node = nodes[node_id]
-#     if node["clockCycle"]!=clockCycle:
-#         node["clockCycle"]=clockCycle
-#         node["value"]=value
-#         if node["parent"]:
-#             if node["parent"][0]=="g": update_gate(node["parent"])
-#             elif node["parent"][0]=="p": update_probe(node["parent"])
-#             elif node["parent"][0]=="o": update_output(node["parent"])
-#         for wire in node["wires"]: update_wire(wire)
-
-# def update_wire(wire_id):
-#     print("    updating wire")
-#     wire = wires[wire_id]
-#     node_a = nodes[wire["node_a"]]
-#     node_b = nodes[wire["node_b"]]
-#     if node_a["clockCycle"] < node_b["clockCycle"]:
-#         update_node(node_a["id"] , node_b["value"])
-#     elif node_a["clockCycle"] > node_b["clockCycle"]:
-#         update_node(node_b["id"] , node_a["value"])
-
-# def update_input(input_id):
-#     global recording
-#     print("    updating input")
-#     input = inputs[input_id]
-#     input["clockCycle"] = clockCycle
-#     recording[input_id].append(input["value"])
-#     drawInput(input)
-#     update_node(input["node"] , input["value"])
-
-# def update_probe(probe_id):
-#     global recording
-#     print("    updating probe")
-#     probe = probes[probe_id]
-#     probe["clockCylce"] = clockCycle
-#     probe["value"] = nodes[probe["node"]]["value"]
-#     recording[probe_id].append(probe["value"])
-#     drawProbe(probe)
-
-# def update_output(output_id):
-    # global recording
-    # print("    updating output")
-    # output = outputs[output_id]
-    # output["clockCylce"] = clockCycle
-    # output["value"] = nodes[output["node"]]["value"]
-    # recording[output_id].append(output["value"])
-    # drawOutput(output)
 
 #endregion
 
@@ -1603,7 +1576,9 @@ canvas.bind("<Motion>", lambda event: hover(event))
 canvas.bind("<Escape>", lambda event: selectTool(None))
 canvas.bind("<Delete>", lambda event: removeSelection())
 
-canvas.bind("<Return>", lambda event: simulatePropagation())
+# canvas.bind("<Return>", lambda event: simulateCc())
+canvas.bind("<Return>", lambda event: randomPrograms(50)) #debug
+canvas.bind("<Control-Return>", lambda event: simulateDt())
 
 canvas.bind("<Left>", lambda event: moveBy(-1,0))
 canvas.bind("<Right>", lambda event: moveBy(+1,0))

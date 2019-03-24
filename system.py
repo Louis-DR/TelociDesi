@@ -1,4 +1,5 @@
 from pickle import *
+from log import Log
 
 class Equation:
     def __init__(self, system, arguments, destinations):
