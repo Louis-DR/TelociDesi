@@ -1,6 +1,7 @@
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
 from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksaveasfilename
 from collections import deque
 from system import *
 import pickle
@@ -17,7 +18,7 @@ def rectime(str_=""):
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.8
+TKINTER_SCALING = 1.0
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -87,9 +88,11 @@ NGATES = {
 }
 clockCycle = 0
 
+tag_idgen = 0
 loadedSystem_idgen = 0
 loadedSystems = {}
 loadedSystemToBePlaced_id = None
+circuitSystem = None
 
 tags = {}
 program = {}
@@ -169,6 +172,39 @@ def cleanLoadedSystem():
         del loadedSystems[loadedSystemToBePlaced_id]
         loadedSystemToBePlaced_id = None
 
+def simulatePropagation():
+    global circuitSystem
+    global recording
+    if circuitModified or circuitSystem==None:
+        circuitSystem=buildSystem()
+        resetRecording()
+    t_args = {}
+    for input_id,input in inputs.items():
+        if input_id in tags.values():
+            for tag,id in tags.items():
+                if id == input_id:
+                    t_args[tag] = input["value"]
+        else: t_args[input_id] = input["value"]
+    print('Inputs')
+    print(t_args)
+    circuitSystem.load(t_args)
+    circuitSystem.update()
+    results = circuitSystem.retrieve()
+    print('Inputs')
+    print(results)
+    for tag,value in results.items():
+        if tag in tags.keys():
+            outputs[tags[tag]]["value"] = value
+        else:
+            outputs[tag]["value"] = value
+    for output in outputs.values():
+        drawOutput(output)
+    for input_id,input in inputs.items():
+        recording[input_id].append(input["value"])
+    for output_id,output in outputs.items():
+        recording[output_id].append(output["value"])
+    drawChronogram()
+
 def resetSimulation():
     for key, node in nodes.items():
         node["clockCycle"]=0
@@ -193,114 +229,114 @@ def resetRecording():
     for key in outputs:
         recording[key] = []
 
-def checkRecordingKeys():
-    for key in inputs:
-        if not key in recording: return False
-    for key in probes:
-        if not key in recording: return False
-    for key in outputs:
-        if not key in recording: return False
-    return True
+# def checkRecordingKeys():
+#     for key in inputs:
+#         if not key in recording: return False
+#     for key in probes:
+#         if not key in recording: return False
+#     for key in outputs:
+#         if not key in recording: return False
+#     return True
 
-def sortRecording(): #should be useless
-    global recording
-    new_rec = {}
-    for key in sorted(recording):
-        new_rec[key] = recording[key]
-    recording = new_rec
+# def sortRecording(): #should be useless
+#     global recording
+#     new_rec = {}
+#     for key in sorted(recording):
+#         new_rec[key] = recording[key]
+#     recording = new_rec
 
-def simulation_update():
-    global clockCycle
-    print(tags)
-    if not checkRecordingKeys(): resetRecording()
-    clockCycle +=1
-    print(clockCycle)
-    readProgram()
-    for input in inputs:
-        update_input(input)
-    print(recording)
-    drawChronogram()
+# def simulation_update():
+#     global clockCycle
+#     print(tags)
+#     if not checkRecordingKeys(): resetRecording()
+#     clockCycle +=1
+#     print(clockCycle)
+#     readProgram()
+#     for input in inputs:
+#         update_input(input)
+#     print(recording)
+#     drawChronogram()
 
-def readProgram():
-    global inputs
-    print("    reading program")
-    for tag,id in tags.items():
-        if id in inputs and tag in program:
-            if clockCycle<=len(program[tag]):
-                inputs[id]["value"] = program[tag][clockCycle-1]
-            else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
-        else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
+# def readProgram():
+#     global inputs
+#     print("    reading program")
+#     for tag,id in tags.items():
+#         if id in inputs and tag in program:
+#             if clockCycle<=len(program[tag]):
+#                 inputs[id]["value"] = program[tag][clockCycle-1]
+#             else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
+#         else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
 
-def update_gate(gate_id):
-    print("    updating gate")
-    gate = gates[gate_id]
-    output = nodes[gate["output"]]
-    outputValue = None
-    gate_type = gate["gate"]
-    if gate_type in UGATES:
-        input = nodes[gate["input_a"]]
-        outputValue = UGATES[gate_type] [input["value"]]
-    else:
-        input_a = nodes[gate["input_a"]]
-        input_b = nodes[gate["input_b"]]
-        if min(input_a["clockCycle"] , input_b["clockCycle"]) < clockCycle : return
-        if gate_type in NGATES:
-            outputValue = UGATES["NOT"] [ GATES[gate_type] [input_a["value"]] [input_b["value"]] ]
-        else:
-            outputValue = GATES[gate_type] [input_a["value"]] [input_b["value"]]
-    update_node(output["id"] , outputValue)
+# def update_gate(gate_id):
+#     print("    updating gate")
+#     gate = gates[gate_id]
+#     output = nodes[gate["output"]]
+#     outputValue = None
+#     gate_type = gate["gate"]
+#     if gate_type in UGATES:
+#         input = nodes[gate["input_a"]]
+#         outputValue = UGATES[gate_type] [input["value"]]
+#     else:
+#         input_a = nodes[gate["input_a"]]
+#         input_b = nodes[gate["input_b"]]
+#         if min(input_a["clockCycle"] , input_b["clockCycle"]) < clockCycle : return
+#         if gate_type in NGATES:
+#             outputValue = UGATES["NOT"] [ GATES[gate_type] [input_a["value"]] [input_b["value"]] ]
+#         else:
+#             outputValue = GATES[gate_type] [input_a["value"]] [input_b["value"]]
+#     update_node(output["id"] , outputValue)
 
-def update_system(system_id):
-    return
+# def update_system(system_id):
+#     return
 
-def update_node(node_id, value):
-    print("    updating node")
-    node = nodes[node_id]
-    if node["clockCycle"]!=clockCycle:
-        node["clockCycle"]=clockCycle
-        node["value"]=value
-        if node["parent"]:
-            if node["parent"][0]=="g": update_gate(node["parent"])
-            elif node["parent"][0]=="p": update_probe(node["parent"])
-            elif node["parent"][0]=="o": update_output(node["parent"])
-        for wire in node["wires"]: update_wire(wire)
+# def update_node(node_id, value):
+#     print("    updating node")
+#     node = nodes[node_id]
+#     if node["clockCycle"]!=clockCycle:
+#         node["clockCycle"]=clockCycle
+#         node["value"]=value
+#         if node["parent"]:
+#             if node["parent"][0]=="g": update_gate(node["parent"])
+#             elif node["parent"][0]=="p": update_probe(node["parent"])
+#             elif node["parent"][0]=="o": update_output(node["parent"])
+#         for wire in node["wires"]: update_wire(wire)
 
-def update_wire(wire_id):
-    print("    updating wire")
-    wire = wires[wire_id]
-    node_a = nodes[wire["node_a"]]
-    node_b = nodes[wire["node_b"]]
-    if node_a["clockCycle"] < node_b["clockCycle"]:
-        update_node(node_a["id"] , node_b["value"])
-    elif node_a["clockCycle"] > node_b["clockCycle"]:
-        update_node(node_b["id"] , node_a["value"])
+# def update_wire(wire_id):
+#     print("    updating wire")
+#     wire = wires[wire_id]
+#     node_a = nodes[wire["node_a"]]
+#     node_b = nodes[wire["node_b"]]
+#     if node_a["clockCycle"] < node_b["clockCycle"]:
+#         update_node(node_a["id"] , node_b["value"])
+#     elif node_a["clockCycle"] > node_b["clockCycle"]:
+#         update_node(node_b["id"] , node_a["value"])
 
-def update_input(input_id):
-    global recording
-    print("    updating input")
-    input = inputs[input_id]
-    input["clockCycle"] = clockCycle
-    recording[input_id].append(input["value"])
-    drawInput(input)
-    update_node(input["node"] , input["value"])
+# def update_input(input_id):
+#     global recording
+#     print("    updating input")
+#     input = inputs[input_id]
+#     input["clockCycle"] = clockCycle
+#     recording[input_id].append(input["value"])
+#     drawInput(input)
+#     update_node(input["node"] , input["value"])
 
-def update_probe(probe_id):
-    global recording
-    print("    updating probe")
-    probe = probes[probe_id]
-    probe["clockCylce"] = clockCycle
-    probe["value"] = nodes[probe["node"]]["value"]
-    recording[probe_id].append(probe["value"])
-    drawProbe(probe)
+# def update_probe(probe_id):
+#     global recording
+#     print("    updating probe")
+#     probe = probes[probe_id]
+#     probe["clockCylce"] = clockCycle
+#     probe["value"] = nodes[probe["node"]]["value"]
+#     recording[probe_id].append(probe["value"])
+#     drawProbe(probe)
 
-def update_output(output_id):
-    global recording
-    print("    updating output")
-    output = outputs[output_id]
-    output["clockCylce"] = clockCycle
-    output["value"] = nodes[output["node"]]["value"]
-    recording[output_id].append(output["value"])
-    drawOutput(output)
+# def update_output(output_id):
+    # global recording
+    # print("    updating output")
+    # output = outputs[output_id]
+    # output["clockCylce"] = clockCycle
+    # output["value"] = nodes[output["node"]]["value"]
+    # recording[output_id].append(output["value"])
+    # drawOutput(output)
 
 #endregion
 
@@ -928,6 +964,9 @@ def drawGrid():
 selection = []
 previousHover = [0,0]
 
+systemModified = False
+circuitModified = False
+
 selectedTool = None
 toolShortcuts = {
     'a': "g_AND",
@@ -965,7 +1004,13 @@ toolNames = {
 
 zoomLevel = 3
 
-tag_idgen = 0
+def setSystemModified(mod=True):
+    global systemModified
+    systemModified = mod
+
+def setCircuitModified(mod=True):
+    global circuitModified
+    circuitModified = mod
 
 def selectTool(tool):
     global selectedTool
@@ -1145,6 +1190,7 @@ def moveBy(dx,dy):
         canvas.move("selection", dx*grid_unit, dy*grid_unit)
         drawTags()
     updateScreen()
+    setCircuitModified()
 
 def zoom(dz):
     global grid_width
@@ -1394,6 +1440,8 @@ def removeSelection():
     for id in selection: remove(id)
     selection = []
     updateScreen()
+    setCircuitModified()
+    setSystemModified()
 
 def select(id=None, add=False):
     global selection
@@ -1446,6 +1494,8 @@ def changeTag(new_tag, old_tag):
     tags[new_tag] = tags[old_tag]
     del tags[old_tag]
     drawTags()
+    setCircuitModified()
+    setSystemModified()
 
 def labelPopup(text, func, arg):
     popup = Toplevel(root)
@@ -1521,6 +1571,8 @@ def leftClick(event, shift=False):
                 createOutput(sx,sy)
         elif selectedTool[0]=='t':
             addTag(sx,sy)
+        setCircuitModified()
+        setSystemModified()
     else:
         if screen[sx][sy]!=None:
             select(screen[sx][sy], shift)
@@ -1551,7 +1603,7 @@ canvas.bind("<Motion>", lambda event: hover(event))
 canvas.bind("<Escape>", lambda event: selectTool(None))
 canvas.bind("<Delete>", lambda event: removeSelection())
 
-canvas.bind("<Return>", lambda event: simulation_update())
+canvas.bind("<Return>", lambda event: simulatePropagation())
 
 canvas.bind("<Left>", lambda event: moveBy(-1,0))
 canvas.bind("<Right>", lambda event: moveBy(+1,0))
@@ -1571,6 +1623,7 @@ canvas.bind("<Control-s>", lambda event: saveCircuit())
 canvas.bind("<Control-o>", lambda event: loadCircuit())
 canvas.bind("<Control-e>", lambda event: exportSystem())
 canvas.bind("<Control-i>", lambda event: importSystem())
+canvas.bind("<Control-n>", lambda event: blankCircuit())
 
 #endregion
 
@@ -1673,6 +1726,45 @@ canvas.pack(side="right")
 
 #region [orange] SAVING & LOADING
 
+def blankCircuit():
+    global gates
+    global systems
+    global nodes
+    global wires
+    global inputs
+    global probes
+    global outputs
+    global tags
+    global loadedSystems
+    global gate_idgen
+    global system_idgen
+    global node_idgen
+    global wire_idgen
+    global input_idgen
+    global probe_idgen
+    global output_idgen
+    global tag_idgen
+    global loadedSystem_idgen
+    gates = {}
+    systems = {}
+    nodes = {}
+    wires = {}
+    inputs = {}
+    probes = {}
+    outputs = {}
+    tags = {}
+    loadedSystems = {}
+    gate_idgen = 0
+    system_idgen = 0
+    node_idgen = 0
+    wire_idgen = 0
+    input_idgen = 0
+    probe_idgen = 0
+    output_idgen = 0
+    tag_idgen = 0
+    loadedSystem_idgen = 0
+    clean()
+
 def clean():
     global view_x
     global view_y
@@ -1715,9 +1807,11 @@ def saveCircuit():
         "loadedSystems": loadedSystems,
         "idgens": idgens
     }
-    f = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'wb')
+    saveFilename = asksaveasfilename(filetypes = (("TelociDesi circuits","*.truitec"),("all files","*.*")))
+    f = open(saveFilename.replace('.truitec','')+'.truitec', 'wb')
     pickle.dump(save,f)
     f.close()
+    setCircuitModified(False)
 
 def loadCircuit():
     global gates
@@ -1740,7 +1834,7 @@ def loadCircuit():
     global loadedSystem_idgen
     global view_x
     global view_y
-    circuitFileName = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+    circuitFileName = askopenfilename(filetypes = (("TelociDesi circuits","*.truitec"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
     if circuitFileName[-8:]!='.truitec': return
     f = open(circuitFileName,'rb')
     save = pickle.load(f)
@@ -1771,13 +1865,14 @@ def loadCircuit():
 
 def exportSystem():
     sys = buildSystem()
-    f = open(FILE_NAME+'.truites', 'wb')
+    exportFilename = asksaveasfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*")))
+    f = open(exportFilename.replace('.truites','')+'.truites', 'wb')
     pickle.dump(sys,f)
     f.close()
 
 def importSystem():
     global loadedSystemToBePlaced_id
-    systemFileName = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+    systemFileName = askopenfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
     if systemFileName[-8:]!='.truites': return
     loadedSystemToBePlaced_id = loadSystem(systemFileName)
     selectTool('s')
