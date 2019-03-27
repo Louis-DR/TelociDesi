@@ -379,13 +379,13 @@ def createSystem(sx, sy):
         for yyy in range(sy, sy+t_height):
             screen[xxx][yyy] = new_system["id"]
     t_displacement = int(abs(t_loadedSystem.nbrinput-t_loadedSystem.nbroutput)/2)
-    new_system["inputs"] = { inputtag : createNode(sx-1,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput<t_loadedSystem.nbroutput) else 0), new_system["id"]) for k,inputtag in zip(range(t_loadedSystem.nbrinput),t_loadedSystem.tag2input.keys())}
-    new_system["outputs"] = { outputtag : createNode(sx+5,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput>t_loadedSystem.nbroutput) else 0), new_system["id"]) for k,outputtag in zip(range(t_loadedSystem.nbroutput),t_loadedSystem.tag2output.keys())}
+    new_system["inputs"] = { inputtag : createNode(sx-1,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput<t_loadedSystem.nbroutput) else 0), new_system["id"], inputtag) for k,inputtag in zip(range(t_loadedSystem.nbrinput),t_loadedSystem.tag2input.keys())}
+    new_system["outputs"] = { outputtag : createNode(sx+5,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput>t_loadedSystem.nbroutput) else 0), new_system["id"], outputtag) for k,outputtag in zip(range(t_loadedSystem.nbroutput),t_loadedSystem.tag2output.keys())}
     systems[new_system["id"]] = new_system
     drawSystem(new_system)
     canvas.delete("ghost")
 
-def createNode(sx,sy,parent=None):
+def createNode(sx,sy,parent=None,tag=None):
     global node_idgen
     global screen
     new_node = {
@@ -398,6 +398,7 @@ def createNode(sx,sy,parent=None):
         "value": 1
     }
     node_idgen +=1
+    if tag: new_node["tag"] = tag
     screen[sx][sy] = new_node["id"]
     nodes[new_node["id"]] = new_node
     return new_node["id"]
@@ -827,11 +828,15 @@ def drawSystem(system):
     for inputNode in system["inputs"].values():
         nsx = nodes[inputNode]["x"] - view_x
         nsy = nodes[inputNode]["y"] - view_y
+        nodetag = nodes[inputNode]["tag"]
         canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx+1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
+        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5+1.2) , grid_unit*(nsy+0.5) , anchor='w',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
     for outputNode in system["outputs"].values():
         nsx = nodes[outputNode]["x"] - view_x
         nsy = nodes[outputNode]["y"] - view_y
+        nodetag = nodes[outputNode]["tag"]
         canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
+        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5-1.2) , grid_unit*(nsy+0.5) , anchor='e',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
 
 def drawWire(wire):
     node_a = nodes[wire["node_a"]]
@@ -1576,8 +1581,8 @@ canvas.bind("<Motion>", lambda event: hover(event))
 canvas.bind("<Escape>", lambda event: selectTool(None))
 canvas.bind("<Delete>", lambda event: removeSelection())
 
-# canvas.bind("<Return>", lambda event: simulateCc())
-canvas.bind("<Return>", lambda event: randomPrograms(50)) #debug
+canvas.bind("<Return>", lambda event: simulateCc())
+# canvas.bind("<Return>", lambda event: randomPrograms(50)) #debug
 canvas.bind("<Control-Return>", lambda event: simulateDt())
 
 canvas.bind("<Left>", lambda event: moveBy(-1,0))
@@ -1879,6 +1884,12 @@ root.mainloop()
 #   - too many output nodes map : marks with a red square output nodes connected together
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
+# Memory chip :
+#   - n inputs for address
+#   - m outputs for data
+#   - clock input
+# Number input :
+#   - input a number with keyboard, outputs the signal on a given number of trits
 # Gates :
 #   - ability to mirror gates
 #   - negate output
