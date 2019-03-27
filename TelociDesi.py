@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -1863,6 +1863,30 @@ def loadProgram():
     program = json.loads(file.readline())
 
 #endregion
+
+#region [purple] MENU
+menuBar = Menu(root)
+#root['menu'] = menuBar
+
+def hello():
+    print("bite")
+
+sousMenu = Menu(menuBar)
+menuBar.add_cascade(label='File', menu=sousMenu)
+sousMenu.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE),command=saveCircuit)
+sousMenu.add_command(label='Load',font=(FONT_FAMILY, FONT_SIZE),command=loadCircuit)
+sousMenu.add_separator()
+sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
+sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
+
+
+#sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
+#sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
+#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
+#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
+
+root.config(menu=menuBar)
+#end region
 
 
 selectTool(None)
