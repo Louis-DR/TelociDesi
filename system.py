@@ -1,4 +1,5 @@
 from pickle import *
+from json import *
 from log import Log
 
 class Equation:
@@ -197,89 +198,37 @@ class System:
 
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
-# class NonAlgebraicSystem:
+class NonAlgebraicSystem:
+    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, initFunction, updateFunction, name="unnamed_system"):
+        self.state = [1 for k in range(nbrinput+nbroutput)]
+        self.nbrinput = nbrinput
+        self.nbroutput = nbroutput
+        self.tag2input = tag2input
+        self.tag2output = tag2output
+        self.data = initFunction(tag2input, tag2output)
+        self.updateFunction = updateFunction
+        self.name = name
+    
+    def load(self, arguments):
+        for tag, value in arguments.items():
+            self.state[self.tag2input[tag]] = value
+    
+    def update(self):
+        self.updateFunction(self.state, self.tag2input, self.tag2output, self.data)
+    
+    def retrieve(self):
+        return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
 
 
+def initROM(state, tag2input, tag2output, data):
+    programFileName = askopenfilename(filetypes = (("TelociDesi memory","*.truitem"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
+    if programFileName[-8:]!='.truitem': return
+    f = open(programFileName,'rb')
+    memdump = json.load(f)
+    f.close()
+    print(memdump)
+    data["memory"] = memdump["data"]
+    data["adrsize"]
 
-
-# S1 = System(4,{"inputA":0 , "inputB":1 , "output":3},[
-#     Equation("NAND", [0, 1], [2]),
-#     Equation("NOT", [2], [3])
-# ])
-# S2 = System(4,{"inputA":0 , "inputB":1 , "output":3},[
-#     Equation("NAND", [0, 1], [2]),
-#     Equation("NOT", [2], [3])
-# ])
-
-# S3 = System(6,{"A":0 , "B":1 , "C":2},[
-#     Equation(S1, {"inputA":0 , "inputB":1}, {"output":3}),
-#     Equation(S2, {"inputA":3 , "inputB":2}, {"output":4}),
-#     Equation("NOT", [4], [5])
-# ])
-
-# print("\n\n")
-
-# S3.load({"A":1 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":1 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":1 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":1 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# print("tick")
-# S3.load({"A":2 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":1 , "C":1}) ; S3.update() ; S3.printState()
-# print("tick")
-# S3.load({"A":2 , "B":2 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":1}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":1}) ; S3.update() ; S3.printState()
-# print("tick")
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-# S3.load({"A":2 , "B":2 , "C":2}) ; S3.update() ; S3.printState()
-
-
-
-# S_microgates = System(7,2,5,{"A":0 , "B":1 , "nand":2 , "nor":3 , "ncons":4 , "nany":5 , "not":6},[
-#     Equation("NAND", [0, 1], [2]),
-#     Equation("NOR", [0, 1], [3]),
-#     Equation("NCONS", [0, 1], [4]),
-#     Equation("NANY", [0, 1], [5]),
-#     Equation("NOT", [0], [6])
-# ])
-# print("\n\n")
-# S_microgates.load({"A":0 , "B":0}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":0 , "B":1}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":0 , "B":2}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":1 , "B":0}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":1 , "B":1}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":1 , "B":2}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":2 , "B":0}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":2 , "B":1}) ; S_microgates.update() ; S_microgates.printState()
-# S_microgates.load({"A":2 , "B":2}) ; S_microgates.update() ; S_microgates.printState()
-
-
-
-# S_microsystem = System(10,2,8,{"A":0 , "B":1 , "and":2 , "or":3 , "cons":4 , "any":5 , "mul":6 , "nmul":7 , "sum":8 , "nsum":9},[
-#     genEquation_microSystemGate("AND", [0, 1], [2]),
-#     genEquation_microSystemGate("OR", [0, 1], [3]),
-#     genEquation_microSystemGate("CONS", [0, 1], [4]),
-#     genEquation_microSystemGate("ANY", [0, 1], [5]),
-#     genEquation_microSystemGate("MUL", [0, 1], [6]),
-#     genEquation_microSystemGate("NMUL", [0, 1], [7]),
-#     genEquation_microSystemGate("SUM", [0, 1], [8]),
-#     genEquation_microSystemGate("NSUM", [0, 1], [9]),
-# ])
-# print("\n\n")
-# S_microsystem.load({"A":0 , "B":0}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":0 , "B":1}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":0 , "B":2}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":1 , "B":0}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":1 , "B":1}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":1 , "B":2}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":2 , "B":0}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":2 , "B":1}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
-# S_microsystem.load({"A":2 , "B":2}) ; [S_microsystem.update() for i in range(5)] ; S_microsystem.printState()
+def updateROM(state, tag2input, tag2output, data):
+    address = sum([(2**k)*state[tag2input["A{}".format(k)]] for k in range(data["adrsize"])])
