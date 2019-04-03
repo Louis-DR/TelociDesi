@@ -6,5 +6,15 @@
 #              3: OPT OPERAND OPERAND
 #              ....
 # Fichier d'architecture (JSON)
-#Sort un dictionnaire JSON de mots TCD mémoire pour clé adresse mémoire séquentielle affecte un mot
+#Sort un dictionnaire JSON de mots TCD (ternaire codé décimal) mémoire pour clé adresse mémoire séquentielle affecte un mot
+
+import json
+
+#fspec = open("spec.truitep","r")
+
+farchi = open("architecture.truitea","r")
+
+archi =  json.load (farchi)
+print ("Test")
+print( archi ["architecture"])
 
