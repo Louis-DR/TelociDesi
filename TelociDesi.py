@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.5
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -103,7 +103,10 @@ program = {}
 recording = {}
 
 def buildSystem():
-    # log0=Log("building the system") #LOGGING
+    global circuitModified
+    log0=Log("building the system") #LOGGING
+    
+    circuitModified=False
 
     # build the net list
     # log1=Log("building the net list") #LOGGING
@@ -168,7 +171,7 @@ def buildSystem():
     sys = System(nbrNet, len(inputs), len(outputs), tag2inputnet, tag2outputnet, equations, FILE_NAME)
     # log4.stop() #LOGGING
 
-    # log0.stop() #LOGGING
+    log0.stop() #LOGGING
     return sys
 
 def loadSystem(systemFileName):
@@ -1879,6 +1882,7 @@ root.mainloop()
 # Bugs :
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
 #   - tags and deleting outputs and inputs does not work well
+#   - glitches with wires and nodes
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
