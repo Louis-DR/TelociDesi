@@ -87,6 +87,150 @@ tags = {}
 program = {}
 recording = {}
 
+def buildSystem():
+    global circuitModified
+    log0=Log("building the system") #LOGGING
+    
+    circuitModified=False
+
+    # build the net list
+    # log1=Log("building the net list") #LOGGING
+    net_idgen = 0
+    net2ids = {}
+    id2net = {}
+    nodesQueue = deque(nodes.keys())
+    while nodesQueue:
+        currentElement = nodesQueue.popleft()
+        if currentElement not in id2net:
+            newNet_id = net_idgen
+            net_idgen +=1
+            net2ids[newNet_id] = []
+            netQueue = deque([currentElement])
+            while netQueue:
+                netQueueElement = netQueue.popleft()
+                if netQueueElement not in id2net:
+                    id2net[netQueueElement] = newNet_id
+                    net2ids[newNet_id].append(netQueueElement)
+                    netQueueElementNode = nodes[netQueueElement]
+                    for wire_id in netQueueElementNode["wires"]:
+                        wire = wires[wire_id]
+                        if wire["node_a"] not in net2ids[newNet_id]: netQueue.append(wire["node_a"])
+                        if wire["node_b"] not in net2ids[newNet_id]: netQueue.append(wire["node_b"])
+    nbrNet = net_idgen
+    # log1.stop() #LOGGING
+
+    # build the input output to net dictionary
+    # log2 = Log("building the input output to net dictionary") #LOGGING
+    tag2inputnet = {}
+    tag2outputnet = {}
+    for tag_name, tag_id in tags.items():
+        if tag_id[0]=='i': tag2inputnet[tag_name] = id2net[inputs[tag_id]["node"]]
+        if tag_id[0]=='o': tag2outputnet[tag_name] = id2net[outputs[tag_id]["node"]]
+    for input_id,input in inputs.items():
+        if input_id not in tags.values():
+            tag2inputnet[input_id] = id2net[input["node"]]
+    for output_id,output in outputs.items():
+        if output_id not in tags.values():
+            tag2outputnet[output_id] = id2net[output["node"]]
+    # log2.stop() #LOGGING
+
+    # build the list of equations
+    # log3 = Log("building the list of equations") #LOGGING
+    equations = []
+    for gate in gates.values():
+        if gate["gate"] in MICROGATES:
+            if "input_b" in gate:
+                equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+            else:
+                equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]]] , [id2net[gate["output"]]]))
+        elif gate["gate"] in MICROSYSTEMS:
+            equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+    for system in systems.values():
+        t_loadedSystem = loadedSystems[system["system"]]
+        t_args = {inputtag:id2net[inputnode_id] for inputtag, inputnode_id in system["inputs"].items()}
+        t_dest = {outputtag:id2net[outputnode_id] for outputtag, outputnode_id in system["outputs"].items()}
+        equations.append(Equation(t_loadedSystem, t_args, t_dest))
+    # log3.stop() #LOGGING
+
+    # log4 = Log("creating the system") #LOGGING
+    sys = System(nbrNet, len(inputs), len(outputs), tag2inputnet, tag2outputnet, equations, FILE_NAME)
+    # log4.stop() #LOGGING
+
+    log0.stop() #LOGGING
+    return sys
+
+def loadSystem(systemFileName):
+    global loadedSystem_idgen
+    global loadedSystems
+    f = open(systemFileName,'rb')
+    sys = pickle.load(f)
+    f.close()
+    loadedSystem_id = "ls_"+str(loadedSystem_idgen)
+    loadedSystem_idgen +=1
+    loadedSystems[loadedSystem_id] = sys
+    return loadedSystem_id
+
+def cleanLoadedSystem():
+    global loadedSystemToBePlaced_id
+    if loadedSystemToBePlaced_id:
+        del loadedSystems[loadedSystemToBePlaced_id]
+        loadedSystemToBePlaced_id = None
+
+def simulateCc():
+    global circuitSystem
+    # log0 = Log("simulating a clock cycle") #LOGGING
+
+    # log1 = Log("checking if the circuit has been modified") #LOGGING
+    if circuitModified or circuitSystem==None:
+        circuitSystem=buildSystem()
+        resetRecording()
+    # log1.stop() #LOGGING
+
+    for dt in range(DT_PER_CC):
+        simulateDt()
+    drawChronogram() #ISSUE HERE
+    
+    # log0.stop() #LOGGING
+
+def simulateDt():
+    global recording
+    # log0 = Log("simulating a delta t") #LOGGING
+
+    # log1 = Log("creating and passing the arguments") #LOGGING
+    t_args = {}
+    for input_id,input in inputs.items():
+        if input_id in tags.values():
+            for tag,id in tags.items():
+                if id == input_id:
+                    t_args[tag] = input["value"]
+        else: t_args[input_id] = input["value"]
+    circuitSystem.load(t_args)
+    # log1.stop() #LOGGING
+
+    # log2 = Log("simulating the system") #LOGGING
+    circuitSystem.update()
+    # log2.stop() #LOGGING
+
+    # log3 = Log("retrieving the results and updating the recordings") #LOGGING
+    results = circuitSystem.retrieve()
+    for tag,value in results.items():
+        if tag in tags.keys():
+            outputs[tags[tag]]["value"] = value
+        else:
+            outputs[tag]["value"] = value
+    for input_id,input in inputs.items():
+        recording[input_id].append(input["value"])
+    for output_id,output in outputs.items():
+        recording[output_id].append(output["value"])
+    # log3.stop() #LOGGING
+
+    # log4 = Log("drawing the outputs") #LOGGING
+    for output in outputs.values(): #ISSUE HERE
+        drawOutput(output) #ISSUE HERE
+    # log4.stop() #LOGGING
+    
+    # log0.stop() #LOGGING
+
 def resetSimulation():
     for key, node in nodes.items():
         node["clockCycle"]=0
@@ -1538,7 +1682,8 @@ root.mainloop()
 # TODO
 # Bugs :
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
-#   - tags and deleting outputs and inputs does not wrk well
+#   - tags and deleting outputs and inputs does not work well
+#   - glitches with wires and nodes
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
