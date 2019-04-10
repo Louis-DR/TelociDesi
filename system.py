@@ -247,7 +247,7 @@ def updateROM(state, tag2input, tag2output, data):
 #         NonAlgebraicSystem
         
 
-exROM = NonAlgebraicSystem(2,2,{"A0":0,"A1":1},{"Q0":2,"Q1":3},initROM,updateROM)
-exROM.load({"A0":0,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
-exROM.load({"A0":2,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
-exROM.load({"A0":2,"A1":2}) ; exROM.update() ; print(exROM.retrieve())
+# exROM = NonAlgebraicSystem(2,2,{"A0":0,"A1":1},{"Q0":2,"Q1":3},initROM,updateROM)
+# exROM.load({"A0":0,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
+# exROM.load({"A0":2,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
+# exROM.load({"A0":2,"A1":2}) ; exROM.update() ; print(exROM.retrieve())

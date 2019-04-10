@@ -1,7 +1,7 @@
 def ter2dec(a):
     res = 0
     for k in range(len(a)-1,-1,-1):
-        print("k={}".format(k))
+        print("{}*3^{}".format(a[k],k))
         res += a[k]*3^k
     return res
 
