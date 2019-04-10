@@ -1,5 +1,7 @@
 from pickle import *
-from json import *
+import json
+from tkinter.filedialog import askopenfilename
+from dec2ter import *
 from log import Log
 
 class Equation:
@@ -205,7 +207,7 @@ class NonAlgebraicSystem:
         self.nbroutput = nbroutput
         self.tag2input = tag2input
         self.tag2output = tag2output
-        self.data = initFunction(tag2input, tag2output)
+        self.data = initFunction(self.state, self.tag2input, self.tag2output)
         self.updateFunction = updateFunction
         self.name = name
     
@@ -220,15 +222,32 @@ class NonAlgebraicSystem:
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
 
 
-def initROM(state, tag2input, tag2output, data):
+def initROM(state, tag2input, tag2output):
     programFileName = askopenfilename(filetypes = (("TelociDesi memory","*.truitem"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
     if programFileName[-8:]!='.truitem': return
     f = open(programFileName,'rb')
     memdump = json.load(f)
     f.close()
     print(memdump)
-    data["memory"] = memdump["data"]
-    data["adrsize"]
-
+    data = {}
+    data["adrsize"] = memdump["adrsize"]
+    data["wordsize"] = memdump["wordsize"]
+    data["memory"] = memdump["memory"]
+    return data
 def updateROM(state, tag2input, tag2output, data):
-    address = sum([(2**k)*state[tag2input["A{}".format(k)]] for k in range(data["adrsize"])])
+    address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["adrsize"])])
+    word = data["memory"][address]
+    print(word)
+    wordter = dec2ter(word)
+    for k in range(data["wordsize"]):
+        if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
+        else: state[tag2output["Q{}".format(k)]]=wordter[k]
+# class Memory(NonAlgebraicSystem):
+#     def __init__(self, file=""):
+#         NonAlgebraicSystem
+        
+
+exROM = NonAlgebraicSystem(2,2,{"A0":0,"A1":1},{"Q0":2,"Q1":3},initROM,updateROM)
+exROM.load({"A0":0,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
+exROM.load({"A0":2,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
+exROM.load({"A0":2,"A1":2}) ; exROM.update() ; print(exROM.retrieve())
