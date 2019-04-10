@@ -242,9 +242,10 @@ def updateROM(state, tag2input, tag2output, data):
     for k in range(data["wordsize"]):
         if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
         else: state[tag2output["Q{}".format(k)]]=wordter[k]
-# class Memory(NonAlgebraicSystem):
-#     def __init__(self, file=""):
-#         NonAlgebraicSystem
+
+class Memory(NonAlgebraicSystem):
+    def __init__(self, file=""):
+        NonAlgebraicSystem.__init__()
         
 
 # exROM = NonAlgebraicSystem(2,2,{"A0":0,"A1":1},{"Q0":2,"Q1":3},initROM,updateROM)

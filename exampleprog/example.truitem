@@ -1,3 +1,10 @@
+++ X YYY	LOD	loads the value of ROM at address YYY to register X
++0 X YYY	DLD	loads the value XXX to register Y
++- XY __	MOV	copy content of register X to register Y
+00+ ___		ADD	adds registers + and -, stores the result in register 0 and set the sign of 0 to the flag C
+000 ___		HLT	halts the program
+
+
 ++ - +--
 +0 + +0+
 00+ 000
