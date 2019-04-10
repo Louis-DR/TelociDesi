@@ -1,22 +1,15 @@
 # Ternary Logic Circuit Designer and Simulator
 from tkinter import *
-from tkinter.filedialog import askopenfilename
-from tkinter.filedialog import asksaveasfilename
-from collections import deque
-from system import *
-import pickle
 import json
 
 import time
 lasttime = time.time()
-def rectime():
+def rectime(str_=""):
     global lasttime
-    rt = 1000*(time.time()-lasttime)
+    print("Time elapsed for "+str_)
+    print(1000*(time.time()-lasttime))
     lasttime = time.time()
-    return rt
 
-from log import Log
-import random
 
 #region [red] CONFIGURATION
 
@@ -30,7 +23,7 @@ FONT_FAMILY = "Helvetica"
 FONT_SIZE = 20
 
 FILE_DIRECTORY = ""
-FILE_NAME = "testcircuit2"
+FILE_NAME = "testcircuit"
 PROGRAM_NAME = "testprog"
 
 BUTTON_WIDTH = 6
@@ -41,8 +34,6 @@ CHRONOGRAM_MARGIN_VERTICAL = TKINTER_SCALING*40
 CHRONOGRAM_MARGIN_HORIZONTAL = 40
 
 SHIFT_MOVE_PERCENTAGE = 0.5
-
-DT_PER_CC = 20
 
 #endregion
 
@@ -91,12 +82,6 @@ NGATES = {
     "NSUM" : "SUM"
 }
 clockCycle = 0
-
-tag_idgen = 0
-loadedSystem_idgen = 0
-loadedSystems = {}
-loadedSystemToBePlaced_id = None
-circuitSystem = None
 
 tags = {}
 program = {}
@@ -270,49 +255,111 @@ def resetRecording():
     for key in outputs:
         recording[key] = []
 
-def randomProgram():
-    for input in inputs.values():
-        input["value"] = random.randint(0,2)
-        # drawInput(input) #ISSUE HERE
-    simulateCc()
+def checkRecordingKeys():
+    for key in inputs:
+        if not key in recording: return False
+    for key in probes:
+        if not key in recording: return False
+    for key in outputs:
+        if not key in recording: return False
+    return True
 
-def randomPrograms(nbr):
-    for k in range(nbr):
-        randomProgram()
-    # for input in inputs.values():
-    #     drawInput(input)
-    # for output in outputs.values():
-    #     drawOutput(output)
-    # drawChronogram()
+def sortRecording(): #should be useless
+    global recording
+    new_rec = {}
+    for key in sorted(recording):
+        new_rec[key] = recording[key]
+    recording = new_rec
 
-# def sortRecording(): #should be useless
-#     global recording
-#     new_rec = {}
-#     for key in sorted(recording):
-#         new_rec[key] = recording[key]
-#     recording = new_rec
+def simulation_update():
+    global clockCycle
+    print(tags)
+    if not checkRecordingKeys(): resetRecording()
+    clockCycle +=1
+    print(clockCycle)
+    readProgram()
+    for input in inputs:
+        update_input(input)
+    print(recording)
+    drawChronogram()
 
-# def simulation_update():
-#     global clockCycle
-#     print(tags)
-#     if not checkRecordingKeys(): resetRecording()
-#     clockCycle +=1
-#     print(clockCycle)
-#     readProgram()
-#     for input in inputs:
-#         update_input(input)
-#     print(recording)
-#     drawChronogram()
+def readProgram():
+    global inputs
+    print("    reading program")
+    for tag,id in tags.items():
+        if id in inputs and tag in program:
+            if clockCycle<=len(program[tag]):
+                inputs[id]["value"] = program[tag][clockCycle-1]
+            else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
+        else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
 
-# def readProgram():
-#     global inputs
-#     print("    reading program")
-#     for tag,id in tags.items():
-#         if id in inputs and tag in program:
-#             if clockCycle<=len(program[tag]):
-#                 inputs[id]["value"] = program[tag][clockCycle-1]
-#             else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
-#         else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
+def update_gate(gate_id):
+    print("    updating gate")
+    gate = gates[gate_id]
+    output = nodes[gate["output"]]
+    outputValue = None
+    gate_type = gate["gate"]
+    if gate_type in UGATES:
+        input = nodes[gate["input_a"]]
+        outputValue = UGATES[gate_type] [input["value"]]
+    else:
+        input_a = nodes[gate["input_a"]]
+        input_b = nodes[gate["input_b"]]
+        if min(input_a["clockCycle"] , input_b["clockCycle"]) < clockCycle : return
+        if gate_type in NGATES:
+            outputValue = UGATES["NOT"] [ GATES[gate_type] [input_a["value"]] [input_b["value"]] ]
+        else:
+            outputValue = GATES[gate_type] [input_a["value"]] [input_b["value"]]
+    update_node(output["id"] , outputValue)
+
+def update_node(node_id, value):
+    print("    updating node")
+    node = nodes[node_id]
+    if node["clockCycle"]!=clockCycle:
+        node["clockCycle"]=clockCycle
+        node["value"]=value
+        if node["parent"]:
+            if node["parent"][0]=="g": update_gate(node["parent"])
+            elif node["parent"][0]=="p": update_probe(node["parent"])
+            elif node["parent"][0]=="o": update_output(node["parent"])
+        for wire in node["wires"]: update_wire(wire)
+
+def update_wire(wire_id):
+    print("    updating wire")
+    wire = wires[wire_id]
+    node_a = nodes[wire["node_a"]]
+    node_b = nodes[wire["node_b"]]
+    if node_a["clockCycle"] < node_b["clockCycle"]:
+        update_node(node_a["id"] , node_b["value"])
+    elif node_a["clockCycle"] > node_b["clockCycle"]:
+        update_node(node_b["id"] , node_a["value"])
+
+def update_input(input_id):
+    global recording
+    print("    updating input")
+    input = inputs[input_id]
+    input["clockCycle"] = clockCycle
+    recording[input_id].append(input["value"])
+    drawInput(input)
+    update_node(input["node"] , input["value"])
+
+def update_probe(probe_id):
+    global recording
+    print("    updating probe")
+    probe = probes[probe_id]
+    probe["clockCylce"] = clockCycle
+    probe["value"] = nodes[probe["node"]]["value"]
+    recording[probe_id].append(probe["value"])
+    drawProbe(probe)
+
+def update_output(output_id):
+    global recording
+    print("    updating output")
+    output = outputs[output_id]
+    output["clockCylce"] = clockCycle
+    output["value"] = nodes[output["node"]]["value"]
+    recording[output_id].append(output["value"])
+    drawOutput(output)
 
 #endregion
 
@@ -320,7 +367,6 @@ def randomPrograms(nbr):
 #region [blue] CREATION
 
 gate_idgen = 0
-system_idgen = 0
 node_idgen = 0
 wire_idgen = 0
 input_idgen = 0
@@ -328,7 +374,6 @@ probe_idgen = 0
 output_idgen = 0
 
 gates = {}
-systems = {}
 nodes = {}
 wires = {}
 inputs = {}
@@ -364,31 +409,7 @@ def createGate(gate, sx, sy):
     drawGate(new_gate)
     canvas.delete("ghost")
 
-def createSystem(sx, sy):
-    global system_idgen
-    global screen
-    t_loadedSystem = loadedSystems[loadedSystemToBePlaced_id]
-    t_height = max(t_loadedSystem.nbrinput , t_loadedSystem.nbroutput)+2
-    new_system = {
-        "id": "s_"+str(system_idgen),
-        "system": loadedSystemToBePlaced_id,
-        "x": sx+view_x,
-        "y": sy+view_y,
-        "height": t_height,
-        "clockCycle": 0
-    }
-    system_idgen +=1
-    for xxx in range(sx-1, sx+6):
-        for yyy in range(sy, sy+t_height):
-            screen[xxx][yyy] = new_system["id"]
-    t_displacement = int(abs(t_loadedSystem.nbrinput-t_loadedSystem.nbroutput)/2)
-    new_system["inputs"] = { inputtag : createNode(sx-1,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput<t_loadedSystem.nbroutput) else 0), new_system["id"], inputtag) for k,inputtag in zip(range(t_loadedSystem.nbrinput),t_loadedSystem.tag2input.keys())}
-    new_system["outputs"] = { outputtag : createNode(sx+5,sy+1+k+ (t_displacement if (t_loadedSystem.nbrinput>t_loadedSystem.nbroutput) else 0), new_system["id"], outputtag) for k,outputtag in zip(range(t_loadedSystem.nbroutput),t_loadedSystem.tag2output.keys())}
-    systems[new_system["id"]] = new_system
-    drawSystem(new_system)
-    canvas.delete("ghost")
-
-def createNode(sx,sy,parent=None,tag=None):
+def createNode(sx,sy,parent=None):
     global node_idgen
     global screen
     new_node = {
@@ -401,7 +422,6 @@ def createNode(sx,sy,parent=None,tag=None):
         "value": 1
     }
     node_idgen +=1
-    if tag: new_node["tag"] = tag
     screen[sx][sy] = new_node["id"]
     nodes[new_node["id"]] = new_node
     return new_node["id"]
@@ -524,7 +544,6 @@ thickness = THICKNESS
 
 root = Tk()
 root.title('Truite')
-root.resizable(width=False, height=False)
 root.tk.call('tk', 'scaling', TKINTER_SCALING)
 
 canvas_width = grid_width*grid_unit
@@ -537,19 +556,17 @@ screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
 
 def drawAll():
     canvas.delete("content")
-    for gate in gates.values():
+    for key, gate in gates.items():
         drawGate(gate)
-    for system in systems.values():
-        drawSystem(system)
-    for wire in wires.values():
+    for key, wire in wires.items():
         drawWire(wire)
-    for node in nodes.values():
+    for key, node in nodes.items():
         drawNode(node)
-    for input in inputs.values():
+    for key, input in inputs.items():
         drawInput(input)
-    for probe in probes.values():
+    for key, probe in probes.items():
         drawProbe(probe)
-    for output in outputs.values():
+    for key, output in outputs.items():
         drawOutput(output)
     drawTags()
     drawSelection()
@@ -791,11 +808,44 @@ def drawGate_RTU(sx,sy,id,ghost=False):
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
     canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 1
-    ARM = 0.4
+    HEIGHT = 0.8
     canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_line(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_line(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+0.3) , grid_unit*(sy+3-HEIGHT) , grid_unit*(sx+2-0.3) , grid_unit*(sy+3-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    
+def drawGate_RTD(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.8
+    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+0.3) , grid_unit*(sy+2+HEIGHT) , grid_unit*(sx+2-0.3) , grid_unit*(sy+2+HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    
+def drawGate_CLU(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.8
+    LENGTH = 0.8
+    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.3+HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.3-HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+LENGTH+0.3) , grid_unit*(sy+2+0.3+0.2) , grid_unit*(sx+2+LENGTH-0.3) , grid_unit*(sy+2+0.3+0.2) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.3-0.3) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+
+def drawGate_CLD(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.8
+    LENGTH = 0.8
+    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.7+HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.7-HEIGHT) , start=0 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+LENGTH+0.3) , grid_unit*(sy+2+0.7-0.2) , grid_unit*(sx+2+LENGTH-0.3) , grid_unit*(sy+2+0.7-0.2) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.7+.3) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
 
 gate_drawing_functions = {
     "AND": drawGate_AND,
@@ -816,30 +866,15 @@ gate_drawing_functions = {
     "NNOT": drawGate_NNOT,
     "ABS": drawGate_ABS,
     "INC": drawGate_INC,
-    "DEC": drawGate_DEC
+    "DEC": drawGate_DEC,
+    "RTU": drawGate_RTU,
+    "RTD": drawGate_RTD,
+    "CLU": drawGate_CLU,
+    "CLD": drawGate_CLD
 }
 
 def drawGate(gate):
     gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"])
-
-def drawSystem(system):
-    canvas.delete(system["id"])
-    sx = system["x"] - view_x
-    sy = system["y"] - view_y
-    tags="content "+system["id"]
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+system["height"]-1+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-    for inputNode in system["inputs"].values():
-        nsx = nodes[inputNode]["x"] - view_x
-        nsy = nodes[inputNode]["y"] - view_y
-        nodetag = nodes[inputNode]["tag"]
-        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx+1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5+1.2) , grid_unit*(nsy+0.5) , anchor='w',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
-    for outputNode in system["outputs"].values():
-        nsx = nodes[outputNode]["x"] - view_x
-        nsy = nodes[outputNode]["y"] - view_y
-        nodetag = nodes[outputNode]["tag"]
-        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5-1.2) , grid_unit*(nsy+0.5) , anchor='e',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
 
 def drawWire(wire):
     node_a = nodes[wire["node_a"]]
@@ -945,13 +980,9 @@ def drawGrid():
 selection = []
 previousHover = [0,0]
 
-systemModified = False
-circuitModified = False
-
 selectedTool = None
 toolShortcuts = {
     'a': "g_AND",
-    's': "s",
     'w': "w",
     'i': "i",
     'p': "p",
@@ -959,22 +990,12 @@ toolShortcuts = {
     't': "t"
 }
 toolNames = {
-    's': "System",
     'i': "Input",
     'p': "Probe",
     'o': "Output",
     't': "Tag",
     'w': "Wire",
-    'g_PNOT': "PNOT",
     'g_NOT': "NOT",
-    'g_NNOT': "NNOT",
-    'g_ABS': "ABS",
-    'g_INC': "INC",
-    'g_DEC': "DEC",
-    'g_RTU': "RTU",
-    'g_RTD': "RTD",
-    'g_CLU': "CLU",
-    'g_CLD': "CLD",
     'g_AND': "AND",
     'g_CONS': "CONS",
     'g_MUL': "MUL",
@@ -985,13 +1006,7 @@ toolNames = {
 
 zoomLevel = 3
 
-def setSystemModified(mod=True):
-    global systemModified
-    systemModified = mod
-
-def setCircuitModified(mod=True):
-    global circuitModified
-    circuitModified = mod
+tag_idgen = 0
 
 def selectTool(tool):
     global selectedTool
@@ -1004,6 +1019,7 @@ def selectTool(tool):
         canvas.delete("n_ghost")
         remove("n_ghost")
         updateScreen()
+    print(selectedTool)
     if selectedTool: toolLabelText.set(toolNames[selectedTool])
     else: toolLabelText.set("Select")
 
@@ -1015,7 +1031,6 @@ def debug_screenMap():
             elif screen[xxx][yyy][0]=='w': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#FBB", stipple="gray50", tags="debug")
             elif screen[xxx][yyy][0]=='n': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#FBF", stipple="gray50", tags="debug")
             elif screen[xxx][yyy][0]=='g': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#BFB", stipple="gray50", tags="debug")
-            elif screen[xxx][yyy][0]=='s': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#BFF", stipple="gray50", tags="debug")
             elif screen[xxx][yyy][0]=='i': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#FFB", stipple="gray50", tags="debug")
             elif screen[xxx][yyy][0]=='p': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#FEB", stipple="gray50", tags="debug")
             elif screen[xxx][yyy][0]=='o': canvas.create_rectangle(xxx*grid_unit, yyy*grid_unit, (xxx+1)*grid_unit, (yyy+1)*grid_unit, width=0, fill="#EFB", stipple="gray50", tags="debug")
@@ -1025,19 +1040,17 @@ def updateScreen():
     for xxx in range(grid_width):
         for yyy in range(grid_height):
             screen[xxx][yyy] = None
-    for gate in gates.values():
+    for key, gate in gates.items():
         updateScreen_gate(gate)
-    for system in systems.values():
-        updateScreen_system(system)
-    for wire in wires.values():
+    for key, wire in wires.items():
         updateScreen_wire(wire)
-    for node in nodes.values():
+    for key, node in nodes.items():
         updateScreen_node(node)
-    for input in inputs.values():
+    for key, input in inputs.items():
         updateScreen_input(input)
-    for probe in probes.values():
+    for key, probe in probes.items():
         updateScreen_probe(probe)
-    for output in outputs.values():
+    for key, output in outputs.items():
         updateScreen_output(output)
     # debug_screenMap()
 
@@ -1048,14 +1061,6 @@ def updateScreen_gate(gate):
         for yyy in range(sy, sy+5):
             if xxx in range(grid_width) and yyy in range(grid_height):
                 screen[xxx][yyy] = gate["id"]
-
-def updateScreen_system(system):
-    sx = system["x"] - view_x
-    sy = system["y"] - view_y
-    for xxx in range(sx-1, sx+6):
-        for yyy in range(sy, sy+system["height"]):
-            if xxx in range(grid_width) and yyy in range(grid_height):
-                screen[xxx][yyy] = system["id"]
 
 def updateScreen_wire(wire):
     sx_a = nodes[wire["node_a"]]["x"] - view_x
@@ -1110,16 +1115,6 @@ def moveBy_gate(id,dx,dy):
     moveBy_node(gates[id]["input_a"], dx,dy)
     if "input_b" in gates[id]: moveBy_node(gates[id]["input_b"], dx,dy)
 
-def moveBy_system(system_id,dx,dy):
-    system = systems[system_id]
-    canvas.move(system_id, dx*grid_unit, dy*grid_unit)
-    system["x"]+=dx
-    system["y"]+=dy
-    for input_id in system["inputs"].values():
-        moveBy_node(input_id, dx,dy)
-    for output_id in system["outputs"].values():
-        moveBy_node(output_id, dx,dy)
-
 def moveBy_node(id,dx,dy):
     canvas.move(id, dx*grid_unit, dy*grid_unit)
     nodes[id]["x"]+=dx
@@ -1156,14 +1151,12 @@ def moveBy(dx,dy):
     else:
         for id in selection:
             if id[0]=='g' and not canMove_gate(gates[id]["x"], gates[id]["y"],dx,dy,selection): return
-            elif id[0]=='s' and not canMove_system(id,dx,dy,selection): return
             elif id[0]=='n' and not canMove_node(nodes[id]["x"], nodes[id]["y"],dx,dy,selection): return
             elif id[0]=='i' and not canMove_input(inputs[id]["x"], inputs[id]["y"],dx,dy,selection): return
             elif id[0]=='p' and not canMove_probe(probes[id]["x"], probes[id]["y"],dx,dy,selection): return
             elif id[0]=='o' and not canMove_output(outputs[id]["x"], outputs[id]["y"],dx,dy,selection): return
         for id in selection:
             if id[0]=='g': moveBy_gate(id,dx,dy)
-            elif id[0]=='s': moveBy_system(id,dx,dy)
             elif id[0]=='n': moveBy_node(id,dx,dy)
             elif id[0]=='i': moveBy_input(id,dx,dy)
             elif id[0]=='p': moveBy_probe(id,dx,dy)
@@ -1171,7 +1164,6 @@ def moveBy(dx,dy):
         canvas.move("selection", dx*grid_unit, dy*grid_unit)
         drawTags()
     updateScreen()
-    setCircuitModified()
 
 def zoom(dz):
     global grid_width
@@ -1208,31 +1200,12 @@ def zoom(dz):
     drawAll()
     drawSelection()
 
-def canPlace_gate(sx,sy):
+def canCreateGate(sx,sy):
     for xxx in range(sx-3, sx+5):
         for yyy in range(sy-2, sy+3):
             if sx in range(3,grid_width-3) and sy in range(2,grid_height-2):
                 if screen[xxx][yyy]!=None: return False
     return True
-
-def canPlace_system(loadedSystem_id,sx,sy):
-    # for xxx in range(sx-3, sx+5):
-    #     for yyy in range(sy-2, sy+3):
-    #         if sx in range(3,grid_width-3) and sy in range(2,grid_height-2):
-    #             if screen[xxx][yyy]!=None: return False
-    return True
-
-def canPlace_input(sx,sy):
-    if sx in range(0,grid_width-1) and sy in range(0,grid_height) and screen[sx][sy]==None and screen[sx+1][sy]==None: return True
-    else: return False
-
-def canPlace_probe(sx,sy):
-    if sx in range(0,grid_width) and sy in range(0,grid_height-1) and screen[sx][sy]==None and screen[sx][sy+1]==None: return True
-    else: return False
-
-def canPlace_output(sx,sy):
-    if sx in range(1,grid_width) and sy in range(0,grid_height) and screen[sx][sy]==None and screen[sx-1][sy]==None: return True
-    else: return False
 
 def canMove_gate(sx,sy,dx,dy,selection):
     sx -= view_x
@@ -1240,105 +1213,83 @@ def canMove_gate(sx,sy,dx,dy,selection):
     if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-4-dy)): return False
     if dx==+1:
         for yyy in range(sy, sy+5):
-            if screen[sx+6][yyy]!=None and screen[sx+6][yyy][0] !='w' and not screen[sx+6][yyy] in selection: return False
+            if screen[sx+6][yyy]!=None and screen[sx+6][yyy][0] in ('g','n','i','p','o') and not screen[sx+6][yyy] in selection: return False
     elif dx==-1:
         for yyy in range(sy, sy+5):
-            if screen[sx-2][yyy]!=None and screen[sx-2][yyy][0] !='w' and not screen[sx-2][yyy] in selection: return False
+            if screen[sx-2][yyy]!=None and screen[sx-2][yyy][0] in ('g','n','i','p','o') and not screen[sx-2][yyy] in selection: return False
     if dy==+1:
         for xxx in range(sx-1, sx+6):
-            if screen[xxx][sy+5]!=None and screen[xxx][sy+5][0] !='w' and not screen[xxx][sy+5] in selection: return False
+            if screen[xxx][sy+5]!=None and screen[xxx][sy+5][0] in ('g','n','i','p','o') and not screen[xxx][sy+5] in selection: return False
     elif dy==-1:
         for xxx in range(sx-1, sx+6):
-            if screen[xxx][sy-1]!=None and screen[xxx][sy-1][0] !='w' and not screen[xxx][sy-1] in selection: return False
-    return True
-
-def canMove_system(system_id,dx,dy,selection):
-    system = systems[system_id]
-    sx = system["x"] - view_x
-    sy = system["y"] - view_y
-    s_height = system["height"]
-    if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-s_height+1-dy)): return False
-    if dx==+1:
-        for yyy in range(sy, sy+s_height):
-            if screen[sx+6][yyy]!=None and screen[sx+6][yyy][0] !='w' and not screen[sx+6][yyy] in selection: return False
-    elif dx==-1:
-        for yyy in range(sy, sy+s_height):
-            if screen[sx-2][yyy]!=None and screen[sx-2][yyy][0] !='w' and not screen[sx-2][yyy] in selection: return False
-    if dy==+1:
-        for xxx in range(sx-1, sx+6):
-            if screen[xxx][sy+s_height]!=None and screen[xxx][sy+s_height][0] !='w' and not screen[xxx][sy+s_height] in selection: return False
-    elif dy==-1:
-        for xxx in range(sx-1, sx+s_height):
-            if screen[xxx][sy-1]!=None and screen[xxx][sy-1][0] !='w' and not screen[xxx][sy-1] in selection: return False
+            if screen[xxx][sy-1]!=None and screen[xxx][sy-1][0] in ('g','n','i','p','o') and not screen[xxx][sy-1] in selection: return False
     return True
 
 def canMove_node(sx,sy,dx,dy,selection):
     sx -= view_x
     sy -= view_y
-    if not (sx in range(1-dx,grid_width-1-dx) and sy in range(0-dy,grid_height-1-dy)): return False
+    if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-4-dy)): return False
     if dx==+1:
-        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] !='w' and not screen[sx+1][sy] in selection: return False
+        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] in ('g','n','i','p','o') and not screen[sx+1][sy] in selection: return False
     elif dx==-1:
-        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] !='w' and not screen[sx-1][sy] in selection: return False
+        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] in ('g','n','i','p','o') and not screen[sx-1][sy] in selection: return False
     if dy==+1:
-        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] !='w' and not screen[sx][sy+1] in selection: return False
+        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] in ('g','n','i','p','o') and not screen[sx][sy+1] in selection: return False
     elif dy==-1:
-        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] !='w' and not screen[sx][sy-1] in selection: return False
+        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] in ('g','n','i','p','o') and not screen[sx][sy-1] in selection: return False
     return True
 
 def canMove_input(sx,sy,dx,dy,selection):
     sx -= view_x
     sy -= view_y
-    if not (sx in range(0-dx,grid_width-1-dx) and sy in range(0-dy,grid_height-dy)): return False
+    if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-4-dy)): return False
     if dx==+1:
-        if screen[sx+2][sy]!=None and screen[sx+2][sy][0] !='w' and not screen[sx+2][sy] in selection: return False
+        if screen[sx+2][sy]!=None and screen[sx+2][sy][0] in ('g','n','i','p','o') and not screen[sx+2][sy] in selection: return False
     elif dx==-1:
-        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] !='w' and not screen[sx-1][sy] in selection: return False
+        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] in ('g','n','i','p','o') and not screen[sx-1][sy] in selection: return False
     if dy==+1:
-        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] !='w' and not screen[sx][sy+1] in selection: return False
-        if screen[sx+1][sy+1]!=None and screen[sx+1][sy+1][0] !='w' and not screen[sx+1][sy+1] in selection: return False
+        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] in ('g','n','i','p','o') and not screen[sx][sy+1] in selection: return False
+        if screen[sx+1][sy+1]!=None and screen[sx+1][sy+1][0] in ('g','n','i','p','o') and not screen[sx+1][sy+1] in selection: return False
     elif dy==-1:
-        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] !='w' and not screen[sx][sy-1] in selection: return False
-        if screen[sx+1][sy-1]!=None and screen[sx+1][sy-1][0] !='w' and not screen[sx+1][sy-1] in selection: return False
+        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] in ('g','n','i','p','o') and not screen[sx][sy-1] in selection: return False
+        if screen[sx+1][sy-1]!=None and screen[sx+1][sy-1][0] in ('g','n','i','p','o') and not screen[sx+1][sy-1] in selection: return False
     return True
 
 def canMove_probe(sx,sy,dx,dy,selection):
     sx -= view_x
     sy -= view_y
-    if not (sx in range(0-dx,grid_width-dx) and sy in range(0-dy,grid_height-1-dy)): return False
+    if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-4-dy)): return False
     if dx==+1:
-        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] !='w' and not screen[sx+1][sy] in selection: return False
-        if screen[sx+1][sy+1]!=None and screen[sx+1][sy+1][0] !='w' and not screen[sx+1][sy+1] in selection: return False
+        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] in ('g','n','i','p','o') and not screen[sx+1][sy] in selection: return False
+        if screen[sx+1][sy+1]!=None and screen[sx+1][sy+1][0] in ('g','n','i','p','o') and not screen[sx+1][sy+1] in selection: return False
     elif dx==-1:
-        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] !='w' and not screen[sx-1][sy] in selection: return False
-        if screen[sx-1][sy+1]!=None and screen[sx-1][sy+1][0] !='w' and not screen[sx-1][sy+1] in selection: return False
+        if screen[sx-1][sy]!=None and screen[sx-1][sy][0] in ('g','n','i','p','o') and not screen[sx-1][sy] in selection: return False
+        if screen[sx-1][sy+1]!=None and screen[sx-1][sy+1][0] in ('g','n','i','p','o') and not screen[sx-1][sy+1] in selection: return False
     if dy==+1:
-        if screen[sx][sy+2]!=None and screen[sx][sy+2][0] !='w' and not screen[sx][sy+2] in selection: return False
+        if screen[sx][sy+2]!=None and screen[sx][sy+2][0] in ('g','n','i','p','o') and not screen[sx][sy+2] in selection: return False
     elif dy==-1:
-        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] !='w' and not screen[sx][sy-1] in selection: return False
+        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] in ('g','n','i','p','o') and not screen[sx][sy-1] in selection: return False
     return True
 
 def canMove_output(sx,sy,dx,dy,selection):
     sx -= view_x
     sy -= view_y
-    if not (sx in range(1-dx,grid_width-dx) and sy in range(0-dy,grid_height-dy)): return False
+    if not (sx in range(1-dx,grid_width-5-dx) and sy in range(0-dy,grid_height-4-dy)): return False
     if dx==+1:
-        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] !='w' and not screen[sx+1][sy] in selection: return False
+        if screen[sx+1][sy]!=None and screen[sx+1][sy][0] in ('g','n','i','p','o') and not screen[sx+1][sy] in selection: return False
     elif dx==-1:
-        if screen[sx-2][sy]!=None and screen[sx-2][sy][0] !='w' and not screen[sx-2][sy] in selection: return False
+        if screen[sx-2][sy]!=None and screen[sx-2][sy][0] in ('g','n','i','p','o') and not screen[sx-2][sy] in selection: return False
     if dy==+1:
-        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] !='w' and not screen[sx][sy+1] in selection: return False
-        if screen[sx-1][sy+1]!=None and screen[sx-1][sy+1][0] !='w' and not screen[sx-1][sy+1] in selection: return False
+        if screen[sx][sy+1]!=None and screen[sx][sy+1][0] in ('g','n','i','p','o') and not screen[sx][sy+1] in selection: return False
+        if screen[sx-1][sy+1]!=None and screen[sx-1][sy+1][0] in ('g','n','i','p','o') and not screen[sx-1][sy+1] in selection: return False
     elif dy==-1:
-        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] !='w' and not screen[sx][sy-1] in selection: return False
-        if screen[sx-1][sy-1]!=None and screen[sx-1][sy-1][0] !='w' and not screen[sx-1][sy-1] in selection: return False
+        if screen[sx][sy-1]!=None and screen[sx][sy-1][0] in ('g','n','i','p','o') and not screen[sx][sy-1] in selection: return False
+        if screen[sx-1][sy-1]!=None and screen[sx-1][sy-1][0] in ('g','n','i','p','o') and not screen[sx-1][sy-1] in selection: return False
     return True
 
 def remove(id):
     if id[0]=='g' and id in gates:
         remove_gate(id)
-    elif id[0]=='s' and id in systems:
-        remove_system(id)
     elif id[0]=='n' and id in nodes and not nodes[id]["parent"]:
         remove_node(id)
     elif id[0]=='w' and id in wires:
@@ -1363,16 +1314,6 @@ def remove_gate(gate_id):
     remove(gate["output"])
     # removes the gate from the list of gates
     del gates[gate_id]
-
-def remove_system(system_id):
-    system = systems[system_id]
-    for input_id in system["inputs"].values():
-        nodes[input_id]["parent"] = None
-        remove(input_id)
-    for output_id in system["outputs"].values():
-        nodes[output_id]["parent"] = None
-        remove(output_id)
-    del systems[system_id]
 
 def remove_node(node_id):
     node = nodes[node_id]
@@ -1417,12 +1358,8 @@ def remove_output(output_id):
     del outputs[output_id]
 
 def removeSelection():
-    global selection
     for id in selection: remove(id)
-    selection = []
     updateScreen()
-    setCircuitModified()
-    setSystemModified()
 
 def select(id=None, add=False):
     global selection
@@ -1475,8 +1412,6 @@ def changeTag(new_tag, old_tag):
     tags[new_tag] = tags[old_tag]
     del tags[old_tag]
     drawTags()
-    setCircuitModified()
-    setSystemModified()
 
 def labelPopup(text, func, arg):
     popup = Toplevel(root)
@@ -1497,9 +1432,6 @@ def hover(event):
     if selectedTool==None: return
     if selectedTool[0]=='g':
         canvas.create_rectangle(grid_unit*(sx-3+0.5) , grid_unit*(sy-2+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+2+0.5) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
-    elif selectedTool[0]=='s':
-        t_height = max(loadedSystems[loadedSystemToBePlaced_id].nbrinput , loadedSystems[loadedSystemToBePlaced_id].nbroutput)+2
-        canvas.create_rectangle(grid_unit*(sx-3+0.5) , grid_unit*(sy-1+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+t_height+0.5) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
     elif selectedTool[0]=='w':
         canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy) , grid_unit*(sx+1) , grid_unit*(sy+1) , width=0 , fill="#AAA" , stipple="gray12" , tags="ghost")
         if temp_node != None:
@@ -1527,33 +1459,23 @@ def hover(event):
 
 def leftClick(event, shift=False):
     global selection
-    global loadedSystemToBePlaced_id
     sx = int(event.x/grid_unit)
     sy = int(event.y/grid_unit)
+    print(screen[sx][sy])
     if selectedTool!=None:    
         if selectedTool[0]=='g':
-            if canPlace_gate(sx,sy) and sx in range(3,grid_width-3) and sy in range(2,grid_height-2):
+            if canCreateGate(sx,sy) and sx in range(3,grid_width-3) and sy in range(2,grid_height-2):
                 createGate(selectedTool[2:], sx-2, sy-2)
-        elif selectedTool[0]=='s':
-            if loadedSystemToBePlaced_id and canPlace_system(loadedSystemToBePlaced_id,sx-2,sy):
-                createSystem(sx-2,sy)
-                loadedSystemToBePlaced_id = None
-                selectTool(None)
         elif selectedTool[0]=='w':
             createWire(sx,sy)
         elif selectedTool[0]=='i':
-            if canPlace_input(sx,sy):
-                createInput(sx,sy)
+            createInput(sx,sy)
         elif selectedTool[0]=='p':
-            if canPlace_probe(sx,sy):
-                createProbe(sx,sy)
+            createProbe(sx,sy)
         elif selectedTool[0]=='o':
-            if canPlace_output(sx,sy):
-                createOutput(sx,sy)
+            createOutput(sx,sy)
         elif selectedTool[0]=='t':
             addTag(sx,sy)
-        setCircuitModified()
-        setSystemModified()
     else:
         if screen[sx][sy]!=None:
             select(screen[sx][sy], shift)
@@ -1584,9 +1506,7 @@ canvas.bind("<Motion>", lambda event: hover(event))
 canvas.bind("<Escape>", lambda event: selectTool(None))
 canvas.bind("<Delete>", lambda event: removeSelection())
 
-canvas.bind("<Return>", lambda event: simulateCc())
-# canvas.bind("<Return>", lambda event: randomPrograms(50)) #debug
-canvas.bind("<Control-Return>", lambda event: simulateDt())
+canvas.bind("<Return>", lambda event: simulation_update())
 
 canvas.bind("<Left>", lambda event: moveBy(-1,0))
 canvas.bind("<Right>", lambda event: moveBy(+1,0))
@@ -1604,9 +1524,6 @@ canvas.bind("<*>", lambda event: zoom(-1))
 
 canvas.bind("<Control-s>", lambda event: saveCircuit())
 canvas.bind("<Control-o>", lambda event: loadCircuit())
-canvas.bind("<Control-e>", lambda event: exportSystem())
-canvas.bind("<Control-i>", lambda event: importSystem())
-canvas.bind("<Control-n>", lambda event: blankCircuit())
 
 #endregion
 
@@ -1709,156 +1626,77 @@ canvas.pack(side="right")
 
 #region [orange] SAVING & LOADING
 
-def blankCircuit():
-    global gates
-    global systems
-    global nodes
-    global wires
-    global inputs
-    global probes
-    global outputs
-    global tags
-    global loadedSystems
-    global gate_idgen
-    global system_idgen
-    global node_idgen
-    global wire_idgen
-    global input_idgen
-    global probe_idgen
-    global output_idgen
-    global tag_idgen
-    global loadedSystem_idgen
-    gates = {}
-    systems = {}
-    nodes = {}
-    wires = {}
-    inputs = {}
-    probes = {}
-    outputs = {}
-    tags = {}
-    loadedSystems = {}
-    gate_idgen = 0
-    system_idgen = 0
-    node_idgen = 0
-    wire_idgen = 0
-    input_idgen = 0
-    probe_idgen = 0
-    output_idgen = 0
-    tag_idgen = 0
-    loadedSystem_idgen = 0
-    clean()
-
-def clean():
-    global view_x
-    global view_y
-    global selection
-    global selectedTool
-    global loadedSystemToBePlaced_id
-    view_x = 0
-    view_y = 0
-    selection = []
-    selectedTool = None
-    cleanLoadedSystem()
-    updateScreen()
-    drawAll()
-    resetSimulation()
-
 def saveCircuit():
-    cleanLoadedSystem()
+    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'w')
+    file.write(json.dumps(gates))
+    file.write('\n')
+    file.write(json.dumps(nodes))
+    file.write('\n')
+    file.write(json.dumps(wires))
+    file.write('\n')
+    file.write(json.dumps(inputs))
+    file.write('\n')
+    file.write(json.dumps(probes))
+    file.write('\n')
+    file.write(json.dumps(outputs))
+    file.write('\n')
+    file.write(json.dumps(tags))
+    file.write('\n')
     idgens = {
         "gate_idgen": gate_idgen,
-        "system_idgen": system_idgen,
         "node_idgen": node_idgen,
         "wire_idgen": wire_idgen,
         "input_idgen": input_idgen,
         "probe_idgen": probe_idgen,
         "output_idgen": output_idgen,
         "tag_idgen": tag_idgen,
-        "loadedSystem_idgen": loadedSystem_idgen,
         "view_x": view_x,
         "view_y": view_y
     }
-    save = {
-        "gates": gates,
-        "systems": systems,
-        "nodes": nodes,
-        "wires": wires,
-        "inputs": inputs,
-        "probes": probes,
-        "outputs": outputs,
-        "tags": tags,
-        "loadedSystems": loadedSystems,
-        "idgens": idgens
-    }
-    saveFilename = asksaveasfilename(filetypes = (("TelociDesi circuits","*.truitec"),("all files","*.*")))
-    f = open(saveFilename.replace('.truitec','')+'.truitec', 'wb')
-    pickle.dump(save,f)
-    f.close()
-    setCircuitModified(False)
+    file.write(json.dumps(idgens))    
+    file.close()
 
 def loadCircuit():
     global gates
-    global systems
     global nodes
     global wires
     global inputs
     global probes
     global outputs
     global tags
-    global loadedSystems
     global gate_idgen
-    global system_idgen
     global node_idgen
     global wire_idgen
     global input_idgen
     global probe_idgen
     global output_idgen
     global tag_idgen
-    global loadedSystem_idgen
     global view_x
     global view_y
-    circuitFileName = askopenfilename(filetypes = (("TelociDesi circuits","*.truitec"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
-    if circuitFileName[-8:]!='.truitec': return
-    f = open(circuitFileName,'rb')
-    save = pickle.load(f)
-    f.close()
-    gates = save["gates"]
-    systems = save["systems"]
-    nodes = save["nodes"]
-    wires = save["wires"]
-    inputs = save["inputs"]
-    probes = save["probes"]
-    outputs = save["outputs"]
-    tags = save["tags"]
-    loadedSystems = save["loadedSystems"]
-    idgens = save["idgens"]
+    file = open(FILE_DIRECTORY+FILE_NAME+".truitec", 'r')
+    gates = json.loads(file.readline())
+    nodes = json.loads(file.readline())
+    wires = json.loads(file.readline())
+    inputs = json.loads(file.readline())
+    probes = json.loads(file.readline())
+    outputs = json.loads(file.readline())
+    tags = json.loads(file.readline())
+    idgens = json.loads(file.readline())
     gate_idgen = idgens["gate_idgen"]
-    system_idgen = idgens["system_idgen"]
     node_idgen = idgens["node_idgen"]
     wire_idgen = idgens["wire_idgen"]
     input_idgen = idgens["input_idgen"]
     probe_idgen = idgens["probe_idgen"]
     output_idgen = idgens["output_idgen"]
     tag_idgen = idgens["tag_idgen"]
-    loadedSystem_idgen = idgens["loadedSystem_idgen"]
     view_x = idgens["view_x"]
     view_y = idgens["view_y"]
-    clean()
-    # loadProgram()
-
-def exportSystem():
-    sys = buildSystem()
-    exportFilename = asksaveasfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*")))
-    f = open(exportFilename.replace('.truites','')+'.truites', 'wb')
-    pickle.dump(sys,f)
-    f.close()
-
-def importSystem():
-    global loadedSystemToBePlaced_id
-    systemFileName = askopenfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
-    if systemFileName[-8:]!='.truites': return
-    loadedSystemToBePlaced_id = loadSystem(systemFileName)
-    selectTool('s')
+    print(gate_idgen)
+    file.close
+    updateScreen()
+    drawAll()
+    resetSimulation()
+    loadProgram()
 
 def loadProgram():
     global program
@@ -1866,30 +1704,6 @@ def loadProgram():
     program = json.loads(file.readline())
 
 #endregion
-
-#region [purple] MENU
-menuBar = Menu(root)
-#root['menu'] = menuBar
-
-def hello():
-    print("bite")
-
-sousMenu = Menu(menuBar)
-menuBar.add_cascade(label='File', menu=sousMenu)
-sousMenu.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE),command=saveCircuit)
-sousMenu.add_command(label='Load',font=(FONT_FAMILY, FONT_SIZE),command=loadCircuit)
-sousMenu.add_separator()
-sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
-sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
-
-
-#sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
-
-root.config(menu=menuBar)
-#end region
 
 
 selectTool(None)
@@ -1912,24 +1726,14 @@ root.mainloop()
 #   - too many output nodes map : marks with a red square output nodes connected together
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
-# Memory chip :
-#   - n inputs for address
-#   - m outputs for data
-#   - clock input
-# Number input :
-#   - input a number with keyboard, outputs the signal on a given number of trits
 # Gates :
 #   - ability to mirror gates
 #   - negate output
 #   - finish other unary gates
-#   - basic gates with more than two inputs (AND, OR etc)
-#   - inprove the canPlace_gate function (redundant condition in the leftClick function ?)
-# Systems :
-#   - ability to mirror systems
-#   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
-#   - option for wide gaps between pins (1 or 2)
-#   - draw the name of each pin and the name of the system
-#   - check if can create gate ? -> when adding a gate, it is loaded when loeading the file, and then placed on the canvas (therefore we already know its size)
+# Inputs :
+# Outputs :
+# Abstraction :
+#   - saving a whole circuit as a single component with multiple inputs and outputs
 # Programing :
 #   - separate software to :
 #   - create input streams manualy
@@ -1947,14 +1751,10 @@ root.mainloop()
 # Logging and Visualisation :
 #   - separate software to visualize chronograms and output them to csv, excel, png, etc
 # User Interface :
-#   - clean the whole tool selection system....
 #   - replace text in buttons with icons
 #   - new panel and buttons for saving and loading
 #   - new panel and buttons for total cost
-#   - new panel for loading and placing systems
-#   - load a circuit corresponding to a system
-#   - reloading all system on the circuit (if their circuit changed) -> how to tackle the issue of changing number of inputs and outputs ?
-# Saving and Loading :
+# Saving and Loading : 
 #   - save simulation results
 # Zoom and Pan :
 #   - centered zoom
@@ -1973,4 +1773,5 @@ root.mainloop()
 
 
 # OVERHAULS :
+# Simulation : separate the simulation from the creation of gates (canvas, screen, etc) : only a list of inputs, outputs, probes, gates without ids and connections (plus transmission times ?), needs delay gate ?
 # Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save file
