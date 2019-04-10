@@ -1,6 +1,6 @@
 {
     "architecture": {
-        "title": "example glossary",
+        "name": "test architecture",
 		"GlossDiv": {
             "title": "S",
 			"GlossList": {

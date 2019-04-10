@@ -15,6 +15,7 @@ import json
 farchi = open("architecture.truitea","r")
 
 archi =  json.load (farchi)
+
 print ("Test")
 print( archi ["architecture"])
 
