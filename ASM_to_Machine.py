@@ -10,12 +10,18 @@
 
 import json
 
-#fspec = open("spec.truitep","r")
-
+#Load architecture specifications
 farchi = open("architecture.truitea","r")
-
 archi =  json.load (farchi)
+farchi.close();
 
-print ("Test")
+#Load assembly file
+#fspec = open("spec.truitep","r")
+#assembly = fspec.readlines()
+#fspec.close()
+
+
+
 print( archi ["architecture"])
 
+fspec.close();
