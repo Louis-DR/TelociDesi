@@ -62,21 +62,38 @@ def convert() :
     
     if (validArchi and validASM):
         #step 1 : read lines, check syntax & translate ASM to ternary codes
-        for line in assembly:
+        outputTab = []
+        for line in assembly: #read lines
             validOpcode = False
+            isInteger = False
             tab = line.split(" ")
-            for item in archi["operations"]:
+            for item in archi["operations"]: #check if opcode is referenced
                 print(item)
-                print(tab[0])
+                print(tab[0].strip())
                 if item.strip() == tab[0].strip():
                     validOpcode = True
                     break
-            if (isInt(tab[0])):
-                validOpcode = True
-            if (validOpcode):
+            if (isInt(tab[0].strip())): #or if line is pure value
+                isInteger = True
+            if (validOpcode or isInteger):
                 print("Valid Opcode")
             else :
-                print("Error : "+ tab[0] +" opcode not found")
+                print("Error : "+ tab[0].strip() +" opcode not found")
+                return -1
+
+            if (isInteger):
+                if (len(tab)>1):
+                    print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
+                i = int(tab[0])   
+                if (i<3**(archi["wordsize"])-1) :
+                    outputTab.append(i)
+                else:
+                    print("Error : invalid value")
+                    return -1
+
+            if(validOpcode):
+                pass
+            else:
                 return -1
         #step 2 : ternary to dec
 
