@@ -11,6 +11,7 @@
 import json
 from tkinter import *
 from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksaveasfilename
 
 #Load architecture specifications
 def loadArchi():
@@ -24,7 +25,7 @@ def loadArchi():
 #Load assembly file
 def loadASM():
     global assembly
-    filenameASM = askopenfilename(title="Ouvrir votre document",filetypes=[('txt files','.txt'),('all files','.*')])
+    filenameASM = askopenfilename(title="Ouvrir votre document",filetypes=[('truitep files','*.truitep'),('all files','.*')])
     fspec = open(filenameASM,"r")
     assembly = fspec.readlines()
     fspec.close()
@@ -32,6 +33,8 @@ def loadASM():
 
 #Export implementation file
 def exportBin():
+    filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
+    fmemory =  open(filenameEXP,"w+")
     return 0
 
 def convert() :
