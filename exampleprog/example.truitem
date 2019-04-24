@@ -30,7 +30,7 @@
 
 
 {
-    "adrsize": 3,
+    "addrsize": 3,
     "wordsize": 6,
     "memory": [506,700,367,603,364,268]
 }

@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.5
+TKINTER_SCALING = 1.0
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -96,6 +96,7 @@ tag_idgen = 0
 loadedSystem_idgen = 0
 loadedSystems = {}
 loadedSystemToBePlaced_id = None
+loadedSystemToBePlaced_type = None
 circuitSystem = None
 
 tags = {}
@@ -180,6 +181,15 @@ def loadSystem(systemFileName):
     f = open(systemFileName,'rb')
     sys = pickle.load(f)
     f.close()
+    loadedSystem_id = "ls_"+str(loadedSystem_idgen)
+    loadedSystem_idgen +=1
+    loadedSystems[loadedSystem_id] = sys
+    return loadedSystem_id
+
+def loadMemory(memoryFileName):
+    global loadedSystem_idgen
+    global loadedSystems
+    sys = Memory(memoryFileName)
     loadedSystem_id = "ls_"+str(loadedSystem_idgen)
     loadedSystem_idgen +=1
     loadedSystems[loadedSystem_id] = sys
@@ -372,6 +382,7 @@ def createSystem(sx, sy):
     new_system = {
         "id": "s_"+str(system_idgen),
         "system": loadedSystemToBePlaced_id,
+        "type": loadedSystemToBePlaced_type,
         "x": sx+view_x,
         "y": sy+view_y,
         "height": t_height,
@@ -1606,6 +1617,7 @@ canvas.bind("<Control-s>", lambda event: saveCircuit())
 canvas.bind("<Control-o>", lambda event: loadCircuit())
 canvas.bind("<Control-e>", lambda event: exportSystem())
 canvas.bind("<Control-i>", lambda event: importSystem())
+canvas.bind("<Control-m>", lambda event: importMemory())
 canvas.bind("<Control-n>", lambda event: blankCircuit())
 
 #endregion
@@ -1855,15 +1867,21 @@ def exportSystem():
 
 def importSystem():
     global loadedSystemToBePlaced_id
-    systemFileName = askopenfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
+    global loadedSystemToBePlaced_type
+    systemFileName = askopenfilename(filetypes = (("TelociDesi systems","*.truites"),("all files","*.*")))
     if systemFileName[-8:]!='.truites': return
     loadedSystemToBePlaced_id = loadSystem(systemFileName)
+    loadedSystemToBePlaced_type = "standard"
     selectTool('s')
 
-def loadProgram():
-    global program
-    file = open(FILE_DIRECTORY+PROGRAM_NAME+".truitep", 'r')
-    program = json.loads(file.readline())
+def importMemory():
+    global loadedSystemToBePlaced_id
+    global loadedSystemToBePlaced_type
+    memoryFileName = askopenfilename(filetypes = (("TelociDesi memory","*.truitem"),("all files","*.*")))
+    if memoryFileName[-8:]!='.truitem': return
+    loadedSystemToBePlaced_id = loadMemory(memoryFileName)
+    loadedSystemToBePlaced_type = "memory"
+    selectTool('s')
 
 #endregion
 
@@ -1969,6 +1987,9 @@ root.mainloop()
 #   - panel to create, list and teleport to waypoints
 # Lack of Pouet :
 #   - add Pouet everywhere
+# Error handeling :
+#   - catch errors if save file is corrupted
+#   - catch errors if memory or system files don't exist anymore
 
 
 
