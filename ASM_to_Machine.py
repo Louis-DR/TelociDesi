@@ -12,6 +12,7 @@ import json
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import *
 
 #Load architecture specifications
 def loadArchi():
@@ -35,10 +36,53 @@ def loadASM():
 def exportBin():
     filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
     fmemory =  open(filenameEXP,"w+")
+    fmemory.close()
     return 0
 
+def isInt(v):
+    try : i = int(v)
+    except : return False
+    return True
+
 def convert() :
-    return 0
+    validArchi = True
+    validASM = True
+
+    try:
+        archi
+    except NameError:
+        showerror("Erreur","Missing architecture (.truitea) file")
+        validArchi = False
+
+    try:
+        assembly
+    except NameError:
+        showerror("Erreur", "Missing assembly (.truitep) file")
+        validASM = False
+    
+    if (validArchi and validASM):
+        #step 1 : read lines, check syntax & translate ASM to ternary codes
+        for line in assembly:
+            validOpcode = False
+            tab = line.split(" ")
+            for item in archi["operations"]:
+                print(item)
+                print(tab[0])
+                if item.strip() == tab[0].strip():
+                    validOpcode = True
+                    break
+            if (isInt(tab[0])):
+                validOpcode = True
+            if (validOpcode):
+                print("Valid Opcode")
+            else :
+                print("Error : "+ tab[0] +" opcode not found")
+                return -1
+        #step 2 : ternary to dec
+
+        return 0
+    else:
+        return -1
 
 fenetre = Tk()
 
