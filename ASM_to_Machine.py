@@ -35,9 +35,13 @@ def loadASM():
 
 #Export implementation file
 def exportBin():
+    try :
     filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
     fmemory =  open(filenameEXP,"w+")
+    for line in outputTab:
+        fmemory.write(line+'\n')
     fmemory.close()
+    except : return -1
     return 0
 
 def isInt(v):
@@ -98,7 +102,7 @@ def convert() :
                 #print(i)  
                 #print(archi["wordsize"])
                 if (i<(3**(archi["wordsize"])-1)/2 or i>-(3**(archi["wordsize"])-1)/2 ) :
-                    outputTab.append(i)
+                    outputTab.append(str(i))
                     #print("check")
                 else :
                     print("Error in line : " + line)
