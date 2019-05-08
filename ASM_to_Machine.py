@@ -13,6 +13,7 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import *
+from dec2ter import *
 
 #Load architecture specifications
 def loadArchi():
@@ -61,6 +62,7 @@ def convert() :
         validASM = False
     
     if (validArchi and validASM):
+        global outputTab
         #step 1 : read lines, check syntax & translate ASM to ternary codes
         outputTab = []
         for line in assembly: #read lines
@@ -107,6 +109,8 @@ def convert() :
                 print(archi["operations"][currentItem])
                 print(tab)
                 lineStructure = archi["operations"][currentItem]
+                trad = str(lineStructure[0])
+                print(trad)
                 if (len(tab)>=len(lineStructure)):
                     if(len(tab)>len(lineStructure)) :
                         print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
@@ -117,13 +121,17 @@ def convert() :
                                 print("Error in line :" + line)
                                 print("Error : invalid operand "+ operand +". Compilation stopped")
                                 return -1
+                            else:
+                                #print(int(dec2terstr(dec2ter(int(tab[iOperand+1])))))
+                                trad = trad + dec2terstr(dec2ter(int(tab[iOperand+1])))
                         else :
                             print("Error in line :" + line)
                             print("Error : invalid operand "+ operand +". Compilation stopped")
                             return -1
 
-                    #At this point, line syntax is considered to be valid                    
-                    
+                    #At this point, line syntax is considered to be valid   
+                    print(trad)              
+                    outputTab.append(trad)
 
                 else:
                     print("Error in line :" + line)
@@ -131,6 +139,7 @@ def convert() :
                     return -1
         #step 2 : ternary to dec
 
+        print(outputTab)
         return 0
     else:
         return -1
