@@ -66,35 +66,54 @@ def convert() :
         for line in assembly: #read lines
             validOpcode = False
             isInteger = False
+            currentItem = None
             tab = line.split(" ")
-            for item in archi["operations"]: #check if opcode is referenced
-                print(item)
-                print(tab[0].strip())
-                if item.strip() == tab[0].strip():
-                    validOpcode = True
-                    break
-            if (isInt(tab[0].strip())): #or if line is pure value
+            for iCharacter in range(len(tab)): #Cleaning tab to remove whitespace characters and @ and %
+                tab[iCharacter] =  tab[iCharacter].strip()
+                tab[iCharacter] = tab[iCharacter].strip('%@')
+            if (isInt(tab[0])): #if line is pure value
+                print("value in line: " + tab[0])
                 isInteger = True
-            if (validOpcode or isInteger):
+            else: #or opcode is referenced in architecture
+                for item in archi["operations"]:
+                    print("item in archi: " + item)
+                    print("value in line: " + tab[0])
+                    if item.strip() == tab[0]:
+                        validOpcode = True
+                        currentItem = item
+                        break
+            if (validOpcode or isInteger): #then valid opcode
                 print("Valid Opcode")
-            else :
-                print("Error : "+ tab[0].strip() +" opcode not found")
+            else : #Compilation stopped - Error message
+                print("Error in line : " + line)
+                print("Error : "+ tab[0] +" opcode not found. Compilation stopped")
                 return -1
 
             if (isInteger):
                 if (len(tab)>1):
                     print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
-                i = int(tab[0])   
-                if (i<3**(archi["wordsize"])-1) :
+                i = int(tab[0]) 
+                #print(i)  
+                #print(archi["wordsize"])
+                if (i<(3**(archi["wordsize"])-1)/2 or i>-(3**(archi["wordsize"])-1)/2 ) :
                     outputTab.append(i)
-                else:
-                    print("Error : invalid value")
+                    #print("check")
+                else :
+                    print("Error in line : " + line)
+                    print("Error : invalid value. Compilation stopped")
                     return -1
 
-            if(validOpcode):
-                pass
-            else:
-                return -1
+            else: #check opcode arguments
+                print(archi["operations"][currentItem])
+                print(tab)
+                if (len(tab)>=len(archi["operations"][currentItem])):
+                    if(len(tab)>len(archi["operations"][currentItem])) :
+                        print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
+                    pass
+                else:
+                    print("Error in line :" + line)
+                    print("Error : missing arguments. Compilation stopped")
+                    return -1
         #step 2 : ternary to dec
 
         return 0
