@@ -106,10 +106,25 @@ def convert() :
             else: #check opcode arguments
                 print(archi["operations"][currentItem])
                 print(tab)
-                if (len(tab)>=len(archi["operations"][currentItem])):
-                    if(len(tab)>len(archi["operations"][currentItem])) :
+                lineStructure = archi["operations"][currentItem]
+                if (len(tab)>=len(lineStructure)):
+                    if(len(tab)>len(lineStructure)) :
                         print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
-                    pass
+                    for iOperand in range(len(lineStructure)-1):
+                        operand = tab[iOperand+1]
+                        if(isInt(operand)):
+                            if (int(operand)>3**lineStructure[iOperand+1]-1): #checking word size according to architecture file
+                                print("Error in line :" + line)
+                                print("Error : invalid operand "+ operand +". Compilation stopped")
+                                return -1
+                        else :
+                            print("Error in line :" + line)
+                            print("Error : invalid operand "+ operand +". Compilation stopped")
+                            return -1
+
+                    #At this point, line syntax is considered to be valid                    
+                    
+
                 else:
                     print("Error in line :" + line)
                     print("Error : missing arguments. Compilation stopped")
