@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 1.0
+TKINTER_SCALING = 0.4
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -802,11 +802,48 @@ def drawGate_RTU(sx,sy,id,ghost=False):
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
     canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 1
+    HEIGHT = 0.8
     ARM = 0.4
     canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_line(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_line(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_RTD(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.8
+    ARM = 0.4
+    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_CLU(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.6
+    LENGTH = 0.8
+    ARM = 0.3
+    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.1) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5+0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5+0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_CLD(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    HEIGHT = 0.6
+    LENGTH = 0.8
+    ARM = 0.3
+    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=+180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.9) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5-0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5-0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
 gate_drawing_functions = {
     "AND": drawGate_AND,
@@ -827,7 +864,11 @@ gate_drawing_functions = {
     "NNOT": drawGate_NNOT,
     "ABS": drawGate_ABS,
     "INC": drawGate_INC,
-    "DEC": drawGate_DEC
+    "DEC": drawGate_DEC,
+    "RTU": drawGate_RTU,
+    "RTD": drawGate_RTD,
+    "CLU": drawGate_CLU,
+    "CLD": drawGate_CLD
 }
 
 def drawGate(gate):
