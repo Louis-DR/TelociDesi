@@ -248,7 +248,7 @@
                 <td class="gateSmbl">$A&otimes;B$</td>
                 <td class="gateDesc">Returns the multiplication of the inputs.</td>
                 <td class="gateMtrx"><span class="input">&emsp;&ensp;$[\table -,0,+]$</span></br><span class="input">$[\table -;0;+]$</span>$[\table +,0,-;0,0,0;-,0,+]$</td>
-                <td class="gateAltr">$\ov{(\ov{A×B})×A+B}$</td>
+                <td class="gateAltr">$\ov{\ov{(A×B)}×A+B}$</td>
             </tr>
             <tr>
                 <td class="gateName">NMUL</br>Negative Multiply</td>
@@ -256,7 +256,7 @@
                 <td class="gateSmbl">$\ov{A&otimes;B}$</td>
                 <td class="gateDesc"></td>
                 <td class="gateMtrx"><span class="input">&emsp;&ensp;$[\table -,0,+]$</span></br><span class="input">$[\table -;0;+]$</span>$[\table -,0,+;0,0,0;+,0,-]$</td>
-                <td class="gateAltr">$\ov{(\ov{A+B})+A×B}$</td>
+                <td class="gateAltr">$\ov{\ov{(A+B)}+A×B}$</td>
             </tr>
             <tr>
                 <td class="gateName">SUM</br>Sum</td>
@@ -264,7 +264,7 @@
                 <td class="gateSmbl">$A&oplus;B$</td>
                 <td class="gateDesc">Returns the multiplication of the inputs.</td>
                 <td class="gateMtrx"><span class="input">&emsp;&ensp;$[\table -,0,+]$</span></br><span class="input">$[\table -;0;+]$</span>$[\table +,-,0;-,0,+;0,+,-]$</td>
-                <td class="gateAltr">$((A&#8862;B)&#8862;(\ov{A&#8864;B}))&#8862;\ov{(A&#8864;B)}$</br></br>$\ov{\ov{(A&#8862;B)&#8862;\ov{A&#8864;B}}&#8862;(A&#8864;B)}$</td>
+                <td class="gateAltr">$((A&#8862;B)&#8862;\ov{(A&#8864;B)})&#8862;\ov{(A&#8864;B)}$</br></br>$\ov{\ov{(A&#8862;B)&#8862;\ov{(A&#8864;B)}}&#8862;(A&#8864;B)}$</td>
             </tr>
             <tr>
                 <td class="gateName">NSUM</br>Negative Sum</td>
