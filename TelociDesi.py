@@ -796,7 +796,7 @@ def drawGate_DEC(sx,sy,id,ghost=False):
     canvas.create_rectangle(grid_unit*(sx+2-SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2-SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
     canvas.create_rectangle(grid_unit*(sx+2+SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_RTU(sx,sy,id,ghost=False):
+def drawGate_CLU(sx,sy,id,ghost=False):
     tags="content "+id
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
@@ -808,7 +808,7 @@ def drawGate_RTU(sx,sy,id,ghost=False):
     canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_RTD(sx,sy,id,ghost=False):
+def drawGate_CLD(sx,sy,id,ghost=False):
     tags="content "+id
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
@@ -820,7 +820,7 @@ def drawGate_RTD(sx,sy,id,ghost=False):
     canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_CLU(sx,sy,id,ghost=False):
+def drawGate_RTU(sx,sy,id,ghost=False):
     tags="content "+id
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
@@ -833,7 +833,7 @@ def drawGate_CLU(sx,sy,id,ghost=False):
     canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
     canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.1) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5+0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5+0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_CLD(sx,sy,id,ghost=False):
+def drawGate_RTD(sx,sy,id,ghost=False):
     tags="content "+id
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
     canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
@@ -940,7 +940,7 @@ def drawProbe(probe):
     sy = probe["y"] - view_y
     tags="content "+probe["id"]
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+1) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    canvas.create_oval(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx-0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
     if probe["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
     if probe["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
     if probe["value"]==2:
@@ -953,7 +953,7 @@ def drawOutput(output):
     sy = output["y"] - view_y
     tags="content "+output["id"]
     canvas.create_rectangle(grid_unit*(sx-0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    canvas.create_oval(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+    canvas.create_polygon(grid_unit*(sx-0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+0.6+0.5) , grid_unit*(sx+0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy-0.6+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
     if output["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
     if output["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
     if output["value"]==2:
@@ -1037,6 +1037,7 @@ toolNames = {
 }
 
 zoomLevel = 3
+
 
 def setSystemModified(mod=True):
     global systemModified
@@ -1240,23 +1241,35 @@ def zoom(dz):
         grid_height = GRID_HEIGHT
         grid_unit = GRID_UNIT
         thickness = THICKNESS
+        screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
+        updateScreen()
+        if dz==1: moveBy(+int(GRID_WIDTH/2),+int(GRID_HEIGHT/2))
     elif zoomLevel==2:
         grid_width = GRID_WIDTH*2
         grid_height = GRID_HEIGHT*2
         grid_unit = GRID_UNIT/2
         thickness = THICKNESS/2
+        screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
+        updateScreen()
+        if dz==1: moveBy(+GRID_WIDTH,+GRID_HEIGHT)
+        if dz==-1: moveBy(-int(GRID_WIDTH/2),-int(GRID_HEIGHT/2))
     elif zoomLevel==1:
         grid_width = GRID_WIDTH*4
         grid_height = GRID_HEIGHT*4
         grid_unit = GRID_UNIT/4
         thickness = THICKNESS/4
+        screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
+        updateScreen()
+        if dz==1: moveBy(+GRID_WIDTH*2,+GRID_HEIGHT*2)
+        if dz==-1: moveBy(-GRID_WIDTH,-GRID_HEIGHT)
     elif zoomLevel==0:
         grid_width = GRID_WIDTH*8
         grid_height = GRID_HEIGHT*8
         grid_unit = GRID_UNIT/8
         thickness = THICKNESS/4
-    screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
-    updateScreen()
+        screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
+        updateScreen()
+        if dz==-1: moveBy(-GRID_WIDTH*2,-GRID_HEIGHT*2)
     drawGrid()
     drawAll()
     drawSelection()
