@@ -28,6 +28,7 @@ THICKNESS = TKINTER_SCALING*4
 
 FONT_FAMILY = "Helvetica"
 FONT_SIZE = 20
+FONT_SIZE_MENU=35
 
 FILE_DIRECTORY = ""
 FILE_NAME = "testcircuit2"
@@ -1929,15 +1930,17 @@ def importMemory():
 #region [purple] MENU
 menuBar = Menu(root)
 #root['menu'] = menuBar
+liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MUL","NOR" ,"OR","NANY", "ANY", "NSUM","SUM"
+,"INC","DEC","RTU","RTD","CLU","CLD"]#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
+
+
 
 def invGate(sel_id):
-    print(gates[sel_id])
-    if(gates[sel_id]["gate"][0]!="N"):
-        gates[sel_id]["gate"]="N"+gates[sel_id]["gate"]
-    else:
-        gates[sel_id]["gate"]=gates[sel_id]["gate"][1::]
+    global liste_porte_inversible
+    if(gates[sel_id]["gate"] in liste_porte_inversible):
+        index=liste_porte_inversible.index(gates[sel_id]["gate"])
+        gates[sel_id]["gate"]=liste_porte_inversible[index-index%2+(index+1)%2]
     drawAll()
-    print(gates[sel_id])
 
 def invGates(sel_ids):
     for sel_id in sel_ids:
@@ -1946,21 +1949,37 @@ def invGates(sel_ids):
     
 
 
-sousMenu = Menu(menuBar)
-menuBar.add_cascade(label='File', menu=sousMenu)
-sousMenu.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE),command=saveCircuit)
-sousMenu.add_command(label='Load',font=(FONT_FAMILY, FONT_SIZE),command=loadCircuit)
-sousMenu.add_separator()
-sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
-sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
+sousMenuFile = Menu(menuBar)
+menuBar.add_cascade(label='File', menu=sousMenuFile)
+sousMenuFile.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE_MENU),command=saveCircuit)
+sousMenuFile.add_command(label='Load',font=(FONT_FAMILY, FONT_SIZE_MENU),command=loadCircuit)
+sousMenuFile.add_separator()
+sousMenuFile.add_command(label='Export System',font=(FONT_FAMILY, FONT_SIZE_MENU),command=exportSystem)
+sousMenuFile.add_command(label='Import System',font=(FONT_FAMILY, FONT_SIZE_MENU),command=importSystem)
+sousMenuFile.add_separator()
+sousMenuFile.add_command(label='Import Memory',font=(FONT_FAMILY, FONT_SIZE_MENU),command=importMemory)
+sousMenuFile.add_separator()
+sousMenuFile.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE_MENU),command=blankCircuit)
+sousMenuFile.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE_MENU),command=root.destroy)
 
-sousMenu2 = Menu(menuBar)
-menuBar.add_cascade(label='Tools', menu=sousMenu2)
-sousMenu2.add_command(label='Inv',font=(FONT_FAMILY, FONT_SIZE),command=lambda : invGates(selection))
+sousMenuTools = Menu(menuBar)
+menuBar.add_cascade(label='Tools', menu=sousMenuTools)
+sousMenuTools.add_command(label='Delete selection',font=(FONT_FAMILY, FONT_SIZE_MENU),command=removeSelection)
+sousMenuTools.add_command(label='Inverse gate',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : invGates(selection))
+sousMenuTools.add_separator()
+sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda :zoom(1))
+sousMenuTools.add_command(label='Zoom -',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : zoom(-1))
+sousMenuTools.add_separator()
+sousMenuTools.add_command(label='Simulate clock cycle',font=(FONT_FAMILY, FONT_SIZE_MENU),command=simulateCc)
 
 
-#sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
+sousMenuOptions = Menu(menuBar)
+menuBar.add_cascade(label='DevTools', menu=sousMenuOptions)
+sousMenuOptions.add_command(label='Debug Mode',font=(FONT_FAMILY, FONT_SIZE_MENU),command=debug_screenMap)
+sousMenuOptions.add_command(label='Redraw system',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawAll)
+sousMenuOptions.add_command(label='Redraw Chronogram',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawChronogram)
+
+
 
 root.config(menu=menuBar)
 #end region
