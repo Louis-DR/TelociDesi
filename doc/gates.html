@@ -25,13 +25,13 @@
 
     <ul class="nav">
         <li><a href="home.html">Home</a></li>
-        <li><a href="">Use</a></li>
+        <li><a href="use.html">Use</a></li>
         <li class="active"><a href="gates.html">Logic gates</a></li>
         <li><a href="">About</a></li>
         <li class="brand" style="float: right">- TELOCIDESI DOCUMENTATION -</li>
     </ul>
 
-    <h1>LOGIC GATES IN A TERNARY ARCHITECTURE</h1>
+    <h1 style="text-align: center">LOGIC GATES IN A TERNARY ARCHITECTURE</h1>
 
     <!-- endregion -->
 
@@ -57,19 +57,19 @@
                 <td class="gateAltr"></td>
             </tr>
             <tr>
-                <td class="gateName">NOT</br>Not</td>
-                <td class="gateSchm"><img src="static/Gates/NOT.png"></td>
-                <td class="gateSmbl">$\ov A$</td>
-                <td class="gateDesc">Returns the opposite of the input.</td>
-                <td class="gateMtrx"><span class="input">$[\table -,0,+]$</span></br>$[\table +,0,-]$</td>
-                <td class="gateAltr"></td>
-            </tr>
-            <tr>
                 <td class="gateName">PNOT</br>Positive Not</td>
                 <td class="gateSchm"><img src="static/Gates/PNOT.png"></td>
                 <td class="gateSmbl">$Â$</td>
                 <td class="gateDesc">Returns the opposite of the input, or + if the input is 0.</td>
                 <td class="gateMtrx"><span class="input">$[\table -,0,+]$</span></br>$[\table +,+,-]$</td>
+                <td class="gateAltr"></td>
+            </tr>
+            <tr>
+                <td class="gateName">NOT</br>Not</td>
+                <td class="gateSchm"><img src="static/Gates/NOT.png"></td>
+                <td class="gateSmbl">$\ov A$</td>
+                <td class="gateDesc">Returns the opposite of the input.</td>
+                <td class="gateMtrx"><span class="input">$[\table -,0,+]$</span></br>$[\table +,0,-]$</td>
                 <td class="gateAltr"></td>
             </tr>
             <tr>
@@ -129,7 +129,7 @@
                 <td class="gateAltr">$A+(0)$</td>
             </tr>
             <tr>
-                <td class="gateName">RTD</br>Clamp down</td>
+                <td class="gateName">CLD</br>Clamp down</td>
                 <td class="gateSchm"><img src="static/Gates/CLD.png"></td>
                 <td class="gateSmbl">$⌊A⌋$</td>
                 <td class="gateDesc">Returns the negative part of the input.</td>

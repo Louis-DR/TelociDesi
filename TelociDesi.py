@@ -1943,8 +1943,21 @@ def importMemory():
 menuBar = Menu(root)
 #root['menu'] = menuBar
 
-def hello():
-    print("bite")
+def invGate(sel_id):
+    print(gates[sel_id])
+    if(gates[sel_id]["gate"][0]!="N"):
+        gates[sel_id]["gate"]="N"+gates[sel_id]["gate"]
+    else:
+        gates[sel_id]["gate"]=gates[sel_id]["gate"][1::]
+    drawAll()
+    print(gates[sel_id])
+
+def invGates(sel_ids):
+    for sel_id in sel_ids:
+        invGate(sel_id)
+    drawAll()
+    
+
 
 sousMenu = Menu(menuBar)
 menuBar.add_cascade(label='File', menu=sousMenu)
@@ -1954,11 +1967,13 @@ sousMenu.add_separator()
 sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
 sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
 
+sousMenu2 = Menu(menuBar)
+menuBar.add_cascade(label='Tools', menu=sousMenu2)
+sousMenu2.add_command(label='Inv',font=(FONT_FAMILY, FONT_SIZE),command=lambda : invGates(selection))
+
 
 #sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
 #sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
-#sousMenu.add(label='Bite', font=(FONT_FAMILY, FONT_SIZE) ))
 
 root.config(menu=menuBar)
 #end region
