@@ -200,7 +200,6 @@ class System:
         self.state = [1 for k in range(nbrstate)]
 
 
-
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
     def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
