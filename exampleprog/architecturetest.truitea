@@ -1,0 +1,12 @@
+{
+    "name": "test architecture",
+    "addrsize" : 3,
+    "wordsize" : 6,
+	"operations": {
+        "HLT" : ["111"],
+        "ADD" : ["112"],
+        "LOD" : ["22",1,3],
+        "DLD" : ["21",1,3],
+        "MOV" : ["20",1,1]
+    }
+}

@@ -1,5 +1,7 @@
 from pickle import *
-from json import *
+import json
+from tkinter.filedialog import askopenfilename
+from dec2ter import *
 from log import Log
 
 class Equation:
@@ -181,7 +183,7 @@ class System:
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
                     next_state[net] = value
-            elif type(system) is System:
+            elif type(system) is System or type(system) is Memory: # add new Algrebraic system type here !!
                 arguments = {tag:self.state[net] for tag,net in equation.arguments.items()}
                 system.load(arguments)
                 system.update()
@@ -193,19 +195,16 @@ class System:
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
 
-    def printState(self):
-        print(self.state)
-
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
-    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, initFunction, updateFunction, name="unnamed_system"):
+    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
         self.state = [1 for k in range(nbrinput+nbroutput)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
         self.tag2output = tag2output
-        self.data = initFunction(tag2input, tag2output)
+        self.data = data
         self.updateFunction = updateFunction
         self.name = name
     
@@ -220,15 +219,23 @@ class NonAlgebraicSystem:
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
 
 
-def initROM(state, tag2input, tag2output, data):
-    programFileName = askopenfilename(filetypes = (("TelociDesi memory","*.truitem"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
-    if programFileName[-8:]!='.truitem': return
-    f = open(programFileName,'rb')
-    memdump = json.load(f)
-    f.close()
-    print(memdump)
-    data["memory"] = memdump["data"]
-    data["adrsize"]
-
 def updateROM(state, tag2input, tag2output, data):
-    address = sum([(2**k)*state[tag2input["A{}".format(k)]] for k in range(data["adrsize"])])
+    address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["addrsize"])])
+    word = data["memory"][address]
+    print("Memory word read : {}".format(word))
+    wordter = dec2ter(word)
+    for k in range(data["wordsize"]):
+        if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
+        else: state[tag2output["Q{}".format(k)]]=wordter[k]
+
+class Memory(NonAlgebraicSystem):
+    def __init__(self, filepath=""):
+        f = open(filepath,'rb')
+        data = json.load(f)
+        f.close()
+        nbrinput = data["addrsize"]
+        nbroutput = data["wordsize"]
+        tag2input = {"A{}".format(k) : k for k in range(nbrinput)}
+        tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
+        NonAlgebraicSystem.__init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateROM)
+        
