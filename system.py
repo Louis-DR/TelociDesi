@@ -25,7 +25,14 @@ MICROGATES = {
              [2,1,0]],
     "NOR": [[2,1,0],
             [1,1,0],
-            [0,0,0]]
+            [0,0,0]],
+    "BI_NOT": [1,2,1],
+    "BI_NAND": [[2,2,2],
+                [2,2,2],
+                [2,2,1]],
+    "BI_NOR": [[2,2,1],
+               [2,2,1],
+               [1,1,1]]
 }
 
 # Microsystem = few inputs, few output, many equations, hard coded & generated
@@ -115,6 +122,46 @@ MICROSYSTEMS = {
             Equation("NOT", [6], [7]),
             Equation("NANY", [5,7], [8]),
             Equation("NOT", [8], [9])
+        ]
+    },
+    "BI_AND": {
+        "nbrstate": 4,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 2 layers
+            Equation("BI_NAND", [0,1], [2]),
+            Equation("BI_NOT", [2], [3])
+        ]
+    },
+    "BI_OR": {
+        "nbrstate": 4,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 2 layers
+            Equation("BI_NOR", [0,1], [2]),
+            Equation("BI_NOT", [2], [3])
+        ]
+    },
+    "BI_XOR": {
+        "nbrstate": 6,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 3 layers
+            Equation("BI_NAND", [0,1], [2]),
+            Equation("BI_NAND", [0,2], [3]), 
+            Equation("BI_NAND", [1,2], [4]),
+            Equation("BI_NAND", [3,4], [5]) 
+        ]
+    },
+    "BI_XNOR": {
+        "nbrstate": 6,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 3 layers
+            Equation("BI_NOR", [0,1], [2]),
+            Equation("BI_NOR", [0,2], [3]), 
+            Equation("BI_NOR", [1,2], [4]),
+            Equation("BI_NOR", [3,4], [5])
         ]
     }
 }
