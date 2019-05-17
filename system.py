@@ -2,6 +2,7 @@ from pickle import *
 import json
 from tkinter.filedialog import askopenfilename
 from dec2ter import *
+from ter2dec import *
 from log import Log
 
 class Equation:
@@ -183,7 +184,7 @@ class System:
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
                     next_state[net] = value
-            elif type(system) is System:
+            elif type(system) is System or type(system) is Memory or type(system) is Register: # add new Algrebraic system type here !!
                 arguments = {tag:self.state[net] for tag,net in equation.arguments.items()}
                 system.load(arguments)
                 system.update()
@@ -194,20 +195,21 @@ class System:
     
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
+    
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
 
-    def printState(self):
-        print(self.state)
 
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
-    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, initFunction, updateFunction, name="unnamed_system"):
+    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
         self.state = [1 for k in range(nbrinput+nbroutput)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
         self.tag2output = tag2output
-        self.data = initFunction(self.state, self.tag2input, self.tag2output)
+        self.data = data
         self.updateFunction = updateFunction
         self.name = name
     
@@ -220,35 +222,73 @@ class NonAlgebraicSystem:
     
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
+    
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
 
 
-def initROM(state, tag2input, tag2output):
-    programFileName = askopenfilename(filetypes = (("TelociDesi memory","*.truitem"),("all files","*.*"))) # show an "Open" dialog box and return the path to the selected file
-    if programFileName[-8:]!='.truitem': return
-    f = open(programFileName,'rb')
-    memdump = json.load(f)
-    f.close()
-    print(memdump)
-    data = {}
-    data["adrsize"] = memdump["adrsize"]
-    data["wordsize"] = memdump["wordsize"]
-    data["memory"] = memdump["memory"]
-    return data
 def updateROM(state, tag2input, tag2output, data):
-    address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["adrsize"])])
-    word = data["memory"][address]
-    print(word)
-    wordter = dec2ter(word)
-    for k in range(data["wordsize"]):
-        if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
-        else: state[tag2output["Q{}".format(k)]]=wordter[k]
+    address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["addrsize"])])
+    if state[tag2input["RW"]]==2:
+        word = data["memory"][address]
+        print("Memory word read : {}".format(word))
+        wordter = dec2ter(word)
+        for k in range(data["wordsize"]):
+            if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
+            else: state[tag2output["Q{}".format(k)]]=wordter[k]
+    elif state[tag2input["RW"]]==1:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+    elif state[tag2input["RW"]]==0:
+        word = sum([(3**k)*state[tag2input["D{}".format(k)]] for k in range(data["addrsize"])])
+        print("Memory word writen : {}".format(word))
+        data["memory"][address] = word
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
 
 class Memory(NonAlgebraicSystem):
-    def __init__(self, file=""):
-        NonAlgebraicSystem.__init__()
-        
+    def __init__(self, filepath=""):
+        self.filepath = filepath
+        f = open(filepath,'rb')
+        data = json.load(f)
+        f.close()
+        nbrinput = data["addrsize"]
+        nbroutput = data["wordsize"]
+        tag2input = { **{"RW":0} , **{"A{}".format(k) : k+1 for k in range(nbrinput)} , **{"D{}".format(k) : nbrinput+k+1 for k in range(nbrinput)} }
+        tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
+        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateROM)
+    
+    def reset(self):
+        f = open(filepath,'rb')
+        data = json.load(f)
+        f.close()
+        if nbrinput != data["addrsize"] or nbroutput != data["wordsize"]: print("New file not compatible !")
+        else:
+            self.state = [1 for k in range(nbrstate)]
+            self.data = data
 
-# exROM = NonAlgebraicSystem(2,2,{"A0":0,"A1":1},{"Q0":2,"Q1":3},initROM,updateROM)
-# exROM.load({"A0":0,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
-# exROM.load({"A0":2,"A1":0}) ; exROM.update() ; print(exROM.retrieve())
-# exROM.load({"A0":2,"A1":2}) ; exROM.update() ; print(exROM.retrieve())
+def updateREG(state, tag2input, tag2output, data):
+    if state[tag2input["RW"]]==2:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=data["data{}".format(k)]
+    elif state[tag2input["RW"]]==1:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+    elif state[tag2input["RW"]]==0:
+        for k in range(data["wordsize"]):
+            data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+
+class Register(NonAlgebraicSystem):
+    def __init__(self, wordsize):
+        data = { **{"wordsize":wordsize} , **{"data{}".format(k):1 for k in range(wordsize)} }
+        nbrinput = wordsize
+        nbroutput = wordsize
+        tag2input = { **{"RW":0} , **{"D{}".format(k) : k+1 for k in range(nbrinput)} }
+        tag2output = {"Q{}".format(k) : 1+nbrinput+k for k in range(nbroutput)}
+        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG)
+
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
+        for k in range(data["wordsize"]):
+            data["data{}".format(k)]=1

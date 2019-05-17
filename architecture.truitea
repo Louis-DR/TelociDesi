@@ -1,22 +1,12 @@
 {
     "architecture": {
         "name": "test architecture",
-		"GlossDiv": {
-            "title": "S",
-			"GlossList": {
-                "GlossEntry": {
-                    "ID": "SGML",
-					"SortAs": "SGML",
-					"GlossTerm": "Standard Generalized Markup Language",
-					"Acronym": "SGML",
-					"Abbrev": "ISO 8879:1986",
-					"GlossDef": {
-                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
-						"GlossSeeAlso": ["GML", "XML"]
-                    },
-					"GlossSee": "markup"
-                }
-            }
+        "addrsize" : 3,
+        "wordsize" : 6,
+		"operations": {
+            "HLT" : ["000"],
+            "ADD" : ["00+"],
+            "LOD" : ["++",1,3]
         }
     }
 }

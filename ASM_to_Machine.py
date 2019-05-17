@@ -9,19 +9,107 @@
 #Sort un dictionnaire JSON de mots TCD (ternaire codé décimal) mémoire pour clé adresse mémoire séquentielle affecte un mot
 
 import json
+from tkinter import *
+from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import *
 
 #Load architecture specifications
-farchi = open("architecture.truitea","r")
-archi =  json.load (farchi)
-farchi.close();
+def loadArchi():
+    global archi
+    filename = askopenfilename(title="Ouvrir un fichier architecture",filetypes=[('truitea files','*.truitea'),('all files','*.*')])
+    farchi = open(filename,"r")
+    archi =  json.load (farchi)
+    farchi.close()
+    return 0
 
 #Load assembly file
-#fspec = open("spec.truitep","r")
-#assembly = fspec.readlines()
-#fspec.close()
+def loadASM():
+    global assembly
+    filenameASM = askopenfilename(title="Ouvrir votre document",filetypes=[('truitep files','*.truitep'),('all files','.*')])
+    fspec = open(filenameASM,"r")
+    assembly = fspec.readlines()
+    fspec.close()
+    return 0
 
+#Export implementation file
+def exportBin():
+    filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
+    fmemory =  open(filenameEXP,"w+")
+    fmemory.close()
+    return 0
 
+def isInt(v):
+    try : i = int(v)
+    except : return False
+    return True
 
-print( archi ["architecture"])
+def convert() :
+    validArchi = True
+    validASM = True
 
-fspec.close();
+    try:
+        archi
+    except NameError:
+        showerror("Erreur","Missing architecture (.truitea) file")
+        validArchi = False
+
+    try:
+        assembly
+    except NameError:
+        showerror("Erreur", "Missing assembly (.truitep) file")
+        validASM = False
+    
+    if (validArchi and validASM):
+        #step 1 : read lines, check syntax & translate ASM to ternary codes
+        for line in assembly:
+            validOpcode = False
+            tab = line.split(" ")
+            for item in archi["operations"]:
+                print(item)
+                print(tab[0])
+                if item.strip() == tab[0].strip():
+                    validOpcode = True
+                    break
+            if (isInt(tab[0])):
+                validOpcode = True
+            if (validOpcode):
+                print("Valid Opcode")
+            else :
+                print("Error : "+ tab[0] +" opcode not found")
+                return -1
+        #step 2 : ternary to dec
+
+        return 0
+    else:
+        return -1
+
+fenetre = Tk()
+
+#Architecture frames
+Frame1  = Frame(fenetre)
+Frame1.pack(side = LEFT, padx=30, pady= 30)
+
+Frame2  = Frame(fenetre)
+Frame2.pack(side = LEFT, padx=30, pady=30)
+
+Frame3 = Frame(fenetre)
+Frame3.pack(side = RIGHT, padx=30, pady= 30)
+
+Frame4 = Frame(fenetre)
+Frame4.pack(side= BOTTOM, padx = 30, pady=30)
+
+#Frame1
+labelArchi = Label(Frame1, text = "Fichier architecture").pack()
+boutonArchi=Button(Frame1, text="Charger", command=loadArchi).pack()
+#Frame2
+labelASM = Label(Frame2, text = "Fichier assembleur").pack()
+boutonASM = Button(Frame2, text = "Charger", command=loadASM).pack()
+#Frame3
+labelExp = Label(Frame3, text = "Exporter sous...")
+boutonExp = Button(Frame3, text = "Emplacement", command = exportBin).pack()
+#Frame4
+boutonOp = Button(Frame4, text  ="Convertir", command = convert).pack()
+
+fenetre.mainloop()
+
