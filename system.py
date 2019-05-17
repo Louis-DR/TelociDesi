@@ -173,7 +173,7 @@ def genEquation_microSystemGate(gate, inputNets, outputNets):
 
 class MicroSystem:
     def __init__(self, nbrstate, nbrinput, nbroutput, equations):
-        self.state = [1 for k in range(nbrstate)]
+        self.state = [3 for k in range(nbrstate)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.equations = equations
@@ -187,15 +187,17 @@ class MicroSystem:
             system = equation.system
             if type(system) is str:
                 if len(equation.arguments)==1:
-                    next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
+                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=3
+                    else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
                 elif len(equation.arguments)==2:
-                    next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
+                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=3
+                    else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
             elif type(system) is MicroSystem:
                 system.load([self.state[coord] for coord in equation.arguments])
                 system.update()
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
-                    next_state[net] = value
+                    if value<3: next_state[net] = value
         self.state = next_state
 
     def retrieve(self):
@@ -204,7 +206,7 @@ class MicroSystem:
 # System = many inputs, many outpus, many equations, generated & loaded
 class System:
     def __init__(self, nbrstate, nbrinput, nbroutput, tag2input, tag2output, equations, name="unnamed_system"):
-        self.state = [1 for k in range(nbrstate)]
+        self.state = [3 for k in range(nbrstate)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
@@ -222,41 +224,44 @@ class System:
             system = equation.system
             if type(system) is str:
                 if len(equation.arguments)==1:
-                    next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
+                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=3
+                    else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
                 elif len(equation.arguments)==2:
-                    next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
+                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=3
+                    else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
             elif type(system) is MicroSystem:
                 system.load([self.state[coord] for coord in equation.arguments])
                 system.update()
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
-                    next_state[net] = value
+                    if value<3: next_state[net] = value
             elif type(system) is System or type(system) is Memory or type(system) is Register: # add new Algrebraic system type here !!
                 arguments = {tag:self.state[net] for tag,net in equation.arguments.items()}
                 system.load(arguments)
                 system.update()
                 results = system.retrieve()
                 for tag,net in equation.destinations.items():
-                    next_state[net] = results[tag]
+                    if results[tag]<3: next_state[net] = results[tag]
         self.state = next_state
     
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
     
     def reset(self):
-        self.state = [1 for k in range(nbrstate)]
+        self.state = [3 for k in range(nbrstate)]
 
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
-    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
-        self.state = [1 for k in range(nbrinput+nbroutput)]
+    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, drawFunction=None, name="unnamed_system"):
+        self.state = [3 for k in range(nbrinput+nbroutput)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
         self.tag2output = tag2output
         self.data = data
         self.updateFunction = updateFunction
+        self.drawFunction = drawFunction
         self.name = name
     
     def load(self, arguments):
@@ -270,11 +275,18 @@ class NonAlgebraicSystem:
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
     
     def reset(self):
-        self.state = [1 for k in range(nbrstate)]
+        self.state = [3 for k in range(nbrstate)]
+    
+    def draw(self):
+        return self.drawFunction(state, data)
 
 
 def updateROM(state, tag2input, tag2output, data):
-    address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["addrsize"])])
+    print(data)
+    address = 0
+    for k in range(data["addrsize"]):
+        if state[tag2input["A{}".format(k)]]==3: address += 3**k
+        else: address += (3**k)*state[tag2input["A{}".format(k)]]
     if state[tag2input["RW"]]==2:
         word = data["memory"][address]
         print("Memory word read : {}".format(word))
@@ -284,13 +296,18 @@ def updateROM(state, tag2input, tag2output, data):
             else: state[tag2output["Q{}".format(k)]]=wordter[k]
     elif state[tag2input["RW"]]==1:
         for k in range(data["wordsize"]):
-            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=3
     elif state[tag2input["RW"]]==0:
-        word = sum([(3**k)*state[tag2input["D{}".format(k)]] for k in range(data["addrsize"])])
+        word = 0
+        for k in range(data["wordsize"]):
+            if state[tag2input["D{}".format(k)]]<3: word += 3**k
+            else: word += (3**k)*state[tag2input["D{}".format(k)]]
         print("Memory word writen : {}".format(word))
         data["memory"][address] = word
         for k in range(data["wordsize"]):
-            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=3
+def drawROM(state, data):
+    return "Memory"
 
 class Memory(NonAlgebraicSystem):
     def __init__(self, filepath=""):
@@ -302,7 +319,7 @@ class Memory(NonAlgebraicSystem):
         nbroutput = data["wordsize"]
         tag2input = { **{"RW":0} , **{"A{}".format(k) : k+1 for k in range(nbrinput)} , **{"D{}".format(k) : nbrinput+k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateROM)
+        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateROM, drawROM)
     
     def reset(self):
         f = open(filepath,'rb')
@@ -310,7 +327,7 @@ class Memory(NonAlgebraicSystem):
         f.close()
         if nbrinput != data["addrsize"] or nbroutput != data["wordsize"]: print("New file not compatible !")
         else:
-            self.state = [1 for k in range(nbrstate)]
+            self.state = [3 for k in range(nbrstate)]
             self.data = data
 
 def updateREG(state, tag2input, tag2output, data):
@@ -319,11 +336,14 @@ def updateREG(state, tag2input, tag2output, data):
             state[tag2output["Q{}".format(k)]]=data["data{}".format(k)]
     elif state[tag2input["RW"]]==1:
         for k in range(data["wordsize"]):
-            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=3
     elif state[tag2input["RW"]]==0:
         for k in range(data["wordsize"]):
-            data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
-            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+            if state[tag2input["D{}".format(k)]]==3: data["data{}".format(k)]=1
+            else: data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=3
+def drawREG(state, data):
+    return "Register"
 
 class Register(NonAlgebraicSystem):
     def __init__(self, wordsize):
@@ -332,9 +352,9 @@ class Register(NonAlgebraicSystem):
         nbroutput = wordsize
         tag2input = { **{"RW":0} , **{"D{}".format(k) : k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : 1+nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG)
+        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG, drawREG)
 
     def reset(self):
-        self.state = [1 for k in range(nbrstate)]
+        self.state = [3 for k in range(nbrstate)]
         for k in range(data["wordsize"]):
             data["data{}".format(k)]=1

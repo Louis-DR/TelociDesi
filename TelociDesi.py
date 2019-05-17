@@ -844,6 +844,8 @@ def drawSystem(system):
         nodetag = nodes[outputNode]["tag"]
         canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
         if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5-1.2) , grid_unit*(nsy+0.5) , anchor='e',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
+    txt = loadedSystems[system["loadedSystem"]].
+    canvas.create_text(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , anchor='w',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
 
 def drawWire(wire):
     node_a = nodes[wire["node_a"]]
