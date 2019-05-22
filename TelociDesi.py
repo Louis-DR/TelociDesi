@@ -1675,6 +1675,8 @@ canvas.bind("<Control-i>", lambda event: importSystem())
 canvas.bind("<Control-m>", lambda event: importMemory())
 canvas.bind("<Control-n>", lambda event: blankCircuit())
 
+canvas.bind("<!>", lambda event: invGates(selection))
+
 #endregion
 
 
@@ -1959,6 +1961,12 @@ def invGates(sel_ids):
     for sel_id in sel_ids:
         invGate(sel_id)
     drawAll()
+
+def selectAllGates():
+    global gates
+    for gate in gates:
+        print(gate)
+        select(gate)
     
 
 
@@ -1978,6 +1986,7 @@ sousMenuFile.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE_MENU),command
 sousMenuTools = Menu(menuBar)
 menuBar.add_cascade(label='Tools', menu=sousMenuTools)
 sousMenuTools.add_command(label='Delete selection',font=(FONT_FAMILY, FONT_SIZE_MENU),command=removeSelection)
+sousMenuTools.add_command(label='Select all gates',font=(FONT_FAMILY, FONT_SIZE_MENU),command=selectAllGates)
 sousMenuTools.add_command(label='Inverse gate',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : invGates(selection))
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda :zoom(1))
