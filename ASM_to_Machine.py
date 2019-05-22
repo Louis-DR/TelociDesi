@@ -36,11 +36,11 @@ def loadASM():
 #Export implementation file
 def exportBin():
     try :
-    filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
-    fmemory =  open(filenameEXP,"w+")
-    for line in outputTab:
-        fmemory.write(line+'\n')
-    fmemory.close()
+        filenameEXP = asksaveasfilename(title="Sauvegarder votre document",filetypes=[('truitem files','*.truitem'),('all files','.*')])
+        fmemory =  open(filenameEXP,"w+")
+        for line in outputTab:
+            fmemory.write(line+'\n')
+        fmemory.close()
     except : return -1
     return 0
 
