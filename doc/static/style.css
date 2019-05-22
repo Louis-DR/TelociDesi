@@ -9,6 +9,7 @@
     position: sticky;
     top: 0;
     width: 100%;
+    opacity: 0.95;
 }
 
 .nav>li {
@@ -49,6 +50,7 @@ h1 {
 
 .section {
     margin: 30px;
+    overflow: scroll;
 }
 
 .gateTable {

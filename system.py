@@ -2,6 +2,7 @@ from pickle import *
 import json
 from tkinter.filedialog import askopenfilename
 from dec2ter import *
+from ter2dec import *
 from log import Log
 
 class Equation:
@@ -25,7 +26,14 @@ MICROGATES = {
              [2,1,0]],
     "NOR": [[2,1,0],
             [1,1,0],
-            [0,0,0]]
+            [0,0,0]],
+    "BI_NOT": [1,2,1],
+    "BI_NAND": [[2,2,2],
+                [2,2,2],
+                [2,2,1]],
+    "BI_NOR": [[2,2,1],
+               [2,2,1],
+               [1,1,1]]
 }
 
 # Microsystem = few inputs, few output, many equations, hard coded & generated
@@ -116,6 +124,46 @@ MICROSYSTEMS = {
             Equation("NANY", [5,7], [8]),
             Equation("NOT", [8], [9])
         ]
+    },
+    "BI_AND": {
+        "nbrstate": 4,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 2 layers
+            Equation("BI_NAND", [0,1], [2]),
+            Equation("BI_NOT", [2], [3])
+        ]
+    },
+    "BI_OR": {
+        "nbrstate": 4,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 2 layers
+            Equation("BI_NOR", [0,1], [2]),
+            Equation("BI_NOT", [2], [3])
+        ]
+    },
+    "BI_XOR": {
+        "nbrstate": 6,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 3 layers
+            Equation("BI_NAND", [0,1], [2]),
+            Equation("BI_NAND", [0,2], [3]), 
+            Equation("BI_NAND", [1,2], [4]),
+            Equation("BI_NAND", [3,4], [5]) 
+        ]
+    },
+    "BI_XNOR": {
+        "nbrstate": 6,
+        "nbrinput": 2,
+        "nbroutput": 1,
+        "equations": [ # 3 layers
+            Equation("BI_NOR", [0,1], [2]),
+            Equation("BI_NOR", [0,2], [3]), 
+            Equation("BI_NOR", [1,2], [4]),
+            Equation("BI_NOR", [3,4], [5])
+        ]
     }
 }
 
@@ -183,7 +231,7 @@ class System:
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
                     next_state[net] = value
-            elif type(system) is System or type(system) is Memory: # add new Algrebraic system type here !!
+            elif type(system) is System or type(system) is Memory or type(system) is Register: # add new Algrebraic system type here !!
                 arguments = {tag:self.state[net] for tag,net in equation.arguments.items()}
                 system.load(arguments)
                 system.update()
@@ -194,6 +242,9 @@ class System:
     
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
+    
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
 
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
@@ -217,25 +268,73 @@ class NonAlgebraicSystem:
     
     def retrieve(self):
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
+    
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
 
 
 def updateROM(state, tag2input, tag2output, data):
     address = sum([(3**k)*state[tag2input["A{}".format(k)]] for k in range(data["addrsize"])])
-    word = data["memory"][address]
-    print("Memory word read : {}".format(word))
-    wordter = dec2ter(word)
-    for k in range(data["wordsize"]):
-        if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
-        else: state[tag2output["Q{}".format(k)]]=wordter[k]
+    if state[tag2input["RW"]]==2:
+        word = data["memory"][address]
+        print("Memory word read : {}".format(word))
+        wordter = dec2ter(word)
+        for k in range(data["wordsize"]):
+            if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
+            else: state[tag2output["Q{}".format(k)]]=wordter[k]
+    elif state[tag2input["RW"]]==1:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+    elif state[tag2input["RW"]]==0:
+        word = sum([(3**k)*state[tag2input["D{}".format(k)]] for k in range(data["addrsize"])])
+        print("Memory word writen : {}".format(word))
+        data["memory"][address] = word
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
 
 class Memory(NonAlgebraicSystem):
     def __init__(self, filepath=""):
+        self.filepath = filepath
         f = open(filepath,'rb')
         data = json.load(f)
         f.close()
         nbrinput = data["addrsize"]
         nbroutput = data["wordsize"]
-        tag2input = {"A{}".format(k) : k for k in range(nbrinput)}
+        tag2input = { **{"RW":0} , **{"A{}".format(k) : k+1 for k in range(nbrinput)} , **{"D{}".format(k) : nbrinput+k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateROM)
-        
+        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateROM)
+    
+    def reset(self):
+        f = open(filepath,'rb')
+        data = json.load(f)
+        f.close()
+        if nbrinput != data["addrsize"] or nbroutput != data["wordsize"]: print("New file not compatible !")
+        else:
+            self.state = [1 for k in range(nbrstate)]
+            self.data = data
+
+def updateREG(state, tag2input, tag2output, data):
+    if state[tag2input["RW"]]==2:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=data["data{}".format(k)]
+    elif state[tag2input["RW"]]==1:
+        for k in range(data["wordsize"]):
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+    elif state[tag2input["RW"]]==0:
+        for k in range(data["wordsize"]):
+            data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
+            state[tag2output["Q{}".format(k)]]=state[tag2input["D{}".format(k)]]
+
+class Register(NonAlgebraicSystem):
+    def __init__(self, wordsize):
+        data = { **{"wordsize":wordsize} , **{"data{}".format(k):1 for k in range(wordsize)} }
+        nbrinput = wordsize
+        nbroutput = wordsize
+        tag2input = { **{"RW":0} , **{"D{}".format(k) : k+1 for k in range(nbrinput)} }
+        tag2output = {"Q{}".format(k) : 1+nbrinput+k for k in range(nbroutput)}
+        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG)
+
+    def reset(self):
+        self.state = [1 for k in range(nbrstate)]
+        for k in range(data["wordsize"]):
+            data["data{}".format(k)]=1

@@ -75,18 +75,10 @@ GATES = {
     "BI_OR": [[1,1,2],
               [1,1,2],
               [2,2,2]],
-    "BI_NAND": [[2,2,2],
-                [2,2,2],
-                [2,2,1]],
-    "BI_NOR": [[2,2,1],
-               [2,2,1],
-               [1,1,1]],
     "BI_XOR": [[1,1,2],
                [1,1,2],
-               [2,2,1]],
-    "BI_XNOR": [[2,2,1],
-                [2,2,1],
-                [1,1,2]]
+               [2,2,1]]
+    
 }
 UGATES = {
     "PNOT": [2,2,0],
@@ -107,7 +99,10 @@ NGATES = {
     "NMUL" : "MUL", 
     "NOR" : "OR", 
     "NANY" : "ANY", 
-    "NSUM" : "SUM"
+    "NSUM" : "SUM",
+    "BI_NAND" : "BI_AND",
+    "BI_NOR" : "BI_OR",
+    "BI_XNOR" : "BI_XOR"
 }
 clockCycle = 0
 

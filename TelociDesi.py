@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.4
+TKINTER_SCALING = 1.0
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -43,7 +43,7 @@ CHRONOGRAM_MARGIN_HORIZONTAL = 40
 
 SHIFT_MOVE_PERCENTAGE = 0.5
 
-DT_PER_CC = 20
+DT_PER_CC = 5
 
 #endregion
 
@@ -258,19 +258,14 @@ def simulateDt():
     # log0.stop() #LOGGING
 
 def resetSimulation():
-    for key, node in nodes.items():
-        node["clockCycle"]=0
-        node["value"]=1
-    for key, input in inputs.items():
-        input["clockCycle"]=0
-        input["value"]=1
-    for key, probe in probes.items():
-        probe["clockCycle"]=0
-        probe["value"]=1
-    for key, output in outputs.items():
-        output["clockCycle"]=0
-        output["value"]=1
     resetRecording()
+    for output in outputs.values():
+        drawOutput(output)
+    for loadedSystem in loadedSystems.values():
+        for k in range(len(loadedSystem.state)):
+            loadedSystem.state[k] = 1
+    buildSystem()
+    drawChronogram()
 
 def resetRecording():
     global recording
@@ -280,50 +275,6 @@ def resetRecording():
         recording[key] = []
     for key in outputs:
         recording[key] = []
-
-def randomProgram():
-    for input in inputs.values():
-        input["value"] = random.randint(0,2)
-        # drawInput(input) #ISSUE HERE
-    simulateCc()
-
-def randomPrograms(nbr):
-    for k in range(nbr):
-        randomProgram()
-    # for input in inputs.values():
-    #     drawInput(input)
-    # for output in outputs.values():
-    #     drawOutput(output)
-    # drawChronogram()
-
-# def sortRecording(): #should be useless
-#     global recording
-#     new_rec = {}
-#     for key in sorted(recording):
-#         new_rec[key] = recording[key]
-#     recording = new_rec
-
-# def simulation_update():
-#     global clockCycle
-#     print(tags)
-#     if not checkRecordingKeys(): resetRecording()
-#     clockCycle +=1
-#     print(clockCycle)
-#     readProgram()
-#     for input in inputs:
-#         update_input(input)
-#     print(recording)
-#     drawChronogram()
-
-# def readProgram():
-#     global inputs
-#     print("    reading program")
-#     for tag,id in tags.items():
-#         if id in inputs and tag in program:
-#             if clockCycle<=len(program[tag]):
-#                 inputs[id]["value"] = program[tag][clockCycle-1]
-#             else : print("program ended for tag \""+tag+"\" corresponding to input with id "+id)
-#         else : print("error with program for tag \""+tag+"\" corresponding to input with id "+id)
 
 #endregion
 
@@ -1674,6 +1625,9 @@ canvas.bind("<Control-e>", lambda event: exportSystem())
 canvas.bind("<Control-i>", lambda event: importSystem())
 canvas.bind("<Control-m>", lambda event: importMemory())
 canvas.bind("<Control-n>", lambda event: blankCircuit())
+canvas.bind("<Control-r>", lambda event: spawnRegisterPopup())
+
+canvas.bind("<Alt-r>", lambda event: resetSimulation())
 
 canvas.bind("<!>", lambda event: invGates(selection))
 
@@ -1731,7 +1685,8 @@ def drawChronogram():
         for stream_id, stream in recording.items():
             yyy = 20 + (20+gap)*kkk
             kkk+=1
-            drawChronogram_stream(yyy,gap,stream_id,stream)
+            if len(stream)>0:
+                drawChronogram_stream(yyy,gap,stream_id,stream)
     drawChronogram_axis()
 
 def drawChronogram_axis():
@@ -1831,6 +1786,7 @@ def clean():
     updateScreen()
     drawAll()
     resetSimulation()
+    drawChronogram()
 
 def saveCircuit():
     cleanLoadedSystem()
@@ -1940,6 +1896,37 @@ def importMemory():
     loadedSystemToBePlaced_type = "memory"
     selectTool('s')
 
+def validateInteger(inStr,acttyp):
+    if acttyp == '1':
+        if not inStr.isdigit():
+            return False
+    return True
+
+def spawnRegisterPopup():
+    popup = Toplevel(root)
+    text_label = Label(popup, text="Enter the size of the register", font=(FONT_FAMILY, FONT_SIZE), width=28)
+    text_label.pack()
+    entryField = Entry(popup, font=(FONT_FAMILY, FONT_SIZE), validate="key")
+    entryField['validatecommand'] = (entryField.register(validateInteger),'%P','%d')
+    entryField.pack()
+    validateButton = Button(popup, text="Register", font=(FONT_FAMILY, FONT_SIZE), command=lambda: spawnRegister(int(entryField.get()),popup))
+    validateButton.pack()
+
+def spawnRegister(wordsize,popup):
+    global loadedSystemToBePlaced_id
+    global loadedSystemToBePlaced_type
+    global loadedSystem_idgen
+    global loadedSystems
+    if wordsize<=0 or wordsize>100: print("Register size is invalid !"); return
+    t_sys = Register(wordsize)
+    loadedSystem_id = "ls_"+str(loadedSystem_idgen)
+    loadedSystem_idgen +=1
+    loadedSystems[loadedSystem_id] = t_sys
+    loadedSystemToBePlaced_id = loadedSystem_id
+    loadedSystemToBePlaced_type = "register"
+    selectTool('s')
+    popup.destroy()
+
 #endregion
 
 #region [purple] MENU
@@ -2028,8 +2015,6 @@ root.mainloop()
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
 # Memory chip :
-#   - n inputs for address
-#   - m outputs for data
 #   - clock input
 # Number input :
 #   - input a number with keyboard, outputs the signal on a given number of trits
@@ -2043,22 +2028,12 @@ root.mainloop()
 #   - ability to mirror systems
 #   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
 #   - option for wide gaps between pins (1 or 2)
-#   - draw the name of each pin and the name of the system
-#   - check if can create gate ? -> when adding a gate, it is loaded when loeading the file, and then placed on the canvas (therefore we already know its size)
-# Programing :
-#   - separate software to :
-#   - create input streams manualy
-#   - visualize input streams
-#   - convert mnemonics assembly file to input streams
-#   - convert input streams with input names
 # Simulation :
 #   - make sure the simualtion can run whithout the graphical interface
 #   - analyse the performance of the simulation
 #   - import and read program to outputs
 #   - export inputs and outputs to file
 #   - check if necessary to update node if already proper value
-# Time simulation :
-#   - simulation based on time and not clockCycle and taking into account propagation time : null for wires, and one unit vers layer in each gate
 # Logging and Visualisation :
 #   - separate software to visualize chronograms and output them to csv, excel, png, etc
 # User Interface :
@@ -2082,8 +2057,6 @@ root.mainloop()
 #   - click to create each item then the relations (the wires)
 # Easy navigation :
 #   - panel to create, list and teleport to waypoints
-# Lack of Pouet :
-#   - add Pouet everywhere
 # Error handeling :
 #   - catch errors if save file is corrupted
 #   - catch errors if memory or system files don't exist anymore
