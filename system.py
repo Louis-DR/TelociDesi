@@ -281,7 +281,7 @@ class NonAlgebraicSystem:
         return self.drawFunction(state, data)
 
 
-def updateROM(state, tag2input, tag2output, data):
+def updateRAM(state, tag2input, tag2output, data):
     print(data)
     address = 0
     for k in range(data["addrsize"]):
@@ -306,7 +306,7 @@ def updateROM(state, tag2input, tag2output, data):
         data["memory"][address] = word
         for k in range(data["wordsize"]):
             state[tag2output["Q{}".format(k)]]=3
-def drawROM(state, data):
+def drawRAM(state, data):
     return "Memory"
 
 class Memory(NonAlgebraicSystem):
@@ -319,7 +319,7 @@ class Memory(NonAlgebraicSystem):
         nbroutput = data["wordsize"]
         tag2input = { **{"RW":0} , **{"A{}".format(k) : k+1 for k in range(nbrinput)} , **{"D{}".format(k) : nbrinput+k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateROM, drawROM)
+        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateRAM, drawRAM)
     
     def reset(self):
         f = open(filepath,'rb')

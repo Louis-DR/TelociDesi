@@ -2018,14 +2018,9 @@ root.mainloop()
 #   - basic gates with more than two inputs (AND, OR etc)
 #   - inprove the canPlace_gate function (redundant condition in the leftClick function ?)
 # Systems :
-#   - ability to mirror systems
 #   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
 #   - option for wide gaps between pins (1 or 2)
 # Simulation :
-#   - make sure the simualtion can run whithout the graphical interface
-#   - analyse the performance of the simulation
-#   - import and read program to outputs
-#   - export inputs and outputs to file
 #   - check if necessary to update node if already proper value
 # Logging and Visualisation :
 #   - separate software to visualize chronograms and output them to csv, excel, png, etc
@@ -2039,8 +2034,6 @@ root.mainloop()
 #   - reloading all system on the circuit (if their circuit changed) -> how to tackle the issue of changing number of inputs and outputs ?
 # Saving and Loading :
 #   - save simulation results
-# Zoom and Pan :
-#   - centered zoom
 # Undo Redo :
 #   - keep track of all changes : created/removed/moved/rotated gate/node/wire/input/prone/output, cut wire, negated gate
 #   - function to undo a change
@@ -2057,4 +2050,4 @@ root.mainloop()
 
 
 # OVERHAULS :
-# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save file
+# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save filey
