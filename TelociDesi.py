@@ -161,7 +161,8 @@ def buildSystem():
             else:
                 equations.append(Equation(gate["gate"] , [id2net[gate["input_a"]]] , [id2net[gate["output"]]]))
         elif gate["gate"] in MICROSYSTEMS:
-            equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+            if "input_b" in gate: equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]] , id2net[gate["input_b"]]] , [id2net[gate["output"]]]))
+            else: equations.append(genEquation_microSystemGate(gate["gate"] , [id2net[gate["input_a"]]] , [id2net[gate["output"]]]))
     for system in systems.values():
         t_loadedSystem = loadedSystems[system["system"]]
         t_args = {inputtag:id2net[inputnode_id] for inputtag, inputnode_id in system["inputs"].items()}

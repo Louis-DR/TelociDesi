@@ -15,6 +15,8 @@ class Equation:
 # Microgate = few inputs, 1 output, 1 equation, hard coded
 MICROGATES = {
     "NOT": [2,1,0],
+    "NNOT": [2,1,0],
+    "PNOT": [2,1,0],
     "NCONS": [[2,1,1],
               [1,1,1],
               [1,1,0]],
@@ -123,6 +125,15 @@ MICROSYSTEMS = {
             Equation("NOT", [6], [7]),
             Equation("NANY", [5,7], [8]),
             Equation("NOT", [8], [9])
+        ]
+    },
+    "ABS": {
+        "nbrstate": 3,
+        "nbrinput": 1,
+        "nbroutput": 1,
+        "equations": [ # 5 layers
+            Equation("NOT", [0], [1]),
+            Equation("NAND", [0,1], [2])
         ]
     },
     "BI_AND": {
