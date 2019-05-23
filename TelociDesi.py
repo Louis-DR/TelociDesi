@@ -2003,24 +2003,37 @@ root.mainloop()
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
 #   - tags and deleting outputs and inputs does not work well
 #   - glitches with wires and nodes
+#   - knot circle on nodes between only two wires (should only be with 3 or more)
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
-# Memory chip :
-#   - clock input
-# Number input :
-#   - input a number with keyboard, outputs the signal on a given number of trits
+# Wires :
+#   - auto-router around obstacles
+#   - bridge for wires crossing without connecting
 # Gates :
 #   - ability to mirror gates
 #   - negate output
 #   - finish other unary gates
 #   - basic gates with more than two inputs (AND, OR etc)
 #   - inprove the canPlace_gate function (redundant condition in the leftClick function ?)
+# Inputs and outputs :
+#   - easy inputs and outputs for naked system and gates inoutputs
+# Probes :
+#   - remove probes or fix them
+# Number input :
+#   - input a number with keyboard, outputs the signal on a given number of trits
 # Systems :
 #   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
 #   - option for wide gaps between pins (1 or 2)
+#   - rotate and mirror
+#   - ability to display a value or information on it (register value, etc)
+# Memory :
+#   - double click to load new file
+#   - binary version
+# Register :
+#   - binary version
 # Simulation :
 #   - check if necessary to update node if already proper value
 # Logging and Visualisation :
