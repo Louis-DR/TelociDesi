@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.4
+TKINTER_SCALING = 1.0
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -1832,9 +1832,10 @@ def drawChronogram_stream(y,h,stream_id,stream):
     gap = (CHRONOGRAM_WIDTH-2*CHRONOGRAM_MARGIN_HORIZONTAL)/len(stream)
     for kkk in range(len(stream)):
         yyy = chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk]-1
-        chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
-        if kkk<len(stream)-1:
-            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+        if stream[kkk]<3:
+            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
+            if kkk<len(stream)-1:
+                chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -1856,6 +1857,7 @@ def blankCircuit():
     global outputs
     global tags
     global loadedSystems
+    global stream
     global gate_idgen
     global system_idgen
     global node_idgen
@@ -1874,6 +1876,7 @@ def blankCircuit():
     outputs = {}
     tags = {}
     loadedSystems = {}
+    stream = {}
     gate_idgen = 0
     system_idgen = 0
     node_idgen = 0
@@ -2172,8 +2175,3 @@ root.mainloop()
 # Error handeling :
 #   - catch errors if save file is corrupted
 #   - catch errors if memory or system files don't exist anymore
-
-
-
-# OVERHAULS :
-# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save filey
