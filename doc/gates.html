@@ -5,9 +5,9 @@
 <head>
 
     <link rel="stylesheet" href="static/style.css" type="text/css" />
-    <link rel="stylesheet" href="static/jqMath/jqmath-0.4.3.css" type="text/css/" />
 
-    <script type="text/javascript" async src="static/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"></script>
 
     <link rel="icon" href="static/Gates/BUF.png">
     <meta charset="utf-8" />
@@ -38,14 +38,40 @@
         <!--region [green] -->
 
         <div class="section">
-            <h2>Unary gates</h2>
+            <h2>Binary gates</h2>
             <table class="gateTable">
                 <tr>
                     <th>Name</th>
                     <th>Schematic</th>
                     <th>Symbol</th>
                     <th>Description</th>
-                    <th>Output bmatrix</th>
+                    <th>Output matrix</th>
+                    <th>Alternative construction</th>
+                </tr>
+                <tr>
+                <td class="gateName">BI_AND<br />Binary And</td>
+                    <td class="gateSchm"><img src="static/Gates/BUF.png"></td>
+                    <td class="gateSmbl">$$A×B$$</td>
+                    <td class="gateDesc"></td>
+                    <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 0 & 0 \\ 0 & 1\end{bmatrix}$$</td>
+                <td class="gateAltr"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!--endregion-->
+
+        <!--region [green] -->
+
+        <div class="section">
+            <h2>Single entry ternary gates</h2>
+            <table class="gateTable">
+                <tr>
+                    <th>Name</th>
+                    <th>Schematic</th>
+                    <th>Symbol</th>
+                    <th>Description</th>
+                    <th>Output matrix</th>
                     <th>Alternative construction</th>
                 </tr>
                 <tr>
@@ -55,112 +81,112 @@
                     <td class="gateDesc">Identity : returns the same value as the input.</td>
                     <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & 0 & +\end{bmatrix}$$</td>
                 <td class="gateAltr"></td>
-            </tr>
-            <tr>
-                <td class="gateName">PNOT<br />Positive Not</td>
-                <td class="gateSchm"><img src="static/Gates/PNOT.png"></td>
-                <td class="gateSmbl">$$Â$$</td>
-                <td class="gateDesc">Returns the opposite of the input, or + if the input is 0.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & + & -\end{bmatrix}$$</td>
-                <td class="gateAltr"></td>
-            </tr>
-            <tr>
-                <td class="gateName">NOT<br />Not</td>
-                <td class="gateSchm"><img src="static/Gates/NOT.png"></td>
-                <td class="gateSmbl">$$\overline A$$</td>
-                <td class="gateDesc">Returns the opposite of the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & 0 & -\end{bmatrix}$$</td>
-                <td class="gateAltr"></td>
-            </tr>
-            <tr>
-                <td class="gateName">NNOT<br />Negative Not</td>
-                <td class="gateSchm"><img src="static/Gates/NNOT.png"></td>
-                <td class="gateSmbl">$$Ǎ$$</td>
-                <td class="gateDesc">Returns the opposite of the input, or - if the input is 0.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & -\end{bmatrix}$$</td>
-                <td class="gateAltr"></td>
-            </tr>
-            <tr>
-                <td class="gateName">ABS<br />Absolute</td>
-                <td class="gateSchm"><img src="static/Gates/ABS.png"></td>
-                <td class="gateSmbl">$$|A|$$</td>
-                <td class="gateDesc">Returns the absolute value of the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & 0 & +\end{bmatrix}$$</td>
-                <td class="gateAltr">$$\overline {A&otimes;A}$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">INC<br />Increment</td>
-                <td class="gateSchm"><img src="static/Gates/INC.png"></td>
-                <td class="gateSmbl">$$A^{+}$$</td>
-                <td class="gateDesc">Increments the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & + & +\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A&#8862;(+)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">DEC<br />Decrement</td>
-                <td class="gateSchm"><img src="static/Gates/DEC.png"></td>
-                <td class="gateSmbl">$$A^{-}$$</td>
-                <td class="gateDesc">Decrements the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & - & 0\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A&#8862;(-)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">RTU<br />Rotate up</td>
-                <td class="gateSchm"><img src="static/Gates/RTU.png"></td>
-                <td class="gateSmbl">$$A^{&#9583;}$$</td>
-                <td class="gateDesc">Rotates one step up the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & + & -\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A&oplus;(+)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">RTD<br />Rotate down</td>
-                <td class="gateSchm"><img src="static/Gates/RTD.png"></td>
-                <td class="gateSmbl">$$A^{&#9582;}$$</td>
-                <td class="gateDesc">Rotates one step down the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & 0\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A&oplus;(-)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">CLU<br />Clamp up</td>
-                <td class="gateSchm"><img src="static/Gates/CLU.png"></td>
-                <td class="gateSmbl">$$⌈A⌉$$</td>
-                <td class="gateDesc">Returns the positive part of the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & 0 & +\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A+(0)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">CLD<br />Clamp down</td>
-                <td class="gateSchm"><img src="static/Gates/CLD.png"></td>
-                <td class="gateSmbl">$$⌊A⌋$$</td>
-                <td class="gateDesc">Returns the negative part of the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & 0 & 0\end{bmatrix}$$</td>
-                <td class="gateAltr">$$A×(0)$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">ISP<br />Is Positive</td>
-                <td class="gateSchm"><img src="static/Gates/ISP.png"></td>
-                <td class="gateSmbl">$$A^{=+}$$</td>
-                <td class="gateDesc">Returns + if A is positive, else returns -.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & - & +\end{bmatrix}$$</td>
-                <td class="gateAltr">$$\overline Ǎ$$</td>
-            </tr>
-            <tr>
-                <td class="gateName">ISZ<br />Is Zero</td>
-                <td class="gateSchm"><img src="static/Gates/ISZ.png"></td>
-                <td class="gateSmbl">$$A^{=0}$$</td>
-                <td class="gateDesc">Returns + if A is Zero, else returns -.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & + & -\end{bmatrix}$$</td>
-                <td class="gateAltr"></td>
-            </tr>
-            <tr>
-                <td class="gateName">ISN<br />Is Negative</td>
-                <td class="gateSchm"><img src="static/Gates/ISN.png"></td>
-                <td class="gateSmbl">$$A^{=-}$$</td>
-                <td class="gateDesc">Returns + if A is negative, else returns -.<br />(Same behaviour as NNOT)</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & -\end{bmatrix}$$</td>
-                <td class="gateAltr">$$Ǎ$$</td>
-            </tr>
-        </table>
+                </tr>
+                <tr>
+                    <td class="gateName">PNOT<br />Positive Not</td>
+                    <td class="gateSchm"><img src="static/Gates/PNOT.png"></td>
+                    <td class="gateSmbl">$$Â$$</td>
+                    <td class="gateDesc">Returns the opposite of the input, or + if the input is 0.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & + & -\end{bmatrix}$$</td>
+                    <td class="gateAltr"></td>
+                </tr>
+                <tr>
+                    <td class="gateName">NOT<br />Not</td>
+                    <td class="gateSchm"><img src="static/Gates/NOT.png"></td>
+                    <td class="gateSmbl">$$\overline A$$</td>
+                    <td class="gateDesc">Returns the opposite of the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & 0 & -\end{bmatrix}$$</td>
+                    <td class="gateAltr"></td>
+                </tr>
+                <tr>
+                    <td class="gateName">NNOT<br />Negative Not</td>
+                    <td class="gateSchm"><img src="static/Gates/NNOT.png"></td>
+                    <td class="gateSmbl">$$Ǎ$$</td>
+                    <td class="gateDesc">Returns the opposite of the input, or - if the input is 0.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & -\end{bmatrix}$$</td>
+                    <td class="gateAltr"></td>
+                </tr>
+                <tr>
+                    <td class="gateName">ABS<br />Absolute</td>
+                    <td class="gateSchm"><img src="static/Gates/ABS.png"></td>
+                    <td class="gateSmbl">$$|A|$$</td>
+                    <td class="gateDesc">Returns the absolute value of the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & 0 & +\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$\overline {\overline{A}×A}$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">INC<br />Increment</td>
+                    <td class="gateSchm"><img src="static/Gates/INC.png"></td>
+                    <td class="gateSmbl">$$A^{+}$$</td>
+                    <td class="gateDesc">Increments the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & + & +\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A&#8862;(+)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">DEC<br />Decrement</td>
+                    <td class="gateSchm"><img src="static/Gates/DEC.png"></td>
+                    <td class="gateSmbl">$$A^{-}$$</td>
+                    <td class="gateDesc">Decrements the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & - & 0\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A&#8862;(-)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">RTU<br />Rotate up</td>
+                    <td class="gateSchm"><img src="static/Gates/RTU.png"></td>
+                    <td class="gateSmbl">$$A^{&#9583;}$$</td>
+                    <td class="gateDesc">Rotates one step up the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & + & -\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A&oplus;(+)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">RTD<br />Rotate down</td>
+                    <td class="gateSchm"><img src="static/Gates/RTD.png"></td>
+                    <td class="gateSmbl">$$A^{&#9582;}$$</td>
+                    <td class="gateDesc">Rotates one step down the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & 0\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A&oplus;(-)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">CLU<br />Clamp up</td>
+                    <td class="gateSchm"><img src="static/Gates/CLU.png"></td>
+                    <td class="gateSmbl">$$⌈A⌉$$</td>
+                    <td class="gateDesc">Returns the positive part of the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} 0 & 0 & +\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A+(0)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">CLD<br />Clamp down</td>
+                    <td class="gateSchm"><img src="static/Gates/CLD.png"></td>
+                    <td class="gateSmbl">$$⌊A⌋$$</td>
+                    <td class="gateDesc">Returns the negative part of the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & 0 & 0\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$A×(0)$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">ISP<br />Is Positive</td>
+                    <td class="gateSchm"><img src="static/Gates/ISP.png"></td>
+                    <td class="gateSmbl">$$A^{=+}$$</td>
+                    <td class="gateDesc">Returns + if A is positive, else returns -.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & - & +\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$\overline Ǎ$$</td>
+                </tr>
+                <tr>
+                    <td class="gateName">ISZ<br />Is Zero</td>
+                    <td class="gateSchm"><img src="static/Gates/ISZ.png"></td>
+                    <td class="gateSmbl">$$A^{=0}$$</td>
+                    <td class="gateDesc">Returns + if A is Zero, else returns -.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & + & -\end{bmatrix}$$</td>
+                    <td class="gateAltr"></td>
+                </tr>
+                <tr>
+                    <td class="gateName">ISN<br />Is Negative</td>
+                    <td class="gateSchm"><img src="static/Gates/ISN.png"></td>
+                    <td class="gateSmbl">$$A^{=-}$$</td>
+                    <td class="gateDesc">Returns + if A is negative, else returns -.<br />(Same behaviour as NNOT)</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & - & -\end{bmatrix}$$</td>
+                    <td class="gateAltr">$$Ǎ$$</td>
+                </tr>
+            </table>
 
     </div>
 
@@ -168,14 +194,14 @@
 
     <!-- region [cyan] -->
     <div class="section">
-        <h2>Binary gates</h2>
+        <h2>Dual entry ternary gates</h2>
         <table class="gateTable">
             <tr>
                 <th>Name</th>
                 <th>Schematic</th>
                 <th>Symbol</th>
                 <th>Description</th>
-                <th>Output bmatrix</th>
+                <th>Output matrix</th>
                 <th>Alternative construction</th>
             </tr>
             <tr>
