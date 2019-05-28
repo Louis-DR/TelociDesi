@@ -2054,7 +2054,8 @@ def spawnRegister(wordsize,popup):
 menuBar = Menu(root)
 #root['menu'] = menuBar
 liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MUL","NOR" ,"OR","NANY", "ANY", "NSUM","SUM"
-,"INC","DEC","RTU","RTD","CLU","CLD"]#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
+,"INC","DEC","RTU","RTD","CLU","CLD",  "BI_AND","BI_NAND","BI_OR","BI_NOR","BI_XOR","BI_XNOR"]
+#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
 
 
 

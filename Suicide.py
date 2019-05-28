@@ -1699,7 +1699,6 @@ def rightClick(event):
         if(input["isBinary"]):
             input["value"]%=2
             input["value"]+=1
-            print(input["value"])
         else:
             input["value"]+=1
             input["value"]%=3
