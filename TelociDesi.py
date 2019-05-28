@@ -6,6 +6,8 @@ from collections import deque
 from system import *
 import pickle
 import json
+import webbrowser
+import os
 
 import time
 lasttime = time.time()
@@ -1746,36 +1748,38 @@ buttonFrame = Frame(root)
 label_tools = Label(buttonFrame, text="Tools", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=0, column=0)
 button_wire = Button(buttonFrame, text="Wire", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("w") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=1, column=0)
 button_input = Button(buttonFrame, text="Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=2, column=0)
-button_probe = Button(buttonFrame, text="Probe", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=3, column=0)
-button_output = Button(buttonFrame, text="Output", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
-button_tag = Button(buttonFrame, text="Tag", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
-label_gates = Label(buttonFrame, text="Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=6, column=0)
-button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=7, column=0)
-button_NOT = Button(buttonFrame, text="NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=8, column=0)
-button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
-button_ABS = Button(buttonFrame, text="ABS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
-button_INC = Button(buttonFrame, text="INC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
-button_DEC = Button(buttonFrame, text="DEC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
-button_RTU = Button(buttonFrame, text="RTU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
-button_RTD = Button(buttonFrame, text="RTD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
-button_CLU = Button(buttonFrame, text="CLU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
-button_CLD = Button(buttonFrame, text="CLD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
-label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=17, column=0)
-button_AND = Button(buttonFrame, text="AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=18, column=0)
-button_OR = Button(buttonFrame, text="OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=19, column=0)
-button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
-button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
-button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
-button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
-label_bigates = Label(buttonFrame, text="BI Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=24, column=0)
-button_BI_AND = Button(buttonFrame, text="BI_AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=25, column=0)
-button_BI_OR = Button(buttonFrame, text="BI_OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=26, column=0)
-button_BI_NAND = Button(buttonFrame, text="BI_NAND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NAND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=27, column=0)
-button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=28, column=0)
-button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
-button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
-button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
-button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=3, column=0)
+button_probe = Button(buttonFrame, text="Probe", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
+button_output = Button(buttonFrame, text="Output", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
+button_tag = Button(buttonFrame, text="Tag", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=6, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=7, column=0)
+label_gates = Label(buttonFrame, text="Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=8, column=0)
+button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
+button_NOT = Button(buttonFrame, text="NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
+button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
+button_ABS = Button(buttonFrame, text="ABS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
+button_INC = Button(buttonFrame, text="INC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
+button_DEC = Button(buttonFrame, text="DEC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
+button_RTU = Button(buttonFrame, text="RTU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
+button_RTD = Button(buttonFrame, text="RTD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
+button_CLU = Button(buttonFrame, text="CLU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=17, column=0)
+button_CLD = Button(buttonFrame, text="CLD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=18, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=19, column=0)
+button_AND = Button(buttonFrame, text="AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
+button_OR = Button(buttonFrame, text="OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
+button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
+button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
+button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=24, column=0)
+button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=25, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=26, column=0)
+label_bigates = Label(buttonFrame, text="BI Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=27, column=0)
+button_BI_AND = Button(buttonFrame, text="BI_AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=28, column=0)
+button_BI_OR = Button(buttonFrame, text="BI_OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
+button_BI_NAND = Button(buttonFrame, text="BI_NAND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NAND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
+button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
+button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=33, column=0)
+button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=34, column=0)
 
 
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
@@ -1792,6 +1796,32 @@ bottomFrame.rowconfigure(index=0,minsize=20)
 chronogram_height = canvas_height
 simulationPanel = Frame(root)
 chronogram = Canvas(root, width=CHRONOGRAM_WIDTH, height=chronogram_height)
+
+pouet={
+        "NOT" : [2,2],
+        "PNOT" : [2,2],
+        "NNOT" : [2,2],
+        "BI_NOT" : [2,2],
+        "NAND" : [4,2],
+        "NOR" : [4,2],
+        "NCONS" : [4,2],
+        "NANY" : [4,2],
+        "BI_NAND" : [4,2],
+        "BI_NOR" : [4,2],
+        "AND" : [6,4],
+        "CONS" : [6,4],
+        "OR" : [6,4],
+        "ANY" : [6,4],
+        "MUL" : [14,8],
+        "NMUL" : [14,8],        
+        "SUM" : [24,14],
+        "NSUM" : [26,16],
+        "ABS" : [6,4],
+        "BI_AND" : [6,4],
+        "BI_OR" : [6,4],
+        "BI_XOR" : [16,8],
+        "BI_XNOR": [16,8]
+}
 
 def drawChronogram():
     chronogram.delete("all")
@@ -1840,6 +1870,18 @@ def drawChronogram_stream(y,h,stream_id,stream):
             chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
             if kkk<len(stream)-1:
                 chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+
+def drawNumberOfTransitor(porte):
+    return
+
+def open_doc():
+    try:
+        from urllib import pathname2url         # Python 2.x
+    except:
+        from urllib.request import pathname2url # Python 3.x
+
+    url = 'file:{}'.format(pathname2url(os.path.abspath('doc/home.html')))
+    webbrowser.open(url)
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -2049,6 +2091,7 @@ def spawnRegister(wordsize,popup):
 
 #endregion
 
+
 #region [purple] MENU
 menuBar = Menu(root)
 #root['menu'] = menuBar
@@ -2109,10 +2152,12 @@ sousMenuOptions.add_command(label='Debug Mode',font=(FONT_FAMILY, FONT_SIZE_MENU
 sousMenuOptions.add_command(label='Redraw system',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawAll)
 sousMenuOptions.add_command(label='Redraw Chronogram',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawChronogram)
 
-
+sousMenuHelp = Menu(menuBar)
+menuBar.add_cascade(label='Help', menu=sousMenuHelp)
+sousMenuHelp.add_command(label='Open documentation',font=(FONT_FAMILY, FONT_SIZE_MENU),command=open_doc)
 
 root.config(menu=menuBar)
-#end region
+#endregion
 
 
 selectTool(None)
