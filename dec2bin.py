@@ -1,6 +1,6 @@
 def dec2bin(a):
     if a//2==0 : return [a%2]
-    else : return dec2ter(a//2)+[a%2]
+    else : return dec2bin(a//2)+[a%2]
 
 def dec2binstr(list):
     res = ''
@@ -8,7 +8,7 @@ def dec2binstr(list):
         res = res + str(bit)
     return res
 
-def dec2terXbit(number, nbits):
+def dec2binXbit(number, nbits):
     temp = dec2binstr(dec2bin(number))
     res = ""
     if (len(temp)>nbits):

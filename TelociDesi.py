@@ -1,7 +1,4 @@
 # Ternary Logic Circuit Designer and Simulator
-# Editors : Grégoire Chapeaux, Louis Duret-Robert, Alexandre Georjon, Yoan Leblanc, Clément Prime, Thomas Rousseau
-# Last Edition : 28/05/2019
-
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
@@ -300,6 +297,7 @@ def createGate(gate, sx, sy):
         "gate": gate,
         "x": sx+view_x,
         "y": sy+view_y,
+        "mirror": False,
         "clockCycle": 0
     }
     gate_idgen +=1
@@ -327,6 +325,7 @@ def createSystem(sx, sy):
         "type": loadedSystemToBePlaced_type,
         "x": sx+view_x,
         "y": sy+view_y,
+        "mirror": False,
         "height": t_height,
         "clockCycle": 0
     }
@@ -397,6 +396,7 @@ def createInput(sx,sy):
         "id": "i_"+str(input_idgen),
         "x": sx+view_x,
         "y": sy+view_y,
+        "mirror": False,
         "clockCycle": 0,
         "value": 1,
         "isBinary":False
@@ -413,6 +413,7 @@ def createBinaryInput(sx,sy):
         "id": "i_"+str(input_idgen),
         "x": sx+view_x,
         "y": sy+view_y,
+        "mirror": False,
         "clockCycle": 0,
         "value": 1,
         "isBinary":True
@@ -422,8 +423,6 @@ def createBinaryInput(sx,sy):
     inputs[new_input["id"]] = new_input
     drawInput(new_input)
     updateScreen_input(new_input)
-
-
 
 def createProbe(sx,sy):
     global probe_idgen
@@ -446,6 +445,7 @@ def createOutput(sx,sy):
         "id": "o_"+str(output_idgen),
         "x": sx+view_x,
         "y": sy+view_y,
+        "mirror": False,
         "clockCycle": 0,
         "value": 1
     }
@@ -526,364 +526,724 @@ def drawAll():
     drawTags()
     drawSelection()
 
-def drawGate_AND(sx,sy,id,ghost=False):
+def drawGate_AND(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    if mirror : 
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=-90 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
 
-def drawGate_NAND(sx,sy,id,ghost=False):
+def drawGate_NAND(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
 
-def drawGate_CONS(sx,sy,id,ghost=False):
+def drawGate_CONS(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+1) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+2) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+4) , grid_unit*(sx+2) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+1) , grid_unit*(-(-sx+1)) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+1) , grid_unit*(-(-sx+2)) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+4) , grid_unit*(-(-sx+2)) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+1) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+2) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+4) , grid_unit*(sx+2) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_NCONS(sx,sy,id,ghost=False):
+def drawGate_NCONS(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+1) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+2) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+4) , grid_unit*(sx+2) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+1) , grid_unit*(-(-sx+1)) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+1) , grid_unit*(-(-sx+2)) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1)) , grid_unit*(sy+4) , grid_unit*(-(-sx+2)) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+1) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+1) , grid_unit*(sx+2) , grid_unit*(sy+1) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1) , grid_unit*(sy+4) , grid_unit*(sx+2) , grid_unit*(sy+4) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_MUL(sx,sy,id,ghost=False):
+def drawGate_MUL(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+0.5) , grid_unit*(sx) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+0.5) , grid_unit*(sx) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_NMUL(sx,sy,id,ghost=False):
+def drawGate_NMUL(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+0.5) , grid_unit*(sx) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx) , grid_unit*(sy+0.5) , grid_unit*(sx) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_OR(sx,sy,id,ghost=False):
+def drawGate_OR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
 
-def drawGate_NOR(sx,sy,id,ghost=False):
+def drawGate_NOR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
 
-def drawGate_ANY(sx,sy,id,ghost=False):
+def drawGate_ANY(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-45 , extent=90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-135 , extent=-90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.2+0.5)) , grid_unit*(sy+0.5+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.2+0.5)) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-45 , extent=90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_NANY(sx,sy,id,ghost=False):
+def drawGate_NANY(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-45 , extent=90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-135 , extent=-90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.2+0.5)) , grid_unit*(sy+0.5+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.2+0.5)) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-45 , extent=90 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.2+0.5) , grid_unit*(sy+3+0.5+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_SUM(sx,sy,id,ghost=False):
+def drawGate_SUM(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-125 , extent=-110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
 
-def drawGate_NSUM(sx,sy,id,ghost=False):
+def drawGate_NSUM(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    if mirror:
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*-(-(sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-125 , extent=-110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+3+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
 
-def drawGate_PNOT(sx,sy,id,ghost=False):
+def drawGate_PNOT(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+0.8) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2-0.8)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2+0.8)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+0.8) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_NOT(sx,sy,id,ghost=False):
+def drawGate_NOT(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_NNOT(sx,sy,id,ghost=False):
+def drawGate_NNOT(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+0.8) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2-0.8)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2+0.8)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+0.8) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    
+def drawGate_ABS(sx,sy,id,mirror,ghost=False):
+    tags="content "+id
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2-0.8)) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(-(-sx+2-0.8)) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_ABS(sx,sy,id,ghost=False):
+def drawGate_INC(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2-0.8) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-0.8) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+0.8) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        SPACING = 0.6
+        SIZE = 0.4
+        canvas.create_rectangle(grid_unit*(-(-sx+2-SPACING-SIZE)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2-SPACING+SIZE)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2-SPACING)) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(-(-sx+2-SPACING)) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2+SPACING-SIZE)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2+SPACING+SIZE)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2+SPACING)) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(-(-sx+2+SPACING)) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else:
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        SPACING = 0.6
+        SIZE = 0.4
+        canvas.create_rectangle(grid_unit*(sx+2-SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2-SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2-SPACING) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(sx+2-SPACING) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2+SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2+SPACING) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(sx+2+SPACING) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_INC(sx,sy,id,ghost=False):
+def drawGate_DEC(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    SPACING = 0.6
-    SIZE = 0.4
-    canvas.create_rectangle(grid_unit*(sx+2-SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2-SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2-SPACING) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(sx+2-SPACING) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2+SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2+SPACING) , grid_unit*(sy+2+0.5-SIZE) , grid_unit*(sx+2+SPACING) , grid_unit*(sy+2+0.5+SIZE) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        SPACING = 0.6
+        SIZE = 0.4
+        canvas.create_rectangle(grid_unit*(-(-sx+2-SPACING-SIZE)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2-SPACING+SIZE)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+2+SPACING-SIZE)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+2+SPACING+SIZE)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        SPACING = 0.6
+        SIZE = 0.4
+        canvas.create_rectangle(grid_unit*(sx+2-SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2-SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+2+SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_DEC(sx,sy,id,ghost=False):
+def drawGate_CLU(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    SPACING = 0.6
-    SIZE = 0.4
-    canvas.create_rectangle(grid_unit*(sx+2-SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2-SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+2+SPACING-SIZE) , grid_unit*(sy+2+0.5) , grid_unit*(sx+2+SPACING+SIZE) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.8
+        ARM = 0.4
+        canvas.create_rectangle(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(-(-sx+2+ARM)) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , grid_unit*(-(-sx+2-ARM)) , grid_unit*(sy+2+0.5-HEIGHT+ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.8
+        ARM = 0.4
+        canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_CLU(sx,sy,id,ghost=False):
-    tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 0.8
-    ARM = 0.4
-    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5-HEIGHT+ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+def drawGate_CLD(sx,sy,id,mirror,ghost=False):
+    if mirror :
+        sx+=5
+        tags="content "+id
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.8
+        ARM = 0.4
+        canvas.create_rectangle(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+2)) , grid_unit*(sy+2+0.5+HEIGHT) , grid_unit*(-(-sx+2+ARM)) , grid_unit*(sy+2+0.5+HEIGHT-ARM) , grid_unit*(-(-sx+2-ARM)) , grid_unit*(sy+2+0.5+HEIGHT-ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        tags="content "+id
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.8
+        ARM = 0.4
+        canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_CLD(sx,sy,id,ghost=False):
+def drawGate_RTU(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 0.8
-    ARM = 0.4
-    canvas.create_rectangle(grid_unit*(sx+2) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+2) , grid_unit*(sy+2+0.5+HEIGHT) , grid_unit*(sx+2+ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM) , grid_unit*(sx+2-ARM) , grid_unit*(sy+2+0.5+HEIGHT-ARM), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx+= 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.6
+        LENGTH = 0.8
+        ARM = 0.3
+        canvas.create_arc(grid_unit*(-(-sx+2-LENGTH)) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(-(-sx+2+LENGTH)) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+2+LENGTH)) , grid_unit*(sy+2+0.1) , grid_unit*(-(-sx+2+LENGTH+ARM)) , grid_unit*(sy+2+0.5+0.1) , grid_unit*(-(-sx+2+LENGTH-ARM)) , grid_unit*(sy+2+0.5+0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.6
+        LENGTH = 0.8
+        ARM = 0.3
+        canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.1) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5+0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5+0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    
+def drawGate_RTD(sx,sy,id,mirror,ghost=False):
+    tags="content "+id
+    if mirror : 
+        sx += 5 
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.6
+        LENGTH = 0.8
+        ARM = 0.3
+        canvas.create_arc(grid_unit*(-(-sx+2-LENGTH)) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(-(-sx+2+LENGTH)) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=+180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+2+LENGTH)) , grid_unit*(sy+2+0.9) , grid_unit*(-(-sx+2+LENGTH+ARM)) , grid_unit*(sy+2+0.5-0.1) , grid_unit*(-(-sx+2+LENGTH-ARM)) , grid_unit*(sy+2+0.5-0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        HEIGHT = 0.6
+        LENGTH = 0.8
+        ARM = 0.3
+        canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=+180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.9) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5-0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5-0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_RTU(sx,sy,id,ghost=False):
+def drawGate_BI_AND(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 0.6
-    LENGTH = 0.8
-    ARM = 0.3
-    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.1) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5+0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5+0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_RTD(sx,sy,id,ghost=False):
+def drawGate_BI_NAND(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+1+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    HEIGHT = 0.6
-    LENGTH = 0.8
-    ARM = 0.3
-    canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=+180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.9) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5-0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5-0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5) ), grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_BI_AND(sx,sy,id,ghost=False):
+def drawGate_BI_OR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_BI_NAND(sx,sy,id,ghost=False):
+def drawGate_BI_NOR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_BI_OR(sx,sy,id,ghost=False):
+def drawGate_BI_NOT(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
 
-def drawGate_BI_NOR(sx,sy,id,ghost=False):
+def drawGate_BI_XOR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=-90 , extent=-180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-125 , extent=-110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
 
-def drawGate_BI_NOT(sx,sy,id,ghost=False):
+def drawGate_BI_XNOR(sx,sy,id,mirror,ghost=False):
     tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-
-def drawGate_BI_XOR(sx,sy,id,ghost=False):
-    tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-
-def drawGate_BI_XNOR(sx,sy,id,ghost=False):
-    tags="content "+id
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
-    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
-    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    if mirror :
+        sx += 5
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+3+0.5)) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+4+0.5) , grid_unit*(-(-sx+2+0.5)) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+4+0.5) , start=90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+1+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+0.9)) , grid_unit*(sy+3+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx+4+0.5)) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(-(-sx+4+0.5+0.8)) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(-(-sx+5+0.5-0.2)) , grid_unit*(sy+2+0.5) , grid_unit*(-(-sx+5+0.5)) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(-(-sx-0.5-1+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-0.5+1+0.5)) , grid_unit*(sy+4+0.5) , start=-125 , extent=-110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+        canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+        canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
 
 gate_drawing_functions = {
     "AND": drawGate_AND,
@@ -920,26 +1280,34 @@ gate_drawing_functions = {
 }
 
 def drawGate(gate):
-    gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"])
+    gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"], gate["mirror"])
 
 def drawSystem(system):
     canvas.delete(system["id"])
     sx = system["x"] - view_x
     sy = system["y"] - view_y
     tags="content "+system["id"]
+    if system["mirror"]:
+        fact_mirror = -1
+        anchor_in = 'e'
+        anchor_out = 'w'
+    else:
+        fact_mirror = +1
+        anchor_in = 'w'
+        anchor_out = 'e'
     canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+system["height"]-1+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
     for inputNode in system["inputs"].values():
         nsx = nodes[inputNode]["x"] - view_x
         nsy = nodes[inputNode]["y"] - view_y
         nodetag = nodes[inputNode]["tag"]
-        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx+1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5+1.2) , grid_unit*(nsy+0.5) , anchor='w',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
+        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx+fact_mirror*1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
+        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5+fact_mirror*1.2) , grid_unit*(nsy+0.5) , anchor=anchor_in,font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
     for outputNode in system["outputs"].values():
         nsx = nodes[outputNode]["x"] - view_x
         nsy = nodes[outputNode]["y"] - view_y
         nodetag = nodes[outputNode]["tag"]
-        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
-        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5-1.2) , grid_unit*(nsy+0.5) , anchor='e',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
+        canvas.create_rectangle(grid_unit*(nsx+0.5) , grid_unit*(nsy+0.5) , grid_unit*(nsx-fact_mirror*1+0.5) , grid_unit*(nsy+0.5) , outline="#333" , fill="#EEE" , width=thickness , tags=tags)
+        if zoomLevel>=2: canvas.create_text(grid_unit*(nsx+0.5-fact_mirror*1.2) , grid_unit*(nsy+0.5) , anchor=anchor_out,font=(FONT_FAMILY, FONT_SIZE), fill="black", text=nodetag ,tags=tags)
 
 def drawWire(wire):
     node_a = nodes[wire["node_a"]]
@@ -973,13 +1341,25 @@ def drawInput(input):
     sx = input["x"] - view_x
     sy = input["y"] - view_y
     tags="content "+input["id"]
-    canvas.create_rectangle(grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    canvas.create_oval(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
-    if input["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    if input["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
-    if input["value"]==2:
-        canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+    if input["mirror"] :
+        sx+= 2
+        canvas.create_rectangle(grid_unit*(-(-sx+0.5+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        canvas.create_oval(grid_unit*(-(-sx-0.5+0.5)) , grid_unit*(sy-0.5+0.5) , grid_unit*(-(-sx+0.5+0.5)) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if input["value"]==0: canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["value"]==1: canvas.create_oval(grid_unit*(-(-sx+0.5-0.25)) , grid_unit*(sy+0.5-0.25) , grid_unit*(-(-sx+0.5+0.25)) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if input["value"]==2:
+            canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+            canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5-0.3) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["isBinary"]: canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+0.5-0.3) , grid_unit*(-(-sx+1.3)) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        canvas.create_oval(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if input["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if input["value"]==2:
+            canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+            canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["isBinary"]: canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+1.3) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
 
 def drawProbe(probe):
     canvas.delete(probe["id"])
@@ -999,13 +1379,22 @@ def drawOutput(output):
     sx = output["x"] - view_x
     sy = output["y"] - view_y
     tags="content "+output["id"]
-    canvas.create_rectangle(grid_unit*(sx-0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    canvas.create_polygon(grid_unit*(sx-0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+0.6+0.5) , grid_unit*(sx+0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy-0.6+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
-    if output["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-    if output["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
-    if output["value"]==2:
-        canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-        canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+    if output["mirror"] :
+        canvas.create_rectangle(grid_unit*(-(-sx-0.5+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        canvas.create_polygon(grid_unit*(-(-sx-0.6+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.6+0.5) , grid_unit*(-(-sx+0.6+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy-0.6+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if output["value"]==0: canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if output["value"]==1: canvas.create_oval(grid_unit*(-(-sx+0.5-0.25)) , grid_unit*(sy+0.5-0.25) , grid_unit*(-(-sx+0.5+0.25)) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if output["value"]==2:
+            canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+            canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5-0.3) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+    else :
+        canvas.create_rectangle(grid_unit*(sx-0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        canvas.create_polygon(grid_unit*(sx-0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+0.6+0.5) , grid_unit*(sx+0.6+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy-0.6+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if output["value"]==0: canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if output["value"]==1: canvas.create_oval(grid_unit*(sx+0.5-0.25) , grid_unit*(sy+0.5-0.25) , grid_unit*(sx+0.5+0.25) , grid_unit*(sy+0.5+0.25) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
+        if output["value"]==2:
+            canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+            canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
 
 def drawTags():
     canvas.delete("tag")
@@ -1043,6 +1432,7 @@ def drawGrid():
 #region [green] INTERACTION
 
 selection = []
+forZoom = False
 previousHover = [0,0]
 
 systemModified = False
@@ -1255,7 +1645,7 @@ def moveBy_output(id,dx,dy):
     moveBy_node(outputs[id]["node"], dx,dy)
 
 def moveBy(dx,dy):
-    if selection==[]:
+    if selection==[] or forZoom:
         global view_x
         global view_y
         view_x += dx
@@ -1288,9 +1678,11 @@ def zoom(dz):
     global grid_unit
     global thickness
     global zoomLevel
+    global forZoom
     global screen
     if not zoomLevel+dz in range(0,4): return
-    zoomLevel +=dz
+    zoomLevel += dz
+    forZoom = True
     if zoomLevel==3:
         grid_width = GRID_WIDTH
         grid_height = GRID_HEIGHT
@@ -1325,6 +1717,7 @@ def zoom(dz):
         screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
         updateScreen()
         if dz==-1: moveBy(-GRID_WIDTH*2,-GRID_HEIGHT*2)
+    forZoom = False
     drawGrid()
     drawAll()
     drawSelection()
@@ -1541,10 +1934,192 @@ def removeSelection():
     global selection
     for id in selection: remove(id)
     selection = []
+    drawSelection()
     updateScreen()
     setCircuitModified()
     setSystemModified()
 
+def symetry_x(x,id):
+    if id[0]=='g' and id in gates:
+        symetry_x_gate(x,id)
+    elif id[0]=='n' and id in nodes and not nodes[id]["parent"]:
+        symetry_x_node(x,id)
+    elif id[0]=='i' and id in inputs:
+        symetry_x_input(x,id)
+    elif id[0]=='p' and id in probes:
+        symetry_x_probe(x,id)
+    elif id[0]=='o' and id in outputs:
+        symetry_x_output(x,id)
+    elif id[0]=='s' and id in systems:
+        symetry_x_system(x,id)
+
+def symetry_x_gate(sx, gate_id):
+    gate = gates[gate_id]
+    GAP = 2*(gate['x']-sx)+5
+    gate["x"] -= GAP
+    if gates[gate_id]["gate"] in UGATES:
+        nodes[gates[gate_id]["input_a"]]["x"] -= GAP
+    else:
+        nodes[gates[gate_id]["input_a"]]["x"] -= GAP 
+        nodes[gates[gate_id]["input_b"]]["x"] -= GAP
+    nodes[gates[gate_id]["output"]]["x"] -= GAP
+    drawAll()
+
+def symetry_x_system(sx, system_id):
+    system = systems[system_id]
+    GAP = 2*(system['x']-sx)+5
+    system["x"] -= GAP
+    for inputNode in systems[system_id]["inputs"].values():
+            nodes[inputNode]["x"] -= GAP
+    for outputNode in systems[system_id]["outputs"].values():
+            nodes[outputNode]["x"] -= GAP
+    drawAll()
+
+def symetry_x_output(sx, output_id):
+    output = outputs[output_id]
+    GAP = 2*(output['x']-sx)
+    output["x"] -= GAP
+    nodes[output["node"]]["x"] -= GAP
+    drawAll()
+
+def symetry_x_input(sx, input_id):
+    input = inputs[input_id]
+    GAP = 2*(input['x']-sx)+2
+    input["x"] -= GAP
+    nodes[input["node"]]["x"] -= GAP
+    drawAll()
+
+def symetry_x_probe(sx, probe_id):
+    probe = probes[probe_id]
+    GAP = 2*(probe['x']-sx)
+    probe["x"] -= GAP
+    nodes[probe["node"]]["x"] -= GAP
+    drawAll()
+
+def symetry_x_node(sx, node_id):
+    node = nodes[node_id]
+    GAP = 2*(node['x']-sx)
+    node["x"] -= GAP
+    drawAll()
+
+def mirror(id):
+    if id[0]=='g' and id in gates:
+        mirror_gate(id)
+    elif id[0]=='i' and id in inputs:
+        mirror_input(id)
+    elif id[0]=='o' and id in outputs:
+        mirror_output(id)
+    elif id[0]=='s' and id in systems:
+        mirror_system(id)
+
+def mirror_gate(sel_id):
+    if (gates[sel_id]["mirror"]):
+        gates[sel_id]["mirror"]=False
+        if gates[sel_id]["gate"] in UGATES:
+            nodes[gates[sel_id]["input_a"]]["x"] -= 6 
+        else:
+            nodes[gates[sel_id]["input_a"]]["x"] -= 6 
+            nodes[gates[sel_id]["input_b"]]["x"] -= 6
+        nodes[gates[sel_id]["output"]]["x"] += 6
+    else:
+        gates[sel_id]["mirror"]=True
+        if gates[sel_id]["gate"] in UGATES:
+            nodes[gates[sel_id]["input_a"]]["x"] += 6 
+        else:
+            nodes[gates[sel_id]["input_a"]]["x"] += 6 
+            nodes[gates[sel_id]["input_b"]]["x"] += 6
+        nodes[gates[sel_id]["output"]]["x"] -= 6
+    drawAll()
+
+def mirror_system(sel_id):
+    if (systems[sel_id]["mirror"]):
+        systems[sel_id]["mirror"]=False
+        for inputNode in systems[sel_id]["inputs"].values():
+            nodes[inputNode]["x"] -= 6
+        for outputNode in systems[sel_id]["outputs"].values():
+            nodes[outputNode]["x"] += 6
+    else:
+        systems[sel_id]["mirror"]=True
+        for inputNode in systems[sel_id]["inputs"].values():
+            nodes[inputNode]["x"] += 6
+        for outputNode in systems[sel_id]["outputs"].values():
+            nodes[outputNode]["x"] -= 6
+    drawAll()
+
+def mirror_input(sel_id):
+    if (inputs[sel_id]["mirror"]):
+        inputs[sel_id]["mirror"]=False
+        nodes[inputs[sel_id]["node"]]["x"] += 1
+    else:
+        inputs[sel_id]["mirror"]=True
+        nodes[inputs[sel_id]["node"]]["x"] -= 1
+    drawAll()
+
+def mirror_output(sel_id):
+    if (outputs[sel_id]["mirror"]):
+        outputs[sel_id]["mirror"]=False
+        nodes[outputs[sel_id]["node"]]["x"] -= 1
+    else:
+        outputs[sel_id]["mirror"]=True
+        nodes[outputs[sel_id]["node"]]["x"] += 1
+    drawAll()
+
+def mirrorSelectionEach():
+    global selection
+    for id in selection: mirror(id)
+    updateScreen()
+    setCircuitModified()
+    setSystemModified()
+
+def mirrorSelectionAll():
+    global selection
+    xmin = 10000000000
+    xmax = -10000000000
+    for id in selection:
+        if id[0]=='g' and id in gates:
+            if gates[id]['x'] < xmin : xmin = gates[id]['x']
+            if gates[id]['x']+5 > xmax : xmax = gates[id]['x']+5
+        elif id[0]=='n' and id in nodes and not nodes[id]["parent"]:
+            if nodes[id]['x'] < xmin : xmin = nodes[id]['x']
+            if nodes[id]['x'] > xmax : xmax = nodes[id]['x']
+        elif id[0]=='i' and id in inputs:
+            if inputs[id]['x'] < xmin : xmin = inputs[id]['x']
+            if inputs[id]['x']+2 > xmax : xmax = inputs[id]['x']+2
+        elif id[0]=='p' and id in probes:
+            if probes[id]['x'] < xmin : xmin = probes[id]['x']
+            if probes[id]['x'] > xmax : xmax = probes[id]['x']
+        elif id[0]=='o' and id in outputs:
+            if outputs[id]['x'] < xmin : xmin = outputs[id]['x']
+            if outputs[id]['x'] > xmax : xmax = outputs[id]['x']
+        elif id[0]=='s' and id in systems:
+            if systems[id]['x'] < xmin : xmin = systems[id]['x']
+            if systems[id]['x'] > xmax : xmax = systems[id]['x']+5
+
+    for id in selection: 
+        symetry_x(xmin,id)
+        mirror(id)
+    moveBy(xmax-xmin,0)
+    updateScreen()
+    setCircuitModified()
+    setSystemModified()
+
+def invGate(sel_id):
+    global liste_porte_inversible
+    if(gates[sel_id]["gate"] in liste_porte_inversible):
+        index=liste_porte_inversible.index(gates[sel_id]["gate"])
+        gates[sel_id]["gate"]=liste_porte_inversible[index-index%2+(index+1)%2]
+    drawAll()
+
+def invGates(sel_ids):
+    for sel_id in sel_ids:
+        invGate(sel_id)
+    drawAll()
+
+def selectAllGates():
+    global gates
+    for gate in gates:
+        select(gate)
+    
 def select(id=None, add=False):
     global selection
     if not add:
@@ -1563,6 +2138,10 @@ def drawSelection():
             sx = gates[id]["x"] - view_x
             sy = gates[id]["y"] - view_y
             canvas.create_rectangle((sx-1)*grid_unit , sy*grid_unit , (sx+6)*grid_unit , (sy+5)*grid_unit , width=0 , fill="#00F" , stipple="gray12" , tags="selection")
+        if id[0]=='s':
+            sx = systems[id]["x"] - view_x
+            sy = systems[id]["y"] - view_y
+            canvas.create_rectangle((sx-1)*grid_unit , sy*grid_unit , (sx+6)*grid_unit , (sy+systems[id]["height"])*grid_unit , width=0 , fill="#00F" , stipple="gray12" , tags="selection")
         elif id[0]=='n':
             sx = nodes[id]["x"] - view_x
             sy = nodes[id]["y"] - view_y
@@ -1752,37 +2331,37 @@ label_tools = Label(buttonFrame, text="Tools", height=1 , width=BUTTON_WIDTH , f
 button_wire = Button(buttonFrame, text="Wire", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("w") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=1, column=0)
 button_input = Button(buttonFrame, text="Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=2, column=0)
 button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=3, column=0)
-button_probe = Button(buttonFrame, text="Probe", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
-button_output = Button(buttonFrame, text="Output", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
-button_tag = Button(buttonFrame, text="Tag", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=6, column=0)
-label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=7, column=0)
-label_gates = Label(buttonFrame, text="Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=8, column=0)
-button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
-button_NOT = Button(buttonFrame, text="NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
-button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
-button_ABS = Button(buttonFrame, text="ABS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
-button_INC = Button(buttonFrame, text="INC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
-button_DEC = Button(buttonFrame, text="DEC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
-button_RTU = Button(buttonFrame, text="RTU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
-button_RTD = Button(buttonFrame, text="RTD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
-button_CLU = Button(buttonFrame, text="CLU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=17, column=0)
-button_CLD = Button(buttonFrame, text="CLD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=18, column=0)
-label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=19, column=0)
-button_AND = Button(buttonFrame, text="AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
-button_OR = Button(buttonFrame, text="OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
-button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
-button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
-button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=24, column=0)
-button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=25, column=0)
-label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=26, column=0)
-label_bigates = Label(buttonFrame, text="BI Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=27, column=0)
-button_BI_AND = Button(buttonFrame, text="BI_AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=28, column=0)
-button_BI_OR = Button(buttonFrame, text="BI_OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
-button_BI_NAND = Button(buttonFrame, text="BI_NAND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NAND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
-button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
-button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
-button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=33, column=0)
-button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=34, column=0)
+#button_probe = Button(buttonFrame, text="Probe", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("p") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
+button_output = Button(buttonFrame, text="Output", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("o") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=4, column=0)
+button_tag = Button(buttonFrame, text="Tag", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("t") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=5, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=6, column=0)
+label_gates = Label(buttonFrame, text="Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=7, column=0)
+button_PNOT = Button(buttonFrame, text="PNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_PNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=8, column=0)
+button_NOT = Button(buttonFrame, text="NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=9, column=0)
+button_NNOT = Button(buttonFrame, text="NNOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_NNOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=10, column=0)
+button_ABS = Button(buttonFrame, text="ABS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ABS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=11, column=0)
+button_INC = Button(buttonFrame, text="INC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_INC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=12, column=0)
+button_DEC = Button(buttonFrame, text="DEC", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_DEC") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=13, column=0)
+button_RTU = Button(buttonFrame, text="RTU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=14, column=0)
+button_RTD = Button(buttonFrame, text="RTD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_RTD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=15, column=0)
+button_CLU = Button(buttonFrame, text="CLU", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLU") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=16, column=0)
+button_CLD = Button(buttonFrame, text="CLD", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CLD") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=17, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=18, column=0)
+button_AND = Button(buttonFrame, text="AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=19, column=0)
+button_OR = Button(buttonFrame, text="OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=20, column=0)
+button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_CONS") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
+button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
+button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
+button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=24, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=25, column=0)
+label_bigates = Label(buttonFrame, text="BI Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=26, column=0)
+button_BI_AND = Button(buttonFrame, text="BI_AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=27, column=0)
+button_BI_OR = Button(buttonFrame, text="BI_OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=28, column=0)
+button_BI_NAND = Button(buttonFrame, text="BI_NAND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NAND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
+button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
+button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
+button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=33, column=0)
 
 
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
@@ -2130,26 +2709,16 @@ liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MU
 
 
 
-def invGate(sel_id):
-    global liste_porte_inversible
-    if(gates[sel_id]["gate"] in liste_porte_inversible):
-        index=liste_porte_inversible.index(gates[sel_id]["gate"])
-        gates[sel_id]["gate"]=liste_porte_inversible[index-index%2+(index+1)%2]
-    drawAll()
+sousMenu = Menu(menuBar)
+menuBar.add_cascade(label='File', menu=sousMenu)
+sousMenu.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE),command=saveCircuit)
+sousMenu.add_command(label='Load',font=(FONT_FAMILY, FONT_SIZE),command=loadCircuit)
+sousMenu.add_separator()
+sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
+sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
 
-def invGates(sel_ids):
-    for sel_id in sel_ids:
-        invGate(sel_id)
-    drawAll()
-
-def selectAllGates():
-    global gates
-    for gate in gates:
-        print(gate)
-        select(gate)
-    
-
-
+#sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
+#sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
 sousMenuFile = Menu(menuBar)
 menuBar.add_cascade(label='File', menu=sousMenuFile)
 sousMenuFile.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE_MENU),command=saveCircuit)
@@ -2174,6 +2743,9 @@ sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),comm
 sousMenuTools.add_command(label='Zoom -',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : zoom(-1))
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Simulate clock cycle',font=(FONT_FAMILY, FONT_SIZE_MENU),command=simulateCc)
+sousMenuTools.add_separator()
+sousMenuTools.add_command(label='Mirror each',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : mirrorSelectionEach())
+sousMenuTools.add_command(label='Mirror all',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : mirrorSelectionAll())
 
 
 sousMenuOptions = Menu(menuBar)
@@ -2186,8 +2758,9 @@ sousMenuHelp = Menu(menuBar)
 menuBar.add_cascade(label='Help', menu=sousMenuHelp)
 sousMenuHelp.add_command(label='Open documentation',font=(FONT_FAMILY, FONT_SIZE_MENU),command=open_doc)
 
+
 root.config(menu=menuBar)
-#endregion
+#end region
 
 
 selectTool(None)
@@ -2262,3 +2835,7 @@ root.mainloop()
 # Error handeling :
 #   - catch errors if save file is corrupted
 #   - catch errors if memory or system files don't exist anymore
+
+
+
+

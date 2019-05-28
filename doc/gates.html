@@ -25,13 +25,55 @@
     <ul class="nav">
         <li><a href="home.html">Home</a></li>
         <li><a href="use.html">Use</a></li>
-        <li class="active"><a href="gates.html">Logic gates</a></li>
-        <li><a href="">About</a></li>
+        <li class="active"><a href="gates.html">Logic gates & Tools</a></li>
+        <li><a href="asm.html">Assembler</a></li>
+        <li><a href="about.html">About</a></li>
         <li class="brand" style="float: right">- TELOCIDESI DOCUMENTATION -</li>
     </ul>
 
     <div class='content'>
-        <h1 style="text-align: center">LOGIC GATES IN A TERNARY ARCHITECTURE</h1>
+        <h1 style="text-align: center">LOGIC GATES AND TOOLS IN A TERNARY ARCHITECTURE</h1>
+
+        <!-- endregion -->
+
+        <!-- region [green] -->
+
+        <div class="section">
+            <h2>TOOLS AND I/O</h2>
+            <table class="gateTable">
+                <tr>
+                    <th>Name</th>
+                    <th>Schematic</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td class="gateName">Wire</td>
+                    <td class="gateSchm"><img src="static/Tools/Wire.png"></td>
+                    <td class="gateDesc">Use these wires to connect the components together.</td>
+                </tr>
+                <tr>
+                    <td class="gateName">Input</td>
+                    <td class="gateSchm"><img src="static/Tools/Inputs.png"></td>
+                    <td class="gateDesc">The different inputs of the system. Right click on the item to change the value.</td>
+                </tr>
+                <tr>
+                    <td class="gateName">BI_Input</td>
+                    <td class="gateSchm"><img src="static/Tools/BI_Inputs.png"></td>
+                    <td class="gateDesc">Binary inputs. Contrary to classical inputs, they can just take the values "+" and "0".</td>
+                </tr>
+                <tr>
+                    <td class="gateName">Output</td>
+                    <td class="gateSchm"><img src="static/Tools/Output.png"></td>
+                    <td class="gateDesc">The outputs of the system. Use [ENTER] to refresh the circuits and the outputs.</td>
+                </tr>
+                
+                <tr>
+                    <td class="gateName">Tags</td>
+                    <td class="gateSchm"></td>
+                    <td class="gateDesc">Apply some tags to the components of your system.</td>
+                </tr>
+            </table>
+        </div>
 
         <!-- endregion -->
 
@@ -296,49 +338,49 @@
                 <td class="gateSchm"><img src="static/Gates/BI_AND.png"></td>
                 <td class="gateSmbl">$$A×B$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 0 & 0 \\ 0 & 1\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} 0 & 0 \\ 0 & +\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_OR<br />Binary Or</td>
                 <td class="gateSchm"><img src="static/Gates/BI_OR.png"></td>
                 <td class="gateSmbl">$$A+B$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 0 & 1 \\ 1 & 1\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} 0 & + \\ + & +\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_NAND<br />Binary Not And</td>
                 <td class="gateSchm"><img src="static/Gates/BI_NAND.png"></td>
                 <td class="gateSmbl">$$\overline{A×B}$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 1 & 1 \\ 1 & 0\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} + & + \\ + & 0\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_NOR<br />Binary Not Or</td>
                 <td class="gateSchm"><img src="static/Gates/BI_NOR.png"></td>
                 <td class="gateSmbl">$$\overline{A+B}$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 1 & 0 \\ 0 & 0\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} + & 0 \\ 0 & 0\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_XOR<br />Binary Exclusive Or</td>
                 <td class="gateSchm"><img src="static/Gates/BI_XOR.png"></td>
                 <td class="gateSmbl">$$A&oplus;B$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 0 & 1 \\ 1 & 0\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} 0 & + \\ + & 0\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_XNOR<br />Binary Exclusive Not Or</td>
                 <td class="gateSchm"><img src="static/Gates/BI_XNOR.png"></td>
                 <td class="gateSmbl">$$\overline{A&oplus;B}$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\qquad\color{#999999}{\begin{bmatrix} 0 & 1\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ 1\end{bmatrix}}\;\begin{bmatrix} 1 & 0 \\ 0 & 1\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\qquad\enspace\color{#999999}{\begin{bmatrix} 0 & +\end{bmatrix}}$$ $$\color{#999999}{\begin{bmatrix} 0 \\ +\end{bmatrix}}\;\begin{bmatrix} + & 0 \\ 0 & +\end{bmatrix}$$</td>
             </tr>
             <tr>
                 <td class="gateName">BI_NOT<br />Binary Not</td>
                 <td class="gateSchm"><img src="static/Gates/BI_NOT.png"></td>
                 <td class="gateSmbl">$$\overline{A}$$</td>
                 <td class="gateDesc"></td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} 1 & 0\end{bmatrix}}$$ $$\begin{bmatrix} 0 & 1\end{bmatrix}$$</td>
+                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} + & 0\end{bmatrix}}$$ $$\begin{bmatrix} 0 & +\end{bmatrix}$$</td>
             </tr>
         </table>
     </div>
