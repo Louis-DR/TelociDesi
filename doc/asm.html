@@ -59,6 +59,81 @@
             </div>
 
             <h2>BASIC ASSEMBLY INSTRUCTION SET</h2>
+
+            <i>(<b>%</b> : Registry // <b>@</b> : RAM)</i>
+
+            <table class="gateTable" style="margin-top: 10px;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Opcode</th>
+                        <th>Operands</th>
+                        <th>Role</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Halt</td>
+                        <td class="opc">HLT</td>
+                        <td class="opr"></td>
+                        <td class="rle">pass</td>
+                        <td class="desc">Move to next line.</td>
+                    </tr>
+                    <tr>
+                        <td>Direct Load</td>
+                        <td class="opc">DLD</td>
+                        <td class="opr">%, val</td>
+                        <td class="rle">val &rarr; REG</td>
+                        <td class="desc">Load the value in the registry.</td>
+                    </tr>
+                    <tr>
+                        <td>Move</td>
+                        <td class="opc">MOV</td>
+                        <td class="opr">%1, %2</td>
+                        <td class="rle">REG &rarr; REG</td>
+                        <td class="desc">Move the first registry in the second one.</td>
+                    </tr>
+                    <tr>
+                        <td>Load</td>
+                        <td class="opc">LOD</td>
+                        <td class="opr">%, @</td>
+                        <td class="rle">RAM &rarr; REG</td>
+                        <td class="desc">Load a value from the RAM to the Registry.</td>
+                    </tr>
+                    <tr>
+                        <td>Store</td>
+                        <td class="opc">STR</td>
+                        <td class="opr">@, %</td>
+                        <td class="rle">REG &rarr; RAM</td>
+                        <td class="desc">Store the value from the Registry to the RAM.</td>
+                    </tr>
+                    <tr>
+                        <td>Sum</td>
+                        <td class="opc">ADD</td>
+                        <td class="opr"></td>
+                        <td class="rle">REG<sub>0</sub> = REG<sub>+</sub>+REG<sub>-</sub></td>
+                        <td class="desc">Load in REG<sub>0</sub> the result.</td>
+                    </tr>
+                    <tr>
+                        <td>Substraction</td>
+                        <td class="opc">SUB</td>
+                        <td class="opr"></td>
+                        <td class="rle">REG<sub>0</sub> = REG<sub>+</sub>-REG<sub>-</sub></td>
+                        <td class="desc">Load in REG<sub>0</sub> the result.</td>
+                    </tr>
+                    <tr>
+                        <td>Jump</td>
+                        <td class="opc">JMP</td>
+                        <td class="opr">@</td>
+                        <td class="rle"><i>Inconditionnal</i></td>
+                        <td class="desc">Jump to the @ adress.</td>
+                    </tr>
+                    <tr>
+                        <td>Jump If</td>
+                        <td class="opc">JIF</td>
+                        <td class="opr">@1, @2</td>
+                        <td class="rle">JMP @1 if S = + // JMP @2 if S = -</td>
+                        <td class="desc"></td>
+                    </tr>
+                </table>
             
 
         </div>
