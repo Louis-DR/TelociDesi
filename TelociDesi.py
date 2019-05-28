@@ -1874,8 +1874,34 @@ def drawChronogram_stream(y,h,stream_id,stream):
             if kkk<len(stream)-1:
                 chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
 
-def drawNumberOfTransitor(porte):
-    return
+def returnNbOfTransEtResist():
+    totT = 0
+    totR = 0 
+    global gates
+    for gate in gates.values() :
+        tps=pouet[gate["gate"]]
+        totT+=tps[0]
+        totR+=tps[1]
+    for system in systems.values() :
+        t_loadedSystem = loadedSystems[system["system"]]
+        t_equations=t_loadedSystem.equations
+        for t_equation in t_equations :
+            tps=returnNbOfTransEtResistSystem(t_equation)
+            totT+=tps[0]
+            totR+=tps[1]
+    print("Nb de Transistor : ",totT," et Nb de Resistance : ",totR)
+
+def returnNbOfTransEtResistSystem(t_equation) :
+    if t_equation.system in MICROGATES or t_equation.system in MICROSYSTEMS :
+        return pouet[t_equation.system]
+    else :
+        totT = 0
+        totR = 0 
+        for t_equation in t_equation.system.equations :
+            tps=returnNbOfTransEtResistSystem(t_equation)
+            totT+=tps[0]
+            totR+=tps[1]
+        return [totT,totR]
 
 def open_doc():
     try:
@@ -2142,6 +2168,7 @@ menuBar.add_cascade(label='Tools', menu=sousMenuTools)
 sousMenuTools.add_command(label='Delete selection',font=(FONT_FAMILY, FONT_SIZE_MENU),command=removeSelection)
 sousMenuTools.add_command(label='Select all gates',font=(FONT_FAMILY, FONT_SIZE_MENU),command=selectAllGates)
 sousMenuTools.add_command(label='Inverse gate',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : invGates(selection))
+sousMenuTools.add_command(label='NB trans et resis',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : returnNbOfTransEtResist())
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda :zoom(1))
 sousMenuTools.add_command(label='Zoom -',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : zoom(-1))
