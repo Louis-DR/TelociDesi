@@ -102,7 +102,7 @@ def convert() :
                 #print(i)  
                 #print(archi["wordsize"])
                 if (i<(3**(archi["wordsize"])-1)/2 or i>-(3**(archi["wordsize"])-1)/2 ) :
-                    outputTab.append(str(i))
+                    outputTab.append(dec2terXtrit(i,archi["wordsize"]))
                     #print("check")
                 else :
                     print("Error in line : " + line)
@@ -114,7 +114,7 @@ def convert() :
                 print(tab)
                 lineStructure = archi["operations"][currentItem]
                 trad = str(lineStructure[0])
-                print(trad)
+                #print(trad)
                 if (len(tab)>=len(lineStructure)):
                     if(len(tab)>len(lineStructure)) :
                         print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
@@ -127,13 +127,16 @@ def convert() :
                                 return -1
                             else:
                                 #print(int(dec2terstr(dec2ter(int(tab[iOperand+1])))))
-                                trad = trad + dec2terstr(dec2ter(int(tab[iOperand+1])))
+                                trad = trad + dec2terXtrit((int(tab[iOperand+1])),lineStructure[iOperand+1])
                         else :
                             print("Error in line :" + line)
                             print("Error : invalid operand "+ operand +". Compilation stopped")
                             return -1
 
                     #At this point, line syntax is considered to be valid   
+                    if len(trad)<archi["wordsize"]:
+                        for j in range(len(trad),archi["wordsize"]):
+                            trad = trad +"0"
                     print(trad)              
                     outputTab.append(trad)
 

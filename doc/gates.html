@@ -5,9 +5,8 @@
 <head>
 
     <link rel="stylesheet" href="static/style.css" type="text/css" />
-    <link rel="stylesheet" href="static/jqMath/jqmath-0.4.3.css" type="text/css/" />
 
-    <script type="text/javascript" async src="static/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"></script>
 
     <link rel="icon" href="static/Gates/BUF.png">
     <meta charset="utf-8" />
@@ -30,29 +29,30 @@
         <li class="brand" style="float: right">- TELOCIDESI DOCUMENTATION -</li>
     </ul>
 
-    <h1 style="text-align: center">LOGIC GATES IN A TERNARY ARCHITECTURE</h1>
+    <div class='content'>
+        <h1 style="text-align: center">LOGIC GATES IN A TERNARY ARCHITECTURE</h1>
 
-    <!-- endregion -->
+        <!-- endregion -->
 
-    <!--region [green] -->
+        <!--region [green] -->
 
-    <div class="section">
-        <h2>Unary gates</h2>
-        <table class="gateTable">
-            <tr>
-                <th>Name</th>
-                <th>Schematic</th>
-                <th>Symbol</th>
-                <th>Description</th>
-                <th>Output bmatrix</th>
-                <th>Alternative construction</th>
-            </tr>
-            <tr>
-                <td class="gateName">BUF<br />Buffer</td>
-                <td class="gateSchm"><img src="static/Gates/BUF.png"></td>
-                <td class="gateSmbl">$$A$$</td>
-                <td class="gateDesc">Identity : returns the same value as the input.</td>
-                <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & 0 & +\end{bmatrix}$$</td>
+        <div class="section">
+            <h2>Unary gates</h2>
+            <table class="gateTable">
+                <tr>
+                    <th>Name</th>
+                    <th>Schematic</th>
+                    <th>Symbol</th>
+                    <th>Description</th>
+                    <th>Output bmatrix</th>
+                    <th>Alternative construction</th>
+                </tr>
+                <tr>
+                    <td class="gateName">BUF<br />Buffer</td>
+                    <td class="gateSchm"><img src="static/Gates/BUF.png"></td>
+                    <td class="gateSmbl">$$A$$</td>
+                    <td class="gateDesc">Identity : returns the same value as the input.</td>
+                    <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} - & 0 & +\end{bmatrix}$$</td>
                 <td class="gateAltr"></td>
             </tr>
             <tr>
@@ -85,7 +85,7 @@
                 <td class="gateSmbl">$$|A|$$</td>
                 <td class="gateDesc">Returns the absolute value of the input.</td>
                 <td class="gateMtrx">$$\color{#999999}{\begin{bmatrix} - & 0 & +\end{bmatrix}}$$ $$\begin{bmatrix} + & 0 & +\end{bmatrix}$$</td>
-                <td class="gateAltr">$$\overline {A&otimes;A}$$</td>
+                <td class="gateAltr">$$\overline {\overline{A}×A}$$</td>
             </tr>
             <tr>
                 <td class="gateName">INC<br />Increment</td>
@@ -277,6 +277,7 @@
     </div>
 
     <!-- endregion -->
+</div>
 
 </body>
 

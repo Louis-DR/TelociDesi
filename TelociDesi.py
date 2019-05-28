@@ -17,35 +17,7 @@ def rectime():
 
 from log import Log
 import random
-
-#region [red] CONFIGURATION
-
-TKINTER_SCALING = 1.0
-GRID_WIDTH = 50
-GRID_HEIGHT = 50
-GRID_UNIT = TKINTER_SCALING*40
-THICKNESS = TKINTER_SCALING*4
-
-FONT_FAMILY = "Helvetica"
-FONT_SIZE = 20
-FONT_SIZE_MENU=35
-
-FILE_DIRECTORY = ""
-FILE_NAME = "testcircuit2"
-PROGRAM_NAME = "testprog"
-
-BUTTON_WIDTH = 6
-TOOL_PANEL_WIDTH = TKINTER_SCALING*100
-
-CHRONOGRAM_WIDTH = TKINTER_SCALING*800
-CHRONOGRAM_MARGIN_VERTICAL = TKINTER_SCALING*40
-CHRONOGRAM_MARGIN_HORIZONTAL = 40
-
-SHIFT_MOVE_PERCENTAGE = 0.5
-
-DT_PER_CC = 5
-
-#endregion
+from config import *
 
 
 #region [purple] SIMULATION
@@ -69,7 +41,16 @@ GATES = {
             [1,2,2]],
     "SUM": [[2,0,1],
             [0,1,2],
-            [1,2,0]]
+            [1,2,0]],
+    "BI_AND": [[1,1,1],
+               [1,1,1],
+               [1,1,2]],
+    "BI_OR": [[1,1,2],
+              [1,1,2],
+              [2,2,2]],
+    "BI_XOR": [[1,1,2],
+               [1,1,2],
+               [2,2,1]]
 }
 UGATES = {
     "PNOT": [2,2,0],
@@ -81,7 +62,8 @@ UGATES = {
     "RTU": [1,2,0],
     "RTD": [2,0,1],
     "CLU": [1,1,2],
-    "CLD": [0,1,1]
+    "CLD": [0,1,1],
+    "BI_NOT": [1,2,1]
 }
 NGATES = {
     "NAND" : "AND", 
@@ -89,7 +71,10 @@ NGATES = {
     "NMUL" : "MUL", 
     "NOR" : "OR", 
     "NANY" : "ANY", 
-    "NSUM" : "SUM"
+    "NSUM" : "SUM",
+    "BI_NAND" : "BI_AND",
+    "BI_NOR" : "BI_OR",
+    "BI_XNOR" : "BI_XOR"
 }
 clockCycle = 0
 
@@ -797,6 +782,85 @@ def drawGate_RTD(sx,sy,id,ghost=False):
     canvas.create_arc(grid_unit*(sx+2-LENGTH) , grid_unit*(sy+2+0.5-HEIGHT) , grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.5+HEIGHT) , start=0 , extent=+180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
     canvas.create_polygon(grid_unit*(sx+2+LENGTH) , grid_unit*(sy+2+0.9) , grid_unit*(sx+2+LENGTH+ARM) , grid_unit*(sy+2+0.5-0.1) , grid_unit*(sx+2+LENGTH-ARM) , grid_unit*(sy+2+0.5-0.1), outline="#333" , fill="#333" , width=thickness , tags=tags)
 
+def drawGate_BI_AND(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_BI_NAND(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_BI_OR(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_BI_NOR(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_BI_NOT(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+1+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+3+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_polygon(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+
+def drawGate_BI_XOR(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+
+def drawGate_BI_XNOR(sx,sy,id,ghost=False):
+    tags="content "+id
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+3+0.5) , grid_unit*(sy+4+0.5) , outline="#EEE" , fill="#EEE" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+4+0.5) , grid_unit*(sx+2+0.5) , grid_unit*(sy+4+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_arc(grid_unit*(sx+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+4+0.5) , grid_unit*(sy+4+0.5) , start=-90 , extent=180 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+1+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+1+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+0.9) , grid_unit*(sy+3+0.5) , grid_unit*(sx-1+0.5) , grid_unit*(sy+3+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_oval(grid_unit*(sx+4+0.5) , grid_unit*(sy+2+0.5-0.4) , grid_unit*(sx+4+0.5+0.8) , grid_unit*(sy+2+0.5+0.4) , outline="#333" , fill="#EEE" , width=thickness+1 , tags=tags)
+    canvas.create_rectangle(grid_unit*(sx+5+0.5-0.2) , grid_unit*(sy+2+0.5) , grid_unit*(sx+5+0.5) , grid_unit*(sy+2+0.5) , outline="#333" , fill="#333" , width=thickness , tags=tags)
+    canvas.create_arc(grid_unit*(sx-0.5-1+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx-0.5+1+0.5) , grid_unit*(sy+4+0.5) , start=-55 , extent=110 , outline="#333" , width=thickness+1 , style="arc" , tags=tags)
+
 gate_drawing_functions = {
     "AND": drawGate_AND,
     "NAND": drawGate_NAND,
@@ -820,7 +884,15 @@ gate_drawing_functions = {
     "RTU": drawGate_RTU,
     "RTD": drawGate_RTD,
     "CLU": drawGate_CLU,
-    "CLD": drawGate_CLD
+    "CLD": drawGate_CLD,
+
+    "BI_AND": drawGate_BI_AND,
+    "BI_OR": drawGate_BI_OR,
+    "BI_NAND": drawGate_BI_NAND,
+    "BI_NOR": drawGate_BI_NOR,
+    "BI_XOR": drawGate_BI_XOR,
+    "BI_XNOR": drawGate_BI_XNOR,
+    "BI_NOT": drawGate_BI_NOT
 }
 
 def drawGate(gate):
@@ -985,6 +1057,13 @@ toolNames = {
     'g_OR': "OR",
     'g_ANY': "ANY",
     'g_SUM': "SUM",
+    'g_BI_AND': "BI_AND",
+    'g_BI_OR': "BI_OR",
+    'g_BI_NAND': "BI_NAND",
+    'g_BI_NOR': "BI_NOR",
+    'g_BI_XOR': "BI_XOR",
+    'g_BI_XNOR': "BI_XNOR",
+    'g_BI_NOT': "BI_NOT"
 }
 
 zoomLevel = 3
@@ -1661,6 +1740,14 @@ button_CONS = Button(buttonFrame, text="CONS", height=1 , width=BUTTON_WIDTH , c
 button_ANY = Button(buttonFrame, text="ANY", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_ANY") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=21, column=0)
 button_MUL = Button(buttonFrame, text="MUL", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_MUL") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=22, column=0)
 button_SUM = Button(buttonFrame, text="SUM", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_SUM") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=23, column=0)
+label_bigates = Label(buttonFrame, text="BI Gates", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=24, column=0)
+button_BI_AND = Button(buttonFrame, text="BI_AND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_AND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=25, column=0)
+button_BI_OR = Button(buttonFrame, text="BI_OR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_OR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=26, column=0)
+button_BI_NAND = Button(buttonFrame, text="BI_NAND", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NAND") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=27, column=0)
+button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=28, column=0)
+button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
+button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
+button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
 
 bottomFrame = Frame(root)
@@ -1719,9 +1806,10 @@ def drawChronogram_stream(y,h,stream_id,stream):
     gap = (CHRONOGRAM_WIDTH-2*CHRONOGRAM_MARGIN_HORIZONTAL)/len(stream)
     for kkk in range(len(stream)):
         yyy = chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk]-1
-        chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
-        if kkk<len(stream)-1:
-            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+        if stream[kkk]<3:
+            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
+            if kkk<len(stream)-1:
+                chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -1743,6 +1831,7 @@ def blankCircuit():
     global outputs
     global tags
     global loadedSystems
+    global stream
     global gate_idgen
     global system_idgen
     global node_idgen
@@ -1761,6 +1850,7 @@ def blankCircuit():
     outputs = {}
     tags = {}
     loadedSystems = {}
+    stream = {}
     gate_idgen = 0
     system_idgen = 0
     node_idgen = 0
@@ -2009,30 +2099,38 @@ root.mainloop()
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
 #   - tags and deleting outputs and inputs does not work well
 #   - glitches with wires and nodes
+#   - knot circle on nodes between only two wires (should only be with 3 or more)
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
-# Memory chip :
-#   - clock input
-# Number input :
-#   - input a number with keyboard, outputs the signal on a given number of trits
+# Wires :
+#   - auto-router around obstacles
+#   - bridge for wires crossing without connecting
 # Gates :
 #   - ability to mirror gates
 #   - negate output
 #   - finish other unary gates
 #   - basic gates with more than two inputs (AND, OR etc)
 #   - inprove the canPlace_gate function (redundant condition in the leftClick function ?)
+# Inputs and outputs :
+#   - easy inputs and outputs for naked system and gates inoutputs
+# Probes :
+#   - remove probes or fix them
+# Number input :
+#   - input a number with keyboard, outputs the signal on a given number of trits
 # Systems :
-#   - ability to mirror systems
 #   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
 #   - option for wide gaps between pins (1 or 2)
+#   - rotate and mirror
+#   - ability to display a value or information on it (register value, etc)
+# Memory :
+#   - double click to load new file
+#   - binary version
+# Register :
+#   - binary version
 # Simulation :
-#   - make sure the simualtion can run whithout the graphical interface
-#   - analyse the performance of the simulation
-#   - import and read program to outputs
-#   - export inputs and outputs to file
 #   - check if necessary to update node if already proper value
 # Logging and Visualisation :
 #   - separate software to visualize chronograms and output them to csv, excel, png, etc
@@ -2046,8 +2144,6 @@ root.mainloop()
 #   - reloading all system on the circuit (if their circuit changed) -> how to tackle the issue of changing number of inputs and outputs ?
 # Saving and Loading :
 #   - save simulation results
-# Zoom and Pan :
-#   - centered zoom
 # Undo Redo :
 #   - keep track of all changes : created/removed/moved/rotated gate/node/wire/input/prone/output, cut wire, negated gate
 #   - function to undo a change
@@ -2060,8 +2156,3 @@ root.mainloop()
 # Error handeling :
 #   - catch errors if save file is corrupted
 #   - catch errors if memory or system files don't exist anymore
-
-
-
-# OVERHAULS :
-# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save file
