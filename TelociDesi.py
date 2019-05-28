@@ -1437,6 +1437,7 @@ def drawGrid():
 #region [green] INTERACTION
 
 selection = []
+forZoom = False
 previousHover = [0,0]
 
 systemModified = False
@@ -1649,7 +1650,8 @@ def moveBy_output(id,dx,dy):
     moveBy_node(outputs[id]["node"], dx,dy)
 
 def moveBy(dx,dy):
-    if selection==[]:
+    print(forZoom)
+    if selection==[] or forZoom:
         global view_x
         global view_y
         view_x += dx
@@ -1682,9 +1684,11 @@ def zoom(dz):
     global grid_unit
     global thickness
     global zoomLevel
+    global forZoom
     global screen
     if not zoomLevel+dz in range(0,4): return
-    zoomLevel +=dz
+    zoomLevel += dz
+    forZoom = True
     if zoomLevel==3:
         grid_width = GRID_WIDTH
         grid_height = GRID_HEIGHT
@@ -1719,6 +1723,7 @@ def zoom(dz):
         screen = [[None for yyy in range(grid_height)] for xxx in range(grid_width)]
         updateScreen()
         if dz==-1: moveBy(-GRID_WIDTH*2,-GRID_HEIGHT*2)
+    forZoom = False
     drawGrid()
     drawAll()
     drawSelection()
@@ -2103,6 +2108,23 @@ def mirrorSelectionAll():
     setCircuitModified()
     setSystemModified()
 
+def invGate(sel_id):
+    global liste_porte_inversible
+    if(gates[sel_id]["gate"] in liste_porte_inversible):
+        index=liste_porte_inversible.index(gates[sel_id]["gate"])
+        gates[sel_id]["gate"]=liste_porte_inversible[index-index%2+(index+1)%2]
+    drawAll()
+
+def invGates(sel_ids):
+    for sel_id in sel_ids:
+        invGate(sel_id)
+    drawAll()
+
+def selectAllGates():
+    global gates
+    for gate in gates:
+        select(gate)
+    
 def select(id=None, add=False):
     global selection
     if not add:
@@ -2662,23 +2684,6 @@ liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MU
 
 
 
-def invGate(sel_id):
-    global liste_porte_inversible
-    if(gates[sel_id]["gate"] in liste_porte_inversible):
-        index=liste_porte_inversible.index(gates[sel_id]["gate"])
-        gates[sel_id]["gate"]=liste_porte_inversible[index-index%2+(index+1)%2]
-    drawAll()
-
-def invGates(sel_ids):
-    for sel_id in sel_ids:
-        invGate(sel_id)
-    drawAll()
-
-def selectAllGates():
-    global gates
-    for gate in gates:
-        select(gate)
-    
 sousMenu = Menu(menuBar)
 menuBar.add_cascade(label='File', menu=sousMenu)
 sousMenu.add_command(label='Save',font=(FONT_FAMILY, FONT_SIZE),command=saveCircuit)
