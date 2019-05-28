@@ -1659,7 +1659,7 @@ def leftClick(event, shift=False):
                 selectTool(None)
         elif selectedTool[0]=='w':
             createWire(sx,sy)
-        elif selectedTool[0]=='i':
+        elif selectedTool=='i':
             if canPlace_input(sx,sy):
                 createInput(sx,sy)
         elif selectedTool=='i_B':
