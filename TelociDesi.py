@@ -17,35 +17,7 @@ def rectime():
 
 from log import Log
 import random
-
-#region [red] CONFIGURATION
-
-TKINTER_SCALING = 0.35
-GRID_WIDTH = 50
-GRID_HEIGHT = 50
-GRID_UNIT = TKINTER_SCALING*40
-THICKNESS = TKINTER_SCALING*4
-
-FONT_FAMILY = "Helvetica"
-FONT_SIZE = 20
-FONT_SIZE_MENU=35
-
-FILE_DIRECTORY = ""
-FILE_NAME = "testcircuit2"
-PROGRAM_NAME = "testprog"
-
-BUTTON_WIDTH = 6
-TOOL_PANEL_WIDTH = TKINTER_SCALING*100
-
-CHRONOGRAM_WIDTH = TKINTER_SCALING*800
-CHRONOGRAM_MARGIN_VERTICAL = TKINTER_SCALING*40
-CHRONOGRAM_MARGIN_HORIZONTAL = 40
-
-SHIFT_MOVE_PERCENTAGE = 0.5
-
-DT_PER_CC = 5
-
-#endregion
+from config import *
 
 
 #region [purple] SIMULATION
@@ -421,13 +393,32 @@ def createInput(sx,sy):
         "x": sx+view_x,
         "y": sy+view_y,
         "clockCycle": 0,
-        "value": 1
+        "value": 1,
+        "isBinary":False
     }
     input_idgen +=1
     new_input["node"] = createNode(sx+1,sy, new_input["id"])
     inputs[new_input["id"]] = new_input
     drawInput(new_input)
     updateScreen_input(new_input)
+
+def createBinaryInput(sx,sy):
+    global input_idgen
+    new_input = {
+        "id": "i_"+str(input_idgen),
+        "x": sx+view_x,
+        "y": sy+view_y,
+        "clockCycle": 0,
+        "value": 1,
+        "isBinary":True
+    }
+    input_idgen +=1
+    new_input["node"] = createNode(sx+1,sy, new_input["id"])
+    inputs[new_input["id"]] = new_input
+    drawInput(new_input)
+    updateScreen_input(new_input)
+
+
 
 def createProbe(sx,sy):
     global probe_idgen
@@ -1065,6 +1056,7 @@ toolShortcuts = {
 toolNames = {
     's': "System",
     'i': "Input",
+    'i_B':"BinaryInput",
     'p': "Probe",
     'o': "Output",
     't': "Tag",
@@ -1668,6 +1660,9 @@ def leftClick(event, shift=False):
         elif selectedTool[0]=='i':
             if canPlace_input(sx,sy):
                 createInput(sx,sy)
+        elif selectedTool=='i_B':
+            if canPlace_input(sx,sy):
+                createBinaryInput(sx,sy)
         elif selectedTool[0]=='p':
             if canPlace_probe(sx,sy):
                 createProbe(sx,sy)
@@ -1690,8 +1685,13 @@ def rightClick(event):
     sy = int(event.y/grid_unit)
     if screen[sx][sy]!=None and screen[sx][sy][0]=='i':
         input = inputs[screen[sx][sy]]
-        input["value"]+=1
-        input["value"]%=3
+        if(input["isBinary"]):
+            input["value"]%=2
+            input["value"]+=1
+            print(input["value"])
+        else:
+            input["value"]+=1
+            input["value"]%=3
         drawInput(input)
 
 def key(event):
@@ -1736,6 +1736,8 @@ canvas.bind("<Control-r>", lambda event: spawnRegisterPopup())
 
 canvas.bind("<Alt-r>", lambda event: resetSimulation())
 
+canvas.bind("<!>", lambda event: invGates(selection))
+
 #endregion
 
 
@@ -1774,6 +1776,9 @@ button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH
 button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
 button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
 button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
+button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+
+
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
 
 bottomFrame = Frame(root)
@@ -1858,9 +1863,10 @@ def drawChronogram_stream(y,h,stream_id,stream):
     gap = (CHRONOGRAM_WIDTH-2*CHRONOGRAM_MARGIN_HORIZONTAL)/len(stream)
     for kkk in range(len(stream)):
         yyy = chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk]-1
-        chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
-        if kkk<len(stream)-1:
-            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+        if stream[kkk]<3:
+            chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
+            if kkk<len(stream)-1:
+                chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
 
 def drawNumberOfTransitor(porte):
     return
@@ -1885,6 +1891,7 @@ def blankCircuit():
     global outputs
     global tags
     global loadedSystems
+    global stream
     global gate_idgen
     global system_idgen
     global node_idgen
@@ -1903,6 +1910,7 @@ def blankCircuit():
     outputs = {}
     tags = {}
     loadedSystems = {}
+    stream = {}
     gate_idgen = 0
     system_idgen = 0
     node_idgen = 0
@@ -2076,7 +2084,8 @@ def spawnRegister(wordsize,popup):
 menuBar = Menu(root)
 #root['menu'] = menuBar
 liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MUL","NOR" ,"OR","NANY", "ANY", "NSUM","SUM"
-,"INC","DEC","RTU","RTD","CLU","CLD"]#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
+,"INC","DEC","RTU","RTD","CLU","CLD",  "BI_AND","BI_NAND","BI_OR","BI_NOR","BI_XOR","BI_XNOR"]
+#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
 
 
 
@@ -2091,6 +2100,12 @@ def invGates(sel_ids):
     for sel_id in sel_ids:
         invGate(sel_id)
     drawAll()
+
+def selectAllGates():
+    global gates
+    for gate in gates:
+        print(gate)
+        select(gate)
     
 
 
@@ -2110,6 +2125,7 @@ sousMenuFile.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE_MENU),command
 sousMenuTools = Menu(menuBar)
 menuBar.add_cascade(label='Tools', menu=sousMenuTools)
 sousMenuTools.add_command(label='Delete selection',font=(FONT_FAMILY, FONT_SIZE_MENU),command=removeSelection)
+sousMenuTools.add_command(label='Select all gates',font=(FONT_FAMILY, FONT_SIZE_MENU),command=selectAllGates)
 sousMenuTools.add_command(label='Inverse gate',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : invGates(selection))
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda :zoom(1))
@@ -2145,24 +2161,37 @@ root.mainloop()
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
 #   - tags and deleting outputs and inputs does not work well
 #   - glitches with wires and nodes
+#   - knot circle on nodes between only two wires (should only be with 3 or more)
 # View modes :
 #   - unconnected nodes map : marks with a red square the nodes connected to nothing
 #   - too many output nodes map : marks with a red square output nodes connected together
 #   - connection mistakes map : marks with a red square nodes on wires without connection
 #   - node values
-# Memory chip :
-#   - clock input
-# Number input :
-#   - input a number with keyboard, outputs the signal on a given number of trits
+# Wires :
+#   - auto-router around obstacles
+#   - bridge for wires crossing without connecting
 # Gates :
 #   - ability to mirror gates
 #   - negate output
 #   - finish other unary gates
 #   - basic gates with more than two inputs (AND, OR etc)
 #   - inprove the canPlace_gate function (redundant condition in the leftClick function ?)
+# Inputs and outputs :
+#   - easy inputs and outputs for naked system and gates inoutputs
+# Probes :
+#   - remove probes or fix them
+# Number input :
+#   - input a number with keyboard, outputs the signal on a given number of trits
 # Systems :
 #   - change the draw function so that systems show their orientation (dark corner, rounded corner, etc)
 #   - option for wide gaps between pins (1 or 2)
+#   - rotate and mirror
+#   - ability to display a value or information on it (register value, etc)
+# Memory :
+#   - double click to load new file
+#   - binary version
+# Register :
+#   - binary version
 # Simulation :
 #   - check if necessary to update node if already proper value
 # Logging and Visualisation :
@@ -2189,8 +2218,3 @@ root.mainloop()
 # Error handeling :
 #   - catch errors if save file is corrupted
 #   - catch errors if memory or system files don't exist anymore
-
-
-
-# OVERHAULS :
-# Binary : version of the software for binary logic : different logic gates, change chronogram display, differtent save filey

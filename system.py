@@ -261,10 +261,9 @@ class System:
     def reset(self):
         self.state = [3 for k in range(nbrstate)]
 
-
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
-    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, drawFunction=None, name="unnamed_system"):
+    def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
         self.state = [3 for k in range(nbrinput+nbroutput)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
@@ -272,7 +271,6 @@ class NonAlgebraicSystem:
         self.tag2output = tag2output
         self.data = data
         self.updateFunction = updateFunction
-        self.drawFunction = drawFunction
         self.name = name
     
     def load(self, arguments):
@@ -291,7 +289,6 @@ class NonAlgebraicSystem:
     def draw(self):
         return self.drawFunction(state, data)
 
-
 def updateRAM(state, tag2input, tag2output, data):
     print(data)
     address = 0
@@ -301,7 +298,9 @@ def updateRAM(state, tag2input, tag2output, data):
     if state[tag2input["RW"]]==2:
         word = data["memory"][address]
         print("Memory word read : {}".format(word))
-        wordter = dec2ter(word)
+        wordter = [int(digit) for digit in str(word)]
+        wordter = [0]*(data["wordsize"]-len(wordter)) + wordter
+        print(wordter)
         for k in range(data["wordsize"]):
             if k>=len(wordter): state[tag2output["Q{}".format(k)]]=0
             else: state[tag2output["Q{}".format(k)]]=wordter[k]
@@ -317,8 +316,6 @@ def updateRAM(state, tag2input, tag2output, data):
         data["memory"][address] = word
         for k in range(data["wordsize"]):
             state[tag2output["Q{}".format(k)]]=3
-def drawRAM(state, data):
-    return "Memory"
 
 class Memory(NonAlgebraicSystem):
     def __init__(self, filepath=""):
@@ -330,7 +327,7 @@ class Memory(NonAlgebraicSystem):
         nbroutput = data["wordsize"]
         tag2input = { **{"RW":0} , **{"A{}".format(k) : k+1 for k in range(nbrinput)} , **{"D{}".format(k) : nbrinput+k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateRAM, drawRAM)
+        NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateRAM)
     
     def reset(self):
         f = open(filepath,'rb')
@@ -353,8 +350,6 @@ def updateREG(state, tag2input, tag2output, data):
             if state[tag2input["D{}".format(k)]]==3: data["data{}".format(k)]=1
             else: data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
             state[tag2output["Q{}".format(k)]]=3
-def drawREG(state, data):
-    return "Register"
 
 class Register(NonAlgebraicSystem):
     def __init__(self, wordsize):
@@ -363,7 +358,7 @@ class Register(NonAlgebraicSystem):
         nbroutput = wordsize
         tag2input = { **{"RW":0} , **{"D{}".format(k) : k+1 for k in range(nbrinput)} }
         tag2output = {"Q{}".format(k) : 1+nbrinput+k for k in range(nbroutput)}
-        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG, drawREG)
+        NonAlgebraicSystem.__init__(self, nbrinput+1, nbroutput, tag2input, tag2output, data, updateREG)
 
     def reset(self):
         self.state = [3 for k in range(nbrstate)]

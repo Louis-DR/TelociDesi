@@ -456,7 +456,24 @@ def createInput(sx,sy):
         "x": sx+view_x,
         "y": sy+view_y,
         "clockCycle": 0,
-        "value": 1
+        "value": 1,
+        "isBinary":False
+    }
+    input_idgen +=1
+    new_input["node"] = createNode(sx+1,sy, new_input["id"])
+    inputs[new_input["id"]] = new_input
+    drawInput(new_input)
+    updateScreen_input(new_input)
+
+def createBinaryInput(sx,sy):
+    global input_idgen
+    new_input = {
+        "id": "i_"+str(input_idgen),
+        "x": sx+view_x,
+        "y": sy+view_y,
+        "clockCycle": 0,
+        "value": 1,
+        "isBinary":True
     }
     input_idgen +=1
     new_input["node"] = createNode(sx+1,sy, new_input["id"])
@@ -1060,6 +1077,7 @@ toolShortcuts = {
 toolNames = {
     's': "System",
     'i': "Input",
+    'i_B':"BinaryInput",
     'p': "Probe",
     'o': "Output",
     't': "Tag",
@@ -1648,9 +1666,13 @@ def leftClick(event, shift=False):
                 selectTool(None)
         elif selectedTool[0]=='w':
             createWire(sx,sy)
-        elif selectedTool[0]=='i':
+        #modif
+        elif selectedTool=='i':
             if canPlace_input(sx,sy):
                 createInput(sx,sy)
+        elif selectedTool=='i_B':
+            if canPlace_input(sx,sy):
+                createBinaryInput(sx,sy)
         elif selectedTool[0]=='p':
             if canPlace_probe(sx,sy):
                 createProbe(sx,sy)
@@ -1668,13 +1690,18 @@ def leftClick(event, shift=False):
         else:
             select()
 
+#modif
 def rightClick(event):
     sx = int(event.x/grid_unit)
     sy = int(event.y/grid_unit)
     if screen[sx][sy]!=None and screen[sx][sy][0]=='i':
         input = inputs[screen[sx][sy]]
-        input["value"]+=1
-        input["value"]%=3
+        if(input["isBinary"]):
+            input["value"]%=2
+            input["value"]+=1
+        else:
+            input["value"]+=1
+            input["value"]%=3
         drawInput(input)
 
 def key(event):
@@ -1753,6 +1780,8 @@ button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH
 button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
 button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
 button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
+button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+#modif
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
 
 bottomFrame = Frame(root)
