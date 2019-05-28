@@ -20,7 +20,7 @@ import random
 
 #region [red] CONFIGURATION
 
-TKINTER_SCALING = 0.4
+TKINTER_SCALING = 0.35
 GRID_WIDTH = 50
 GRID_HEIGHT = 50
 GRID_UNIT = TKINTER_SCALING*40
@@ -1789,6 +1789,32 @@ chronogram_height = canvas_height
 simulationPanel = Frame(root)
 chronogram = Canvas(root, width=CHRONOGRAM_WIDTH, height=chronogram_height)
 
+pouet={
+        "NOT" : [2,2],
+        "PNOT" : [2,2],
+        "NNOT" : [2,2],
+        "BI_NOT" : [2,2],
+        "NAND" : [4,2],
+        "NOR" : [4,2],
+        "NCONS" : [4,2],
+        "NANY" : [4,2],
+        "BI_NAND" : [4,2],
+        "BI_NOR" : [4,2],
+        "AND" : [6,4],
+        "CONS" : [6,4],
+        "OR" : [6,4],
+        "ANY" : [6,4],
+        "MUL" : [14,8],
+        "NMUL" : [14,8],        
+        "SUM" : [24,14],
+        "NSUM" : [26,16],
+        "ABS" : [6,4],
+        "BI_AND" : [6,4],
+        "BI_OR" : [6,4],
+        "BI_XOR" : [16,8],
+        "BI_XNOR": [16,8]
+}
+
 def drawChronogram():
     chronogram.delete("all")
     drawChronogram_grid()
@@ -1835,6 +1861,9 @@ def drawChronogram_stream(y,h,stream_id,stream):
         chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
         if kkk<len(stream)-1:
             chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+
+def drawNumberOfTransitor(porte):
+    return
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -2042,6 +2071,7 @@ def spawnRegister(wordsize,popup):
 
 #endregion
 
+
 #region [purple] MENU
 menuBar = Menu(root)
 #root['menu'] = menuBar
@@ -2097,7 +2127,7 @@ sousMenuOptions.add_command(label='Redraw Chronogram',font=(FONT_FAMILY, FONT_SI
 
 
 root.config(menu=menuBar)
-#end region
+#endregion
 
 
 selectTool(None)
