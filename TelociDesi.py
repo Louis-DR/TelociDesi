@@ -1355,6 +1355,7 @@ def drawInput(input):
         if input["value"]==2:
             canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
             canvas.create_rectangle(grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5-0.3) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["isBinary"]: canvas.create_rectangle(grid_unit*(-(-sx+1.3)) , grid_unit*(sy+0.5-0.3) , grid_unit*(-(-sx+1.3)) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
     else :
         canvas.create_rectangle(grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5) , grid_unit*(sx+1+0.5) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
         canvas.create_oval(grid_unit*(sx-0.5+0.5) , grid_unit*(sy-0.5+0.5) , grid_unit*(sx+0.5+0.5) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
@@ -1363,6 +1364,7 @@ def drawInput(input):
         if input["value"]==2:
             canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
             canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
+        if input["isBinary"]: canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+1.3) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
 
 def drawProbe(probe):
     canvas.delete(probe["id"])
@@ -2675,7 +2677,6 @@ def invGates(sel_ids):
 def selectAllGates():
     global gates
     for gate in gates:
-        print(gate)
         select(gate)
     
 sousMenu = Menu(menuBar)
