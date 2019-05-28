@@ -1014,7 +1014,7 @@ def drawTag(tag,parent_id):
         x = grid_unit*(parent['x']-view_x)
         y = grid_unit*(parent['y']-view_y+0.4)
         canvas.create_text(x-10,y,anchor='e',font=(FONT_FAMILY, FONT_SIZE), fill="black", text=tag ,tags="content tag")
-    elif parent_id[0]=='o':
+    elif parent_id[0]=='o': 
         parent = outputs[parent_id]
         x = grid_unit*(1+parent['x']-view_x)
         y = grid_unit*(parent['y']-view_y+0.4)
@@ -1657,7 +1657,7 @@ def leftClick(event, shift=False):
                 selectTool(None)
         elif selectedTool[0]=='w':
             createWire(sx,sy)
-        elif selectedTool[0]=='i':
+        elif selectedTool=='i':
             if canPlace_input(sx,sy):
                 createInput(sx,sy)
         elif selectedTool=='i_B':
@@ -1688,7 +1688,6 @@ def rightClick(event):
         if(input["isBinary"]):
             input["value"]%=2
             input["value"]+=1
-            print(input["value"])
         else:
             input["value"]+=1
             input["value"]%=3
