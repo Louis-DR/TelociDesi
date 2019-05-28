@@ -1,4 +1,5 @@
-{
+{   
+    "base" : "ter",
     "name": "test architecture",
     "addrsize" : 3,
     "wordsize" : 6,

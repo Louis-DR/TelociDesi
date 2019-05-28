@@ -6,6 +6,8 @@ from collections import deque
 from system import *
 import pickle
 import json
+import webbrowser
+import os
 
 import time
 lasttime = time.time()
@@ -1873,6 +1875,15 @@ def drawChronogram_stream(y,h,stream_id,stream):
 def drawNumberOfTransitor(porte):
     return
 
+def open_doc():
+    try:
+        from urllib import pathname2url         # Python 2.x
+    except:
+        from urllib.request import pathname2url # Python 3.x
+
+    url = 'file:{}'.format(pathname2url(os.path.abspath('doc/home.html')))
+    webbrowser.open(url)
+
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
 chronogram.pack(side="right")
@@ -2142,7 +2153,9 @@ sousMenuOptions.add_command(label='Debug Mode',font=(FONT_FAMILY, FONT_SIZE_MENU
 sousMenuOptions.add_command(label='Redraw system',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawAll)
 sousMenuOptions.add_command(label='Redraw Chronogram',font=(FONT_FAMILY, FONT_SIZE_MENU),command=drawChronogram)
 
-
+sousMenuHelp = Menu(menuBar)
+menuBar.add_cascade(label='Help', menu=sousMenuHelp)
+sousMenuHelp.add_command(label='Open documentation',font=(FONT_FAMILY, FONT_SIZE_MENU),command=open_doc)
 
 root.config(menu=menuBar)
 #endregion
