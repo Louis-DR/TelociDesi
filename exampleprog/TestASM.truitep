@@ -1,0 +1,11 @@
+LOD %2 @0
+LOD %0 @1
+SUB
+JIF @8 @6
+JMP 12
+MOV %1 %2
+JMP 3
+MOV %2 %1
+MOV %0 %2
+MOV %1 %0
+JMP 3

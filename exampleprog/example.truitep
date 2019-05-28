@@ -3,4 +3,4 @@ DLD %2 10
 ADD
 MOV %0 %1
 HLT
-32 grg yolo
+-32 grg yolo

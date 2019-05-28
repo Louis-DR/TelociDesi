@@ -117,12 +117,17 @@ def convert() :
                 if (len(tab)>1):
                     print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
                 i = int(tab[0]) 
-                if (i<(3**(archi["wordsize"])-1)/2 or i>-(3**(archi["wordsize"])-1)/2 ) :
-                    outputTab.append(dec2terXtrit(i,archi["wordsize"]))
+                if (i<(3**(archi["valsize"])-1)/2 or i>-(3**(archi["valsize"])-1)/2 ) :
+                    res = ""+ dec2terXtrit(i,archi["valsize"])
                 else :
                     print("Error in line : " + line)
                     print("Error : invalid value. Compilation stopped")
                     return -1
+
+                for j in range (len(res),archi["wordsize"]):
+                        res = "0"+res
+                print(res)
+                outputTab.append(res)
 
             else: #check opcode arguments
                 lineStructure = archi["operations"][currentItem]
@@ -193,8 +198,8 @@ def convert() :
                 i = int(tab[0]) 
                 #print(i)  
                 #print(archi["wordsize"])
-                if (i<(2**(archi["wordsize"])-1)/2 or i>-(2**(archi["wordsize"])-1)/2 ) :
-                    outputTab.append(dec2binXbit(i,archi["wordsize"]))
+                if (i<(2**(archi["valsize"])-1)/2 or i>-(2**(archi["valsize"])-1)/2 ) :
+                    outputTab.append(dec2binXbit(i,archi["valsize"]))
                     #print("check")
                 else :
                     print("Error in line : " + line)
