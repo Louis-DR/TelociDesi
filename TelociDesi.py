@@ -1,4 +1,7 @@
 # Ternary Logic Circuit Designer and Simulator
+# Editors : Grégoire Chapeaux, Louis Duret-Robert, Alexandre Georjon, Yoan Leblanc, Clément Prime, Thomas Rousseau
+# Last Edition : 28/05/2019
+
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
