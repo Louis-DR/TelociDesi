@@ -427,8 +427,6 @@ def createBinaryInput(sx,sy):
     drawInput(new_input)
     updateScreen_input(new_input)
 
-
-
 def createProbe(sx,sy):
     global probe_idgen
     new_probe = {
@@ -1650,7 +1648,6 @@ def moveBy_output(id,dx,dy):
     moveBy_node(outputs[id]["node"], dx,dy)
 
 def moveBy(dx,dy):
-    print(forZoom)
     if selection==[] or forZoom:
         global view_x
         global view_y
@@ -2143,6 +2140,10 @@ def drawSelection():
             sx = gates[id]["x"] - view_x
             sy = gates[id]["y"] - view_y
             canvas.create_rectangle((sx-1)*grid_unit , sy*grid_unit , (sx+6)*grid_unit , (sy+5)*grid_unit , width=0 , fill="#00F" , stipple="gray12" , tags="selection")
+        if id[0]=='s':
+            sx = systems[id]["x"] - view_x
+            sy = systems[id]["y"] - view_y
+            canvas.create_rectangle((sx-1)*grid_unit , sy*grid_unit , (sx+6)*grid_unit , (sy+systems[id]["height"])*grid_unit , width=0 , fill="#00F" , stipple="gray12" , tags="selection")
         elif id[0]=='n':
             sx = nodes[id]["x"] - view_x
             sy = nodes[id]["y"] - view_y
