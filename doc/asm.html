@@ -48,9 +48,9 @@
                     <img src="static/Proc.png" style="display: block; width: 40%; margin: auto; margin-top: 5%;">
                     <figcaption style="text-align: center"><i>Processor model</i></figcaption>
                 </figure>
-                <b>PROCESSOR SPECIFICATIONS :</b>
+                <h5>PROCESSOR SPECIFICATIONS :</h5>
                 <ul type="square">
-                    <li>3 Registries : REG<sub>-</sub> , REG<sub>0</sub> , REG<sub>+</sub></li>
+                    <li>3 Registers : REG<sub>-</sub> , REG<sub>0</sub> , REG<sub>+</sub></li>
                     <li>RAM : 3-trits adresses (0 to 26)</li>
                     <li>Wordsize : 9 trits</li>
                     <li>Sign Flag S : sign of REG<sub>0</sub></li>
@@ -60,7 +60,7 @@
 
             <h2>BASIC ASSEMBLY INSTRUCTION SET</h2>
 
-            <i>(<b>%</b> : Registry // <b>@</b> : RAM)</i>
+            <i>(<b>%</b> : Register // <b>@</b> : RAM)</i>
 
             <table class="gateTable" style="margin-top: 10px;">
                     <tr>
@@ -82,28 +82,28 @@
                         <td class="opc">DLD</td>
                         <td class="opr">%, val</td>
                         <td class="rle">val &rarr; REG</td>
-                        <td class="desc">Load the value in the registry.</td>
+                        <td class="desc">Load the value in the Register.</td>
                     </tr>
                     <tr>
                         <td>Move</td>
                         <td class="opc">MOV</td>
                         <td class="opr">%1, %2</td>
                         <td class="rle">REG &rarr; REG</td>
-                        <td class="desc">Move the first registry in the second one.</td>
+                        <td class="desc">Copy the value from the first Register in the second one.</td>
                     </tr>
                     <tr>
                         <td>Load</td>
                         <td class="opc">LOD</td>
                         <td class="opr">%, @</td>
                         <td class="rle">RAM &rarr; REG</td>
-                        <td class="desc">Load a value from the RAM to the Registry.</td>
+                        <td class="desc">Load a value from the RAM to the Register.</td>
                     </tr>
                     <tr>
                         <td>Store</td>
                         <td class="opc">STR</td>
                         <td class="opr">@, %</td>
                         <td class="rle">REG &rarr; RAM</td>
-                        <td class="desc">Store the value from the Registry to the RAM.</td>
+                        <td class="desc">Store the value from the Register to the RAM.</td>
                     </tr>
                     <tr>
                         <td>Sum</td>
