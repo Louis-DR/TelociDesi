@@ -393,13 +393,32 @@ def createInput(sx,sy):
         "x": sx+view_x,
         "y": sy+view_y,
         "clockCycle": 0,
-        "value": 1
+        "value": 1,
+        "isBinary":False
     }
     input_idgen +=1
     new_input["node"] = createNode(sx+1,sy, new_input["id"])
     inputs[new_input["id"]] = new_input
     drawInput(new_input)
     updateScreen_input(new_input)
+
+def createBinaryInput(sx,sy):
+    global input_idgen
+    new_input = {
+        "id": "i_"+str(input_idgen),
+        "x": sx+view_x,
+        "y": sy+view_y,
+        "clockCycle": 0,
+        "value": 1,
+        "isBinary":True
+    }
+    input_idgen +=1
+    new_input["node"] = createNode(sx+1,sy, new_input["id"])
+    inputs[new_input["id"]] = new_input
+    drawInput(new_input)
+    updateScreen_input(new_input)
+
+
 
 def createProbe(sx,sy):
     global probe_idgen
@@ -1037,6 +1056,7 @@ toolShortcuts = {
 toolNames = {
     's': "System",
     'i': "Input",
+    'i_B':"BinaryInput",
     'p': "Probe",
     'o': "Output",
     't': "Tag",
@@ -1640,6 +1660,9 @@ def leftClick(event, shift=False):
         elif selectedTool[0]=='i':
             if canPlace_input(sx,sy):
                 createInput(sx,sy)
+        elif selectedTool=='i_B':
+            if canPlace_input(sx,sy):
+                createBinaryInput(sx,sy)
         elif selectedTool[0]=='p':
             if canPlace_probe(sx,sy):
                 createProbe(sx,sy)
@@ -1662,8 +1685,13 @@ def rightClick(event):
     sy = int(event.y/grid_unit)
     if screen[sx][sy]!=None and screen[sx][sy][0]=='i':
         input = inputs[screen[sx][sy]]
-        input["value"]+=1
-        input["value"]%=3
+        if(input["isBinary"]):
+            input["value"]%=2
+            input["value"]+=1
+            print(input["value"])
+        else:
+            input["value"]+=1
+            input["value"]%=3
         drawInput(input)
 
 def key(event):
@@ -1708,6 +1736,8 @@ canvas.bind("<Control-r>", lambda event: spawnRegisterPopup())
 
 canvas.bind("<Alt-r>", lambda event: resetSimulation())
 
+canvas.bind("<!>", lambda event: invGates(selection))
+
 #endregion
 
 
@@ -1746,6 +1776,9 @@ button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH
 button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=29, column=0)
 button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=30, column=0)
 button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
+button_BI_Input = Button(buttonFrame, text="BI_Input", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("i_B") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
+
+
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
 
 bottomFrame = Frame(root)
@@ -1760,6 +1793,32 @@ bottomFrame.rowconfigure(index=0,minsize=20)
 chronogram_height = canvas_height
 simulationPanel = Frame(root)
 chronogram = Canvas(root, width=CHRONOGRAM_WIDTH, height=chronogram_height)
+
+pouet={
+        "NOT" : [2,2],
+        "PNOT" : [2,2],
+        "NNOT" : [2,2],
+        "BI_NOT" : [2,2],
+        "NAND" : [4,2],
+        "NOR" : [4,2],
+        "NCONS" : [4,2],
+        "NANY" : [4,2],
+        "BI_NAND" : [4,2],
+        "BI_NOR" : [4,2],
+        "AND" : [6,4],
+        "CONS" : [6,4],
+        "OR" : [6,4],
+        "ANY" : [6,4],
+        "MUL" : [14,8],
+        "NMUL" : [14,8],        
+        "SUM" : [24,14],
+        "NSUM" : [26,16],
+        "ABS" : [6,4],
+        "BI_AND" : [6,4],
+        "BI_OR" : [6,4],
+        "BI_XOR" : [16,8],
+        "BI_XNOR": [16,8]
+}
 
 def drawChronogram():
     chronogram.delete("all")
@@ -1808,6 +1867,9 @@ def drawChronogram_stream(y,h,stream_id,stream):
             chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*kkk , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , fill=line , outline=line , width=3 , tags="content")
             if kkk<len(stream)-1:
                 chronogram.create_rectangle(CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , yyy , CHRONOGRAM_MARGIN_HORIZONTAL+gap*(kkk+1) , chronogram_height-CHRONOGRAM_MARGIN_VERTICAL-y-0.5*h*stream[kkk+1]-1 , fill=line , outline=line , width=3 , tags="content")
+
+def drawNumberOfTransitor(porte):
+    return
 
 buttonFrame.pack(side="left")
 bottomFrame.pack(side="bottom")
@@ -2017,11 +2079,13 @@ def spawnRegister(wordsize,popup):
 
 #endregion
 
+
 #region [purple] MENU
 menuBar = Menu(root)
 #root['menu'] = menuBar
 liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MUL","NOR" ,"OR","NANY", "ANY", "NSUM","SUM"
-,"INC","DEC","RTU","RTD","CLU","CLD"]#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
+,"INC","DEC","RTU","RTD","CLU","CLD",  "BI_AND","BI_NAND","BI_OR","BI_NOR","BI_XOR","BI_XNOR"]
+#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
 
 
 
@@ -2036,6 +2100,12 @@ def invGates(sel_ids):
     for sel_id in sel_ids:
         invGate(sel_id)
     drawAll()
+
+def selectAllGates():
+    global gates
+    for gate in gates:
+        print(gate)
+        select(gate)
     
 
 
@@ -2055,6 +2125,7 @@ sousMenuFile.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE_MENU),command
 sousMenuTools = Menu(menuBar)
 menuBar.add_cascade(label='Tools', menu=sousMenuTools)
 sousMenuTools.add_command(label='Delete selection',font=(FONT_FAMILY, FONT_SIZE_MENU),command=removeSelection)
+sousMenuTools.add_command(label='Select all gates',font=(FONT_FAMILY, FONT_SIZE_MENU),command=selectAllGates)
 sousMenuTools.add_command(label='Inverse gate',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : invGates(selection))
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda :zoom(1))
@@ -2072,7 +2143,7 @@ sousMenuOptions.add_command(label='Redraw Chronogram',font=(FONT_FAMILY, FONT_SI
 
 
 root.config(menu=menuBar)
-#end region
+#endregion
 
 
 selectTool(None)
