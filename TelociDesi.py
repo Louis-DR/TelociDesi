@@ -1934,6 +1934,7 @@ def removeSelection():
     global selection
     for id in selection: remove(id)
     selection = []
+    drawSelection()
     updateScreen()
     setCircuitModified()
     setSystemModified()
