@@ -2691,12 +2691,6 @@ sousMenu.add_separator()
 sousMenu.add_command(label='New',font=(FONT_FAMILY, FONT_SIZE),command=blankCircuit)
 sousMenu.add_command(label='Exit',font=(FONT_FAMILY, FONT_SIZE),command=root.destroy)
 
-sousMenu2 = Menu(menuBar)
-menuBar.add_cascade(label='Tools', menu=sousMenu2)
-sousMenu2.add_command(label='Inv',font=(FONT_FAMILY, FONT_SIZE),command=lambda : invGates(selection))
-sousMenu2.add_command(label='Mirror each',font=(FONT_FAMILY, FONT_SIZE),command=lambda : mirrorSelectionEach())
-sousMenu2.add_command(label='Mirror all',font=(FONT_FAMILY, FONT_SIZE),command=lambda : mirrorSelectionAll())
-
 #sousMenu.add(label='Load', font=(FONT_FAMILY, FONT_SIZE) ))
 #sousMenu.add(label='Exit', font=(FONT_FAMILY, FONT_SIZE) ))
 sousMenuFile = Menu(menuBar)
@@ -2722,6 +2716,9 @@ sousMenuTools.add_command(label='Zoom +',font=(FONT_FAMILY, FONT_SIZE_MENU),comm
 sousMenuTools.add_command(label='Zoom -',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : zoom(-1))
 sousMenuTools.add_separator()
 sousMenuTools.add_command(label='Simulate clock cycle',font=(FONT_FAMILY, FONT_SIZE_MENU),command=simulateCc)
+sousMenuTools.add_separator()
+sousMenuTools.add_command(label='Mirror each',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : mirrorSelectionEach())
+sousMenuTools.add_command(label='Mirror all',font=(FONT_FAMILY, FONT_SIZE_MENU),command=lambda : mirrorSelectionAll())
 
 
 sousMenuOptions = Menu(menuBar)
