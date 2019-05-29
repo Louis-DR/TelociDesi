@@ -1277,14 +1277,15 @@ gate_drawing_functions = {
 }
 
 def drawGate(gate):
-    gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"], gate["mirror"])
+    if "mirror" in gate: gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"], gate["mirror"])
+    else: gate_drawing_functions[gate["gate"]](gate["x"]-view_x, gate["y"]-view_y, gate["id"], False)
 
 def drawSystem(system):
     canvas.delete(system["id"])
     sx = system["x"] - view_x
     sy = system["y"] - view_y
     tags="content "+system["id"]
-    if system["mirror"]:
+    if "mirror" in system and system["mirror"]:
         fact_mirror = -1
         anchor_in = 'e'
         anchor_out = 'w'
@@ -1338,7 +1339,7 @@ def drawInput(input):
     sx = input["x"] - view_x
     sy = input["y"] - view_y
     tags="content "+input["id"]
-    if input["mirror"] :
+    if "mirror" in input and input["mirror"] :
         sx+= 2
         canvas.create_rectangle(grid_unit*(-(-sx+0.5+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+1+0.5)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
         canvas.create_oval(grid_unit*(-(-sx-0.5+0.5)) , grid_unit*(sy-0.5+0.5) , grid_unit*(-(-sx+0.5+0.5)) , grid_unit*(sy+0.5+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
@@ -1356,7 +1357,6 @@ def drawInput(input):
         if input["value"]==2:
             canvas.create_rectangle(grid_unit*(sx+0.5-0.3) , grid_unit*(sy+0.5) , grid_unit*(sx+0.5+0.3) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
             canvas.create_rectangle(grid_unit*(sx+0.5) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+0.5) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
-        if input["isBinary"]: canvas.create_rectangle(grid_unit*(sx+1.3) , grid_unit*(sy+0.5-0.3) , grid_unit*(sx+1.3) , grid_unit*(sy+0.5+0.3) , width=thickness , outline="#333" , fill="#333" , tags=tags)
 
 def drawProbe(probe):
     canvas.delete(probe["id"])
@@ -1376,7 +1376,7 @@ def drawOutput(output):
     sx = output["x"] - view_x
     sy = output["y"] - view_y
     tags="content "+output["id"]
-    if output["mirror"] :
+    if "mirror" in output and output["mirror"] :
         canvas.create_rectangle(grid_unit*(-(-sx-0.5+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx-1+0.5)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
         canvas.create_polygon(grid_unit*(-(-sx-0.6+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy+0.6+0.5) , grid_unit*(-(-sx+0.6+0.5)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5)) , grid_unit*(sy-0.6+0.5) , width=thickness , outline="#333" , fill="#CCC" , tags=tags)
         if output["value"]==0: canvas.create_rectangle(grid_unit*(-(-sx+0.5-0.3)) , grid_unit*(sy+0.5) , grid_unit*(-(-sx+0.5+0.3)) , grid_unit*(sy+0.5) , width=thickness , outline="#333" , fill="#333" , tags=tags)
@@ -2373,6 +2373,12 @@ button_BI_NOR = Button(buttonFrame, text="BI_NOR", height=1 , width=BUTTON_WIDTH
 button_BI_XOR = Button(buttonFrame, text="BI_XOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=31, column=0)
 button_BI_XNOR = Button(buttonFrame, text="BI_XNOR", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_XNOR") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=32, column=0)
 button_BI_NOT = Button(buttonFrame, text="BI_NOT", height=1 , width=BUTTON_WIDTH , command=lambda: selectTool("g_BI_NOT") , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=33, column=0)
+label_gap1 = Label(buttonFrame, text=" ", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=34, column=0)
+label_bigates = Label(buttonFrame, text="Systems", height=1 , width=BUTTON_WIDTH , font=(FONT_FAMILY, FONT_SIZE) ) .grid(row=35, column=0)
+button_BI_AND = Button(buttonFrame, text="TRANSMISSION", height=1 , width=BUTTON_WIDTH , command=lambda: spawnTransmission() , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=36, column=0)
+button_BI_OR = Button(buttonFrame, text="CLOCK", height=1 , width=BUTTON_WIDTH , command=lambda: spawnClock() , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=37, column=0)
+button_BI_NAND = Button(buttonFrame, text="REGISTER", height=1 , width=BUTTON_WIDTH , command=lambda: spawnRegisterPopup() , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=38, column=0)
+button_BI_NOR = Button(buttonFrame, text="MEMORY", height=1 , width=BUTTON_WIDTH , command=lambda: importMemory() , font=(FONT_FAMILY, FONT_SIZE) , bg="#CCC" ) .grid(row=39, column=0)
 
 
 buttonFrame.columnconfigure(index=0,minsize=TKINTER_SCALING*100)
@@ -2474,11 +2480,12 @@ def returnNbOfTransEtResist():
         totR+=tps[1]
     for system in systems.values() :
         t_loadedSystem = loadedSystems[system["system"]]
-        t_equations=t_loadedSystem.equations
-        for t_equation in t_equations :
-            tps=returnNbOfTransEtResistSystem(t_equation)
-            totT+=tps[0]
-            totR+=tps[1]
+        if hasattr(t_loadedSystem, "equations"):
+            t_equations=t_loadedSystem.equations
+            for t_equation in t_equations :
+                tps=returnNbOfTransEtResistSystem(t_equation)
+                totT+=tps[0]
+                totR+=tps[1]
     print("Nb de Transistor : ",totT," et Nb de Resistance : ",totR)
 
 def returnNbOfTransEtResistSystem(t_equation) :
@@ -2487,10 +2494,11 @@ def returnNbOfTransEtResistSystem(t_equation) :
     else :
         totT = 0
         totR = 0 
-        for t_equation in t_equation.system.equations :
-            tps=returnNbOfTransEtResistSystem(t_equation)
-            totT+=tps[0]
-            totR+=tps[1]
+        if hasattr(t_equation.system, "equations"):
+            for t_equation in t_equation.system.equations :
+                tps=returnNbOfTransEtResistSystem(t_equation)
+                totT+=tps[0]
+                totR+=tps[1]
         return [totT,totR]
 
 def open_doc():
