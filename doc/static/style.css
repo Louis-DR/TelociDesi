@@ -97,3 +97,20 @@ h1 {
     color: #666666;
     font-size: 85%;
 }
+
+.gateTable .opc {
+    font-weight: bold;
+}
+
+.gateTable .opr {
+    color: #161c58;
+}
+
+.gateTable .rle {
+    color: #cc0000;
+}
+
+.gateTable .desc {
+    color: #666666;
+    font-style: oblique;
+}

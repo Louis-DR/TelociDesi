@@ -14,6 +14,7 @@ from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import *
 from dec2ter import *
+from dec2bin import *
 
 #Load architecture specifications
 def loadArchi():
@@ -49,12 +50,32 @@ def isInt(v):
     except : return False
     return True
 
+def format(lineTab,lineStructure,systemBase):
+    res = ""+lineStructure[0]
+    if systemBase :
+        for i in range(len(lineStructure)-1):
+            temp  = dec2terXtrit(int(lineTab[i+1]),lineStructure[i+1])
+            res = res + temp
+    else:
+        for i in range(len(lineStructure)-1):
+            temp  = dec2binXbit(int(lineTab[i+1]),lineStructure[i+1])
+            res = res + temp
+    return res
+
 def convert() :
     validArchi = True
     validASM = True
+    global outputTab
 
     try:
-        archi
+        base = archi["base"]
+        if (base=="ter"):
+            systemBase = 1
+        elif (base=="bin"):
+            systemBase = 0
+        else :
+            print("Erreur : unsupported architecture type")
+            return -1
     except NameError:
         showerror("Erreur","Missing architecture (.truitea) file")
         validArchi = False
@@ -65,8 +86,84 @@ def convert() :
         showerror("Erreur", "Missing assembly (.truitep) file")
         validASM = False
     
-    if (validArchi and validASM):
-        global outputTab
+    if (validArchi and validASM and systemBase):
+        #Ternary architecture
+        #step 1 : read lines, check syntax & translate ASM to ternary codes
+        outputTab = []
+        for line in assembly: #read lines
+            validOpcode = False
+            isInteger = False
+            currentItem = None
+            tab = line.split(" ")
+            for iCharacter in range(len(tab)): #Cleaning tab to remove whitespace characters and @ and %
+                tab[iCharacter] =  tab[iCharacter].strip()
+                tab[iCharacter] = tab[iCharacter].strip('%@')
+            if (isInt(tab[0])): #if line is pure value
+                isInteger = True
+            else: #or opcode is referenced in architecture
+                for item in archi["operations"]:
+                    if item.strip() == tab[0]:
+                        validOpcode = True
+                        currentItem = item
+                        break
+            if (validOpcode or isInteger): #then valid opcode
+                print("Valid Opcode")
+            else : #Compilation stopped - Error message
+                print("Error in line : " + line)
+                print("Error : "+ tab[0] +" opcode not found. Compilation stopped")
+                return -1
+
+            if (isInteger):
+                if (len(tab)>1):
+                    print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
+                i = int(tab[0]) 
+                if (i<(3**(archi["valsize"])-1)/2 or i>-(3**(archi["valsize"])-1)/2 ) :
+                    res = ""+ dec2terXtrit(i,archi["valsize"])
+                else :
+                    print("Error in line : " + line)
+                    print("Error : invalid value. Compilation stopped")
+                    return -1
+
+                for j in range (len(res),archi["wordsize"]):
+                        res = "0"+res
+                print(res)
+                outputTab.append(res)
+
+            else: #check opcode arguments
+                lineStructure = archi["operations"][currentItem]
+                trad = ""
+                if (len(tab)>=len(lineStructure)):
+                    if(len(tab)>len(lineStructure)) :
+                        print("Warning : Ignored "+ str(len(tab)-1) +" invalid arguments")
+                    for iOperand in range(len(lineStructure)-1):
+                        operand = tab[iOperand+1]
+                        if(isInt(operand)):
+                            if (int(operand)>3**lineStructure[iOperand+1]-1): #checking word size according to architecture file
+                                print("Error in line :" + line)
+                                print("Error : invalid operand "+ operand +". Compilation stopped")
+                                return -1
+                        else :
+                            print("Error in line :" + line)
+                            print("Error : invalid operand "+ operand +". Compilation stopped")
+                            return -1
+
+                    #At this point, line syntax is considered to be valid   
+                    trad = trad + format(tab,lineStructure,systemBase)
+
+                    if len(trad)<archi["wordsize"]:
+                        for j in range(len(trad),archi["wordsize"]):
+                            trad = trad +"0"
+                    outputTab.append(trad)
+
+                else:
+                    print("Error in line :" + line)
+                    print("Error : missing arguments. Compilation stopped")
+                    return -1
+        print(outputTab)
+        return 0
+
+    elif (validArchi and validASM and not systemBase):
+        #Binary architecture
         #step 1 : read lines, check syntax & translate ASM to ternary codes
         outputTab = []
         for line in assembly: #read lines
@@ -101,8 +198,8 @@ def convert() :
                 i = int(tab[0]) 
                 #print(i)  
                 #print(archi["wordsize"])
-                if (i<(3**(archi["wordsize"])-1)/2 or i>-(3**(archi["wordsize"])-1)/2 ) :
-                    outputTab.append(dec2terXtrit(i,archi["wordsize"]))
+                if (i<(2**(archi["valsize"])-1)/2 or i>-(2**(archi["valsize"])-1)/2 ) :
+                    outputTab.append(dec2binXbit(i,archi["valsize"]))
                     #print("check")
                 else :
                     print("Error in line : " + line)
@@ -113,7 +210,7 @@ def convert() :
                 print(archi["operations"][currentItem])
                 print(tab)
                 lineStructure = archi["operations"][currentItem]
-                trad = str(lineStructure[0])
+                trad = ""
                 #print(trad)
                 if (len(tab)>=len(lineStructure)):
                     if(len(tab)>len(lineStructure)) :
@@ -121,19 +218,18 @@ def convert() :
                     for iOperand in range(len(lineStructure)-1):
                         operand = tab[iOperand+1]
                         if(isInt(operand)):
-                            if (int(operand)>3**lineStructure[iOperand+1]-1): #checking word size according to architecture file
+                            if (int(operand)>2**lineStructure[iOperand+1]-1): #checking word size according to architecture file
                                 print("Error in line :" + line)
                                 print("Error : invalid operand "+ operand +". Compilation stopped")
                                 return -1
-                            else:
-                                #print(int(dec2terstr(dec2ter(int(tab[iOperand+1])))))
-                                trad = trad + dec2terXtrit((int(tab[iOperand+1])),lineStructure[iOperand+1])
                         else :
                             print("Error in line :" + line)
                             print("Error : invalid operand "+ operand +". Compilation stopped")
                             return -1
 
                     #At this point, line syntax is considered to be valid   
+                    trad = trad + format(tab,lineStructure,systemBase)
+
                     if len(trad)<archi["wordsize"]:
                         for j in range(len(trad),archi["wordsize"]):
                             trad = trad +"0"
@@ -145,7 +241,6 @@ def convert() :
                     print("Error : missing arguments. Compilation stopped")
                     return -1
         #step 2 : ternary to dec
-
         print(outputTab)
         return 0
     else:
