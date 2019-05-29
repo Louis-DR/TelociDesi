@@ -243,17 +243,14 @@ def simulateDt():
     # log0.stop() #LOGGING
 
 def resetSimulation():
-    resetRecording()
-    for output in outputs.values():
-        drawOutput(output)
     for loadedSystem in loadedSystems.values():
         for k in range(len(loadedSystem.state)):
-            loadedSystem.state[k] = 1
+            loadedSystem.state[k] = 3 # or 1 ?
     buildSystem()
-    drawChronogram()
 
 def resetRecording():
     global recording
+    recording = {}
     for key in inputs:
         recording[key] = []
     for key in probes:
@@ -1147,10 +1144,10 @@ def updateScreen_wire(wire):
     sx_b = nodes[wire["node_b"]]["x"] - view_x
     sy_b = nodes[wire["node_b"]]["y"] - view_y
     for xxx in range(sx_a, sx_b+1):
-        if xxx in range(grid_width) and sy_a in range(grid_height):
+        if xxx in range(grid_width) and sy_b in range(grid_height):
             screen[xxx][sy_b] = wire["id"]
     for xxx in range(sx_b, sx_a+1):
-        if xxx in range(grid_width) and sy_a in range(grid_height):
+        if xxx in range(grid_width) and sy_b in range(grid_height):
             screen[xxx][sy_b] = wire["id"]
     for yyy in range(sy_a, sy_b+1):
         if yyy in range(grid_height) and sx_a in range(grid_width):
@@ -1495,18 +1492,21 @@ def remove_wire(wire_id):
     del wires[wire_id]
 
 def remove_input(input_id):
+    removeTag(input_id)
     input = inputs[input_id]
     nodes[input["node"]]["parent"] = None
     remove(input["node"])
     del inputs[input_id]
 
 def remove_probe(probe_id):
+    removeTag(probe_id)
     probe = probes[probe_id]
     nodes[probe["node"]]["parent"] = None
     remove(probe["node"])
     del probes[probe_id]
 
 def remove_output(output_id):
+    removeTag(output_id)
     output = outputs[output_id]
     nodes[output["node"]]["parent"] = None
     remove(output["node"])
@@ -1517,6 +1517,7 @@ def removeSelection():
     for id in selection: remove(id)
     selection = []
     updateScreen()
+    drawTags()
     setCircuitModified()
     setSystemModified()
 
@@ -1565,6 +1566,13 @@ def addTag(sx,sy):
         tags[tag] = parent
         drawTags()
         labelPopup("Enter the tag name", changeTag, tag)
+
+def removeTag(_id):
+    temp = dict(tags)
+    for key,value in temp.items(): 
+        if value==_id: del tags[key]
+    setCircuitModified()
+    setSystemModified()
 
 def changeTag(new_tag, old_tag):
     global tags
@@ -1698,6 +1706,8 @@ canvas.bind("<Key>", key)
 canvas.bind("<$>", lambda event: zoom(1))
 canvas.bind("<*>", lambda event: zoom(-1))
 
+canvas.bind("<c>", lambda event: spawnClock())
+
 canvas.bind("<Control-s>", lambda event: saveCircuit())
 canvas.bind("<Control-o>", lambda event: loadCircuit())
 canvas.bind("<Control-e>", lambda event: exportSystem())
@@ -1705,8 +1715,9 @@ canvas.bind("<Control-i>", lambda event: importSystem())
 canvas.bind("<Control-m>", lambda event: importMemory())
 canvas.bind("<Control-n>", lambda event: blankCircuit())
 canvas.bind("<Control-r>", lambda event: spawnRegisterPopup())
+canvas.bind("<Control-t>", lambda event: spawnTransmission())
 
-canvas.bind("<Alt-r>", lambda event: resetSimulation())
+canvas.bind("<Alt-c>", lambda event: clean())
 
 #endregion
 
@@ -1874,6 +1885,7 @@ def clean():
     updateScreen()
     drawAll()
     resetSimulation()
+    resetRecording()
     drawChronogram()
 
 def saveCircuit():
@@ -2015,6 +2027,31 @@ def spawnRegister(wordsize,popup):
     selectTool('s')
     popup.destroy()
 
+def spawnClock():
+    global loadedSystemToBePlaced_id
+    global loadedSystemToBePlaced_type
+    global loadedSystem_idgen
+    global loadedSystems
+    t_sys = Clock()
+    loadedSystem_id = "ls_"+str(loadedSystem_idgen)
+    loadedSystem_idgen +=1
+    loadedSystems[loadedSystem_id] = t_sys
+    loadedSystemToBePlaced_id = loadedSystem_id
+    loadedSystemToBePlaced_type = "clock"
+    selectTool('s')
+
+def spawnTransmission():
+    global loadedSystemToBePlaced_id
+    global loadedSystemToBePlaced_type
+    global loadedSystem_idgen
+    global loadedSystems
+    t_sys = Transmission()
+    loadedSystem_id = "ls_"+str(loadedSystem_idgen)
+    loadedSystem_idgen +=1
+    loadedSystems[loadedSystem_id] = t_sys
+    loadedSystemToBePlaced_id = loadedSystem_id
+    loadedSystemToBePlaced_type = "transmission"
+    selectTool('s')
 #endregion
 
 #region [purple] MENU
@@ -2022,7 +2059,6 @@ menuBar = Menu(root)
 #root['menu'] = menuBar
 liste_porte_inversible=["NOT","NNOT","NAND" , "AND","NCONS" ,"CONS","NMUL" , "MUL","NOR" ,"OR","NANY", "ANY", "NSUM","SUM"
 ,"INC","DEC","RTU","RTD","CLU","CLD"]#liste de type [id_porte1,id_inversePorte1,id_porte2,id_inversePorte2...]
-
 
 
 def invGate(sel_id):
@@ -2036,7 +2072,6 @@ def invGates(sel_ids):
     for sel_id in sel_ids:
         invGate(sel_id)
     drawAll()
-    
 
 
 sousMenuFile = Menu(menuBar)
@@ -2088,7 +2123,6 @@ root.mainloop()
 # TODO
 # Bugs :
 #   - nodes and inputs can pass through gates if a wire hides the gate in screen
-#   - tags and deleting outputs and inputs does not work well
 #   - glitches with wires and nodes
 #   - knot circle on nodes between only two wires (should only be with 3 or more)
 # View modes :

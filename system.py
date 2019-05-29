@@ -5,6 +5,11 @@ from dec2ter import *
 from ter2dec import *
 from log import Log
 
+from config import *
+
+OUTPUT_FOR_FLOATING_INPUT = 1
+SPAWN_INIT_VALUE = 3
+
 class Equation:
     def __init__(self, system, arguments, destinations):
         self.system = system
@@ -15,8 +20,8 @@ class Equation:
 # Microgate = few inputs, 1 output, 1 equation, hard coded
 MICROGATES = {
     "NOT": [2,1,0],
-    "NNOT": [2,1,0],
-    "PNOT": [2,1,0],
+    "NNOT": [2,0,0],
+    "PNOT": [2,2,0],
     "NCONS": [[2,1,1],
               [1,1,1],
               [1,1,0]],
@@ -184,7 +189,7 @@ def genEquation_microSystemGate(gate, inputNets, outputNets):
 
 class MicroSystem:
     def __init__(self, nbrstate, nbrinput, nbroutput, equations):
-        self.state = [3 for k in range(nbrstate)]
+        self.state = [SPAWN_INIT_VALUE for k in range(nbrstate)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.equations = equations
@@ -198,10 +203,10 @@ class MicroSystem:
             system = equation.system
             if type(system) is str:
                 if len(equation.arguments)==1:
-                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=3
+                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=OUTPUT_FOR_FLOATING_INPUT
                     else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
                 elif len(equation.arguments)==2:
-                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=3
+                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=OUTPUT_FOR_FLOATING_INPUT
                     else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
             elif type(system) is MicroSystem:
                 system.load([self.state[coord] for coord in equation.arguments])
@@ -217,7 +222,7 @@ class MicroSystem:
 # System = many inputs, many outpus, many equations, generated & loaded
 class System:
     def __init__(self, nbrstate, nbrinput, nbroutput, tag2input, tag2output, equations, name="unnamed_system"):
-        self.state = [3 for k in range(nbrstate)]
+        self.state = [SPAWN_INIT_VALUE for k in range(nbrstate)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
@@ -235,10 +240,10 @@ class System:
             system = equation.system
             if type(system) is str:
                 if len(equation.arguments)==1:
-                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=3
+                    if self.state[equation.arguments[0]]==3: next_state[equation.destinations[0]]=OUTPUT_FOR_FLOATING_INPUT
                     else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]]
                 elif len(equation.arguments)==2:
-                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=3
+                    if self.state[equation.arguments[0]]==3 or self.state[equation.arguments[1]]==3: next_state[equation.destinations[0]]=OUTPUT_FOR_FLOATING_INPUT
                     else: next_state[equation.destinations[0]] = MICROGATES[equation.system] [self.state[equation.arguments[0]]] [self.state[equation.arguments[1]]]
             elif type(system) is MicroSystem:
                 system.load([self.state[coord] for coord in equation.arguments])
@@ -246,7 +251,7 @@ class System:
                 results = system.retrieve()
                 for net,value in zip(equation.destinations , results):
                     if value<3: next_state[net] = value
-            elif type(system) is System or type(system) is Memory or type(system) is Register: # add new Algrebraic system type here !!
+            elif type(system) is System or type(system) is Memory or type(system) is Register or type(system) is Clock or type(system) is Transmission: # add new Algrebraic system type here !!
                 arguments = {tag:self.state[net] for tag,net in equation.arguments.items()}
                 system.load(arguments)
                 system.update()
@@ -259,12 +264,12 @@ class System:
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
     
     def reset(self):
-        self.state = [3 for k in range(nbrstate)]
+        self.state = [SPAWN_INIT_VALUE for k in range(nbrstate)]
 
 # NonAlgebraicSystem = many inputs, many outpus, transfer function, loaded
 class NonAlgebraicSystem:
     def __init__(self, nbrinput, nbroutput, tag2input, tag2output, data, updateFunction, name="unnamed_system"):
-        self.state = [3 for k in range(nbrinput+nbroutput)]
+        self.state = [SPAWN_INIT_VALUE for k in range(nbrinput+nbroutput)]
         self.nbrinput = nbrinput
         self.nbroutput = nbroutput
         self.tag2input = tag2input
@@ -284,7 +289,7 @@ class NonAlgebraicSystem:
         return {tag:self.state[self.tag2output[tag]] for tag in self.tag2output}
     
     def reset(self):
-        self.state = [3 for k in range(nbrstate)]
+        self.state = [SPAWN_INIT_VALUE for k in range(nbrstate)]
     
     def draw(self):
         return self.drawFunction(state, data)
@@ -330,7 +335,7 @@ class Memory(NonAlgebraicSystem):
         NonAlgebraicSystem.__init__(self, 2*nbrinput+1, nbroutput, tag2input, tag2output, data, updateRAM)
     
     def reset(self):
-        f = open(filepath,'rb')
+        f = open(self.filepath,'rb')
         data = json.load(f)
         f.close()
         if nbrinput != data["addrsize"] or nbroutput != data["wordsize"]: print("New file not compatible !")
@@ -349,7 +354,7 @@ def updateREG(state, tag2input, tag2output, data):
         for k in range(data["wordsize"]):
             if state[tag2input["D{}".format(k)]]==3: data["data{}".format(k)]=1
             else: data["data{}".format(k)]=state[tag2input["D{}".format(k)]]
-            state[tag2output["Q{}".format(k)]]=3
+            state[tag2output["Q{}".format(k)]]=data["data{}".format(k)]
 
 class Register(NonAlgebraicSystem):
     def __init__(self, wordsize):
@@ -364,3 +369,25 @@ class Register(NonAlgebraicSystem):
         self.state = [3 for k in range(nbrstate)]
         for k in range(data["wordsize"]):
             data["data{}".format(k)]=1
+
+def updateCLK(state, tag2input, tag2output, data):
+    if state[tag2output["CLK"]]==3: state[tag2output["CLK"]]=2   
+    if data["counter"]==0: 
+        if state[tag2output["CLK"]]==2: state[tag2output["CLK"]]=1
+        elif state[tag2output["CLK"]]==1: state[tag2output["CLK"]]=2
+        data["counter"] = CLK_HALF_PERIOD
+    data["counter"] -=1
+class Clock(NonAlgebraicSystem):
+    def __init__(self):
+        NonAlgebraicSystem.__init__(self, 0, 1, {}, {"CLK":0}, {"counter":0}, updateCLK)
+
+    def reset(self):
+        self.state = [1]
+        self.data = {"counter":0}
+
+def updateTransmission(state, tag2input, tag2output, data):
+    if state[1]==2: state[2]=state[0]
+    else: state[2]=3
+class Transmission(NonAlgebraicSystem):
+    def __init__(self):
+        NonAlgebraicSystem.__init__(self, 2, 1, {"A":0, "C":1}, {"Q":2}, {}, updateTransmission)
